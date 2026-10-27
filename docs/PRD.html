@@ -331,13 +331,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroCluck</h1>
     <p class="lede">Product requirements for a 25 cm walking robot chicken whose body is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.9</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.10</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>27 October 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.10</strong> S0 results: the stock walker's torque baseline shows Pollen's own duck exceeds the datasheet continuous rating on hip pitch and knee, so the S3 thermal and peak-torque checks are now relative to the stock duck. First MicroCluck training run started.</li>
         <li><strong>v0.9</strong> OpenSCAD chosen for the parametric parts. Pollen's foot stays and gets three chunky toes in front, defined in hardware/ and kept as an option next to the plain sole (§6.5).</li>
         <li><strong>v0.8</strong> Corrections from building the first MicroCluck model: unused command slots use tiny sampling ranges, the stock actor is 512-256-128, Pollen trains at action scale 1.0 and runs 0.9, and the head chain is 38% of the stock duck's mass. The robot_groundcontact models exist and are named correctly.</li>
         <li><strong>v0.7</strong> Servos now run straight from the 2S pack, like Microduck and its training model, so the 5 V servo buck is gone (§6.4). Command slots stay zero-padded (49 inputs) and the model is edited by hand instead of re-exported from Onshape (§7.1). Added Pollen's known runtime values to the contract and two watchlist rows.</li>
@@ -780,8 +781,8 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>Check</th><th>Method</th><th>Pass condition</th></tr></thead>
   <tbody>
-    <tr><td>Thermal margin</td><td>RMS torque per joint over a 60 s walk at the top commanded speed</td><td>Every joint at or below the XL330's ~0.10 N·m continuous rating at normal walking speed</td></tr>
-    <tr><td>Peak torque</td><td>Peak torque per joint across walking, pushes and payload</td><td>Below ~70% of the ~0.60 N·m that the Current Limit allows at pack voltage (the 6 V datasheet row)</td></tr>
+    <tr><td>Thermal margin</td><td>RMS torque per joint over a 60 s walk at the top commanded speed, against the stock Microduck's numbers from S0</td><td>No joint more than 10% above the stock duck's RMS. The datasheet's ~0.10 N·m continuous rating cannot be the pass line: the stock duck already exceeds it on hip pitch and knee (see the baseline below)</td></tr>
+    <tr><td>Peak torque</td><td>Peak torque per joint across walking, pushes and payload</td><td>99th-percentile torque per joint no higher than the stock duck's. The stock policy reaches the actuator ceiling of 0.64 N·m on every joint, so peaks at the ceiling are expected and are not a failure</td></tr>
     <tr><td>Stance width</td><td>Train and compare 2–3 hip spacings</td><td>Best combination of push recovery and energy use (sum of |torque × velocity|)</td></tr>
     <tr><td>Toe clearance</td><td>Minimum distance between the feet during the gait</td><td>No foot-to-foot contacts</td></tr>
     <tr><td>Claw headroom</td><td>Largest top payload that still tracks commands</td><td>At least 60 g, the low end of the claw reserve</td></tr>
@@ -789,6 +790,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Scripted sit</td><td>Replay the sit and stand-up trajectories (§9.7) in the model and compute static torque along them</td><td>Rests stably on the feet and tail; peak static torque on the way back up stays below ~70% of the stall torque</td></tr>
   </tbody>
 </table></div>
+<p><strong>Baseline from S0.</strong> Pollen's stock walker at iteration 2,000, 64 environments, 30 s of random velocity commands, BAM actuator model, measured with <code>scripts/torque_baseline.py</code>. RMS torque in N·m per joint (left and right nearly equal): hip yaw 0.06, hip roll 0.10, hip pitch 0.145, knee 0.16–0.17, ankle 0.10; neck 0.11, head pitch 0.09, head yaw 0.10, head roll 0.05. The 99th percentile is 0.53 on hip pitch and 0.46–0.49 on the knee, and every joint peaks at 0.64. Pollen's robot therefore runs well above the ~0.10 N·m continuous rating on its hip pitch and knee, so servo temperature, watched by the servo-health requirement (S4 in §9.8), is the real thermal limit.</p>
 <p>If a joint fails the thermal check, the fixes in order of preference are: reduce mass, shorten the leg's lever arms, then consider a stronger servo for that joint. A different servo model needs its own actuator identification, so it is the last resort.</p>
 
 <h3 id="export"><span class="n">7.3</span>Policy export pipeline</h3>
