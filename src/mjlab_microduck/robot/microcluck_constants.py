@@ -5,6 +5,7 @@ actuator story is unchanged. The model XML is generated from Pollen's walk model
 ``robot/microcluck/build_walk_model.py`` (placeholder masses until the parts are weighed).
 """
 
+import os
 from pathlib import Path
 
 import mujoco
@@ -19,8 +20,16 @@ from mjlab_microduck.robot.microduck_constants import (
 
 _MICROCLUCK_DIR: Path = Path(__file__).resolve().parent / "microcluck"
 
-MICROCLUCK_WALK_XML: Path = _MICROCLUCK_DIR / "robot_walk.xml"
-MICROCLUCK_WALK_BACKLASH_XML: Path = _MICROCLUCK_DIR / "robot_walk_backlash.xml"
+# MICROCLUCK_FOOT picks the foot at launch: "plain" (default: Pollen's sole) or "toes" (three chunky toes fused
+# onto it, counted as collision; hardware/). Same task ids either way:
+#   MICROCLUCK_FOOT=toes uv run train Mjlab-Velocity-Flat-MicroCluck ...
+_FOOT = os.environ.get("MICROCLUCK_FOOT", "plain")
+if _FOOT not in ("plain", "toes"):
+    raise ValueError(f"MICROCLUCK_FOOT must be 'plain' or 'toes', got {_FOOT!r}")
+_SUFFIX = "" if _FOOT == "plain" else "_toes"
+
+MICROCLUCK_WALK_XML: Path = _MICROCLUCK_DIR / f"robot_walk{_SUFFIX}.xml"
+MICROCLUCK_WALK_BACKLASH_XML: Path = _MICROCLUCK_DIR / f"robot_walk_backlash{_SUFFIX}.xml"
 
 assert MICROCLUCK_WALK_XML.exists(), f"XML not found: {MICROCLUCK_WALK_XML} (run build_walk_model.py)"
 assert MICROCLUCK_WALK_BACKLASH_XML.exists(), f"XML not found: {MICROCLUCK_WALK_BACKLASH_XML}"

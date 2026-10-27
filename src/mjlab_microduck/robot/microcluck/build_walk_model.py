@@ -32,11 +32,11 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 SRC_DIR = HERE.parent / "microduck"
 SRC_XML = SRC_DIR / "robot_walk.xml"
-# The toes are a visual add-on on Pollen's sole. Their binary STLs are written by
-# hardware/tools/build_toes.sh <out> <assets> from the OpenSCAD sources in the MicroCluck repo
-# (hardware/params.scad is the single parameter table). Collision stays exactly Pollen's sole.
+# The toes variant fuses three toes onto Pollen's sole. Its binary STLs (the toes, and the convex hull of
+# sole + toes for collision) are written by hardware/tools/build_toes.sh <out> <assets> from the OpenSCAD
+# sources in the MicroCluck repo (hardware/params.scad is the single parameter table).
 ASSETS = HERE / "assets"
-TOE_STLS = ["toes_left.stl", "toes_right.stl"]
+TOE_STLS = [f"{kind}_{side}.stl" for kind in ("toes", "collision_with_toes") for side in ("left", "right")]
 
 # --- PLACEHOLDER budget (PRD 6.5 mass budget, middle of each range, v1 without the claw reserve) ---
 # 10 x XL330 180 g + board 60 g + battery 85 g + frame/feet/bumpers 225 g + comb/tail 22 g + electronics 55 g
@@ -214,11 +214,11 @@ def build() -> None:
 
     # 4. write the model; if the toe STLs exist, add them as visuals placed from the stand pose of the
     #    model just written, then write it again
-    write_variant("", lines)
+    write_variant("", lines)  # plain: Pollen's sole, the default
     if all((ASSETS / n).exists() for n in TOE_STLS):
-        write_variant("", toe_lines(lines, foot_placements()))
+        write_variant("_toes", toe_lines(lines, foot_placements()))
     else:
-        print("toe STLs not found in assets/: skipped (run hardware/tools/build_toes.sh <out> <assets>)")
+        print("toe STLs not found in assets/: skipped the toes variant (run hardware/tools/build_toes.sh <out> <assets>)")
 
     print(f"legs {legs:.4f} kg (kept), trunk {mass:.4f} kg, total {legs + mass:.4f} kg")
     print(f"trunk CoM in trunk frame: {np.round(com, 4)}")
@@ -271,28 +271,44 @@ def foot_placements() -> dict[str, tuple[np.ndarray, np.ndarray]]:
 
 
 def toe_lines(lines: list[str], placements) -> list[str]:
-    """Add the hardware/ toes as visual-only geoms on each ankle body. Collision and mass are untouched:
-    Pollen's sole stays the contact geom, the toes hang clear of the floor (hardware/params.scad toe_z0)."""
+    """The toes variant: three chunky toes fused onto Pollen's sole (hardware/toes.scad).
+
+    - a visual mesh for the toes, next to Pollen's sole visual
+    - Pollen's named sole collision geom is replaced by the convex hull of sole + toes, same name, so the
+      contact sensors and friction rules find it exactly as before
+    Both are placed from the stand pose (the toes are defined in the stand-pose foot frame).
+    """
     out: list[str] = []
-    emitted: set[str] = set()
-    pollen_sole = {"left": 'mesh="sole_left"', "right": 'mesh="sole_right"'}
+    seen_visual: set[str] = set()
+    seen_collision: set[str] = set()
     for l in lines:
-        out.append(l)
-        side = next((s for s, key in pollen_sole.items() if key in l and "class=\"visual\"" in l), None)
-        if side and side not in emitted:
-            emitted.add(side)
-            indent = l[: len(l) - len(l.lstrip())]
+        indent = l[: len(l) - len(l.lstrip())]
+        for side in ("left", "right"):
             pos, quat = placements[side]
-            out.append(f"{indent}<!-- MicroCluck toes ({side}): hardware/toes.scad, visual only, placed from the stand pose -->\n")
-            out.append(f'{indent}<geom type="mesh" class="visual" name="{side}_toes_visual" mesh="mc_toes_{side}" '
-                       f'pos="{fmt(pos)}" quat="{fmt(quat)}" rgba="0.956863 0.686275 0.137255 1"/>\n')
-        if l.strip() == "</asset>":
-            # asset lines go before the closing tag
-            out.pop()
-            for s in ("left", "right"):
-                out.append(f'    <mesh name="mc_toes_{s}" file="../../microcluck/assets/toes_{s}.stl" scale="0.001 0.001 0.001"/>\n')
+            pose = f'pos="{fmt(pos)}" quat="{fmt(quat)}"'
+            if f'name="{side}_foot_collision"' in l:
+                seen_collision.add(side)
+                out.append(f"{indent}<!-- MicroCluck foot ({side}): convex hull of Pollen's sole + toes, hardware/collision_with_toes.scad -->\n")
+                out.append(f'{indent}<geom type="mesh" name="{side}_foot_collision" class="collision" '
+                           f'mesh="mc_collision_{side}" {pose} rgba="0.956863 0.686275 0.137255 1"/>\n')
+                break
+        else:
             out.append(l)
-    assert emitted == {"left", "right"}, f"sole visuals not found: {emitted}"
+            for side in ("left", "right"):
+                if f'mesh="sole_{side}"' in l and 'class="visual"' in l and side not in seen_visual:
+                    seen_visual.add(side)
+                    pos, quat = placements[side]
+                    out.append(f"{indent}<!-- MicroCluck toes ({side}): hardware/toes.scad -->\n")
+                    out.append(f'{indent}<geom type="mesh" class="visual" name="{side}_toes_visual" mesh="mc_toes_{side}" '
+                               f'pos="{fmt(pos)}" quat="{fmt(quat)}" rgba="0.956863 0.686275 0.137255 1"/>\n')
+            if l.strip() == "</asset>":
+                out.pop()  # asset lines go before the closing tag
+                for s in ("left", "right"):
+                    out.append(f'    <mesh name="mc_toes_{s}" file="../../microcluck/assets/toes_{s}.stl" scale="0.001 0.001 0.001"/>\n')
+                    out.append(f'    <mesh name="mc_collision_{s}" file="../../microcluck/assets/collision_with_toes_{s}.stl" '
+                               f'scale="0.001 0.001 0.001"/>\n')
+                out.append(l)
+    assert seen_visual == {"left", "right"} and seen_collision == {"left", "right"}, (seen_visual, seen_collision)
     return out
 
 

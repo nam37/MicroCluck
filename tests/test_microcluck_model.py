@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import mujoco
-import numpy as np
+import numpy as np  # noqa: F401
 import pytest
 
 import mjlab_microduck.tasks  # noqa: F401  (registers the tasks)
@@ -87,30 +87,48 @@ def test_head_terms_removed_but_command_slots_kept(task):
     assert all(hi <= 0.01 for _, hi in cfg.commands["head_pose"].ranges + cfg.commands["body_pose"].ranges)
 
 
-# --- toes: a visual-only add-on on Pollen's sole -------------------------------------------------------
+# --- toes variant: chunky toes fused onto Pollen's sole, counted as collision --------------------------
 
 TOES_BUILT = all((build.ASSETS / n).exists() for n in build.TOE_STLS)
 
 
-@pytest.mark.skipif(not TOES_BUILT, reason="toe STLs not built (hardware/tools/build_toes.sh)")
-@pytest.mark.parametrize("scene", ["scene_walk.xml", "scene_walk_backlash.xml"])
-def test_toes_are_visual_only_and_contact_is_pollens_sole(scene):
+def _foot_extent_at_stand(scene, geom_name):
+    """x extent (relative to the ankle axis) and lowest world z of a mesh geom in the STAND key."""
     model = mujoco.MjModel.from_xml_path(str(MODEL_DIR / scene))
     data = mujoco.MjData(model)
     mujoco.mj_resetDataKeyframe(model, data, mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_KEY, "STAND"))
     mujoco.mj_forward(model, data)
+    out = {}
+    for side in ("left", "right"):
+        gid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, geom_name.format(side=side))
+        assert gid >= 0
+        mid = model.geom_dataid[gid]
+        v0, n = model.mesh_vertadr[mid], model.mesh_vertnum[mid]
+        world = model.mesh_vert[v0:v0 + n] @ data.geom_xmat[gid].reshape(3, 3).T + data.geom_xpos[gid]
+        ank = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"ankle_{side}")
+        out[side] = (world - data.xpos[ank], float(world[:, 2].min()))
+    return model, out
+
+
+@pytest.mark.skipif(not TOES_BUILT, reason="toe STLs not built (hardware/tools/build_toes.sh)")
+@pytest.mark.parametrize("scene", ["scene_walk_toes.xml", "scene_walk_backlash_toes.xml"])
+def test_toes_variant_extends_the_contact_patch_forward_on_the_same_ground_plane(scene):
+    _, plain = _foot_extent_at_stand("scene_walk.xml", "{side}_foot_collision")
+    model, toes = _foot_extent_at_stand(scene, "{side}_foot_collision")
+    assert model.nu == 10
     assert model.body_subtreemass[1] == pytest.approx(build.TARGET_TOTAL_MASS, abs=1e-6)
     for side in ("left", "right"):
-        toes = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_toes_visual")
-        assert toes >= 0
-        assert model.geom_contype[toes] == 0 and model.geom_conaffinity[toes] == 0
-        # the toes reach past the front wall (34 mm ahead of the ankle axis) and stay off the floor
-        ank = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"ankle_{side}")
-        mid = model.geom_dataid[toes]
-        v0, n = model.mesh_vertadr[mid], model.mesh_vertnum[mid]
-        world = model.mesh_vert[v0:v0 + n] @ data.geom_xmat[toes].reshape(3, 3).T + data.geom_xpos[toes]
-        assert (world - data.xpos[ank])[:, 0].max() > 0.034 + 0.012
-        assert world[:, 2].min() > 0.004
-        # contact is still exactly Pollen's sole: the lowest point of the collision mesh defines the ground
-        sole = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_foot_collision")
-        assert model.geom_contype[sole] != 0 or model.geom_conaffinity[sole] != 0
+        rel, zmin = toes[side]
+        plain_rel, plain_zmin = plain[side]
+        assert plain_rel[:, 0].max() == pytest.approx(0.034, abs=0.001)  # Pollen's front edge
+        assert rel[:, 0].max() == pytest.approx(0.046, abs=0.0015)  # the middle toe tip, 12 mm further
+        assert rel[:, 0].min() == pytest.approx(plain_rel[:, 0].min(), abs=0.0005)  # heel unchanged
+        assert zmin == pytest.approx(plain_zmin, abs=1e-4)  # same ground plane
+        # the toes also have a visual mesh with no contact
+        visual = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_toes_visual")
+        assert visual >= 0 and model.geom_contype[visual] == 0 and model.geom_conaffinity[visual] == 0
+
+
+def test_plain_model_has_no_toes(walk_model):
+    for side in ("left", "right"):
+        assert mujoco.mj_name2id(walk_model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_toes_visual") < 0
