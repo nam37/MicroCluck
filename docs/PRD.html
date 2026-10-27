@@ -1,0 +1,1352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroCluck PRD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #ffffff;
+  --ink: #1f2328;
+  --muted: #5c6470;
+  --rule: #e2e5e9;
+  --line: #9aa3ad;
+  --panel: #ffffff;
+  --shell: #efeae1;
+  --sky: #deebf8;
+  --yolk: #f2b705;
+  --yolk-soft: #fdf1c7;
+  --beak: #f07b1f;
+  --comb: #d7362b;
+  --comb-soft: #fbe3e1;
+  --blush: #f2797b;
+  --screen: #000000;
+  --code-bg: #f4f5f7;
+  --font-head: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #16181c;
+    --ink: #e8eaed;
+    --muted: #a3aab4;
+    --rule: #2d3138;
+    --line: #6c7480;
+    --panel: #1d2025;
+    --shell: #2a2620;
+    --sky: #1c2a38;
+    --yolk-soft: #3a3115;
+    --comb-soft: #3b1e1c;
+    --code-bg: #1f2227;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #16181c;
+  --ink: #e8eaed;
+  --muted: #a3aab4;
+  --rule: #2d3138;
+  --line: #6c7480;
+  --panel: #1d2025;
+  --shell: #2a2620;
+  --sky: #1c2a38;
+  --yolk-soft: #3a3115;
+  --comb-soft: #3b1e1c;
+  --code-bg: #1f2227;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration-color: var(--beak); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--beak); outline-offset: 2px; border-radius: 4px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 56px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 32px 96px;
+}
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.45;
+}
+nav.toc .toc-title { font-family: var(--font-head); font-weight: 700; font-size: 15px; margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; }
+nav.toc li { margin: 0 0 6px; }
+nav.toc a { text-decoration: none; color: var(--muted); display: grid; grid-template-columns: 28px 1fr; }
+nav.toc a:hover { color: var(--ink); }
+nav.toc .n { font-variant-numeric: tabular-nums; }
+
+main { max-width: 760px; min-width: 0; }
+
+/* Hero */
+.hero {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 36px;
+  align-items: center;
+  padding-bottom: 36px;
+  border-bottom: 2px solid var(--yolk);
+  margin-bottom: 40px;
+}
+.hero svg { width: 100%; height: auto; display: block; cursor: pointer; }
+.hero h1 {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: clamp(48px, 7vw, 76px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.hero .lede { font-size: 20px; line-height: 1.45; margin: 0 0 18px; max-width: 30em; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 24px; margin: 0; font-size: 15px; color: var(--muted); }
+.meta div { display: flex; gap: 6px; }
+.meta dt { font-weight: 700; color: var(--ink); }
+.meta dd { margin: 0; }
+details.changes { margin-top: 14px; font-size: 15px; color: var(--muted); }
+details.changes summary { cursor: pointer; color: var(--ink); }
+details.changes ul { margin: 8px 0 0; padding-left: 20px; }
+
+/* Text */
+h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 64px 0 16px;
+  scroll-margin-top: 20px;
+}
+h2 .n, h3 .n { color: var(--muted); font-weight: 600; margin-right: 10px; font-variant-numeric: tabular-nums; }
+h3 {
+  font-family: var(--font-head);
+  font-weight: 650;
+  font-size: 21px;
+  line-height: 1.25;
+  margin: 36px 0 10px;
+  scroll-margin-top: 20px;
+}
+p, ul, ol { margin: 0 0 14px; }
+ul, ol { padding-left: 22px; }
+li { margin-bottom: 6px; }
+li > ul { margin-top: 6px; }
+strong { font-weight: 700; }
+code {
+  font-family: var(--font-code);
+  font-size: 0.84em;
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+pre {
+  font-family: var(--font-code);
+  font-size: 13.5px;
+  line-height: 1.55;
+  background: var(--code-bg);
+  padding: 16px 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0 0 18px;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* Callouts */
+.callout {
+  border-left: 4px solid var(--yolk);
+  background: var(--yolk-soft);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 18px;
+}
+.callout.verify { border-left-color: var(--comb); background: var(--comb-soft); }
+.callout p:last-child { margin-bottom: 0; }
+
+/* Tables */
+.tbl { overflow-x: auto; margin: 0 0 20px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; line-height: 1.45; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule); }
+th { font-weight: 700; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+td:first-child { font-weight: 700; }
+table.plain td:first-child { font-weight: 400; }
+tr.total td { border-bottom: none; border-top: 2px solid var(--ink); }
+
+/* Diagrams */
+figure { margin: 8px 0 28px; }
+figure.diagram { overflow-x: auto; }
+figure.diagram svg { display: block; width: 100%; height: auto; }
+figure.diagram.wide svg { min-width: 620px; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+svg text { font-family: var(--font-body); }
+.d-box { fill: var(--panel); stroke: var(--line); stroke-width: 1.25; }
+.d-strong { fill: var(--panel); stroke: var(--ink); stroke-width: 1.75; }
+.d-sim { fill: var(--sky); stroke: var(--line); stroke-width: 1.25; }
+.d-hw { fill: var(--shell); stroke: var(--line); stroke-width: 1.25; }
+.d-gate { fill: var(--yolk); }
+.d-alert { fill: var(--comb-soft); stroke: var(--comb); stroke-width: 1.5; }
+.d-dash { stroke-dasharray: 5 4; }
+.d-t { fill: var(--ink); font-size: 14px; font-weight: 700; }
+.d-tg { fill: #1f2328; font-size: 14px; font-weight: 700; }
+.d-s { fill: var(--muted); font-size: 12px; }
+.d-wire { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.d-power { stroke: var(--beak); stroke-width: 2.2; fill: none; }
+.d-dot { fill: var(--ink); }
+.m-ink { fill: var(--ink); }
+.m-beak { fill: var(--beak); }
+
+/* Faces */
+.faces {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 22px 18px;
+  margin: 10px 0 28px;
+}
+.faces figure { margin: 0; }
+.faces svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.faces figcaption { margin-top: 6px; font-size: 14px; line-height: 1.35; color: var(--muted); }
+.faces figcaption b { display: block; color: var(--ink); font-size: 15px; }
+
+.eyes-blink { transform-box: fill-box; transform-origin: center; }
+.eyes-blink.blinking { animation: blink 0.32s ease-in-out 1; }
+@keyframes blink { 0%, 100% { transform: scaleY(1); } 45%, 55% { transform: scaleY(0.08); } }
+@media (prefers-reduced-motion: reduce) { .eyes-blink.blinking { animation: none; } }
+
+.mobile-toc { display: none; margin-bottom: 28px; }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 24px 16px 72px; }
+  nav.toc { display: none; }
+  .mobile-toc { display: block; }
+  .mobile-toc summary { font-family: var(--font-head); font-weight: 700; cursor: pointer; }
+  .mobile-toc ol { padding-left: 22px; margin-top: 10px; font-size: 15px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .hero { grid-template-columns: 1fr; gap: 20px; }
+  .hero svg { max-width: 150px; }
+  h2 { font-size: 26px; }
+}
+@media print {
+  nav.toc, .mobile-toc { display: none; }
+  .layout { display: block; padding: 0; }
+  h2 { break-after: avoid; }
+  figure, table { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- Shared arrow markers -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="m-ink"/>
+    </marker>
+    <marker id="arrP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="m-beak"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="layout">
+
+<nav class="toc" aria-label="Contents">
+  <p class="toc-title">Contents</p>
+  <ol>
+    <li><a href="#summary"><span class="n">1</span>Summary</a></li>
+    <li><a href="#goals"><span class="n">2</span>Goals and non-goals</a></li>
+    <li><a href="#approach"><span class="n">3</span>Development approach</a></li>
+    <li><a href="#reference"><span class="n">4</span>Reference design</a></li>
+    <li><a href="#architecture"><span class="n">5</span>System architecture</a></li>
+    <li><a href="#hardware"><span class="n">6</span>Hardware</a></li>
+    <li><a href="#sim"><span class="n">7</span>Simulation and training</a></li>
+    <li><a href="#twin"><span class="n">8</span>Virtual MicroCluck</a></li>
+    <li><a href="#firmware"><span class="n">9</span>Firmware</a></li>
+    <li><a href="#milestones"><span class="n">10</span>Milestones</a></li>
+    <li><a href="#claw"><span class="n">11</span>v2 claw</a></li>
+    <li><a href="#risks"><span class="n">12</span>Risks</a></li>
+    <li><a href="#questions"><span class="n">13</span>Open questions</a></li>
+    <li><a href="#repo"><span class="n">14</span>Repo layout</a></li>
+    <li><a href="#claude-code"><span class="n">15</span>Notes for Claude Code</a></li>
+    <li><a href="#references"><span class="n">16</span>References</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="hero">
+  <svg id="heroFace" viewBox="0 0 240 330" role="img" aria-label="MicroCluck's curious face: a yellow-framed black screen with big white eyes, an orange beak and a red comb on top">
+    <g fill="#d7362b">
+      <circle cx="102" cy="26" r="14"/>
+      <circle cx="120" cy="16" r="16"/>
+      <circle cx="138" cy="26" r="14"/>
+      <rect x="96" y="22" width="48" height="16" rx="6"/>
+    </g>
+    <rect x="20" y="32" width="200" height="290" rx="34" fill="#f2b705"/>
+    <rect x="36" y="48" width="168" height="258" rx="22" fill="#000"/>
+    <path d="M70 106 Q86 95 102 104" stroke="#f2b705" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M138 104 Q154 95 170 106" stroke="#f2b705" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <g class="eyes-blink" id="heroEyes">
+      <circle cx="88" cy="142" r="24" fill="#fff"/>
+      <circle cx="152" cy="142" r="24" fill="#fff"/>
+      <g id="heroPupils">
+        <circle cx="91" cy="145" r="11" fill="#1b1b1b"/>
+        <circle cx="155" cy="145" r="11" fill="#1b1b1b"/>
+        <circle cx="95" cy="140" r="3.5" fill="#fff"/>
+        <circle cx="159" cy="140" r="3.5" fill="#fff"/>
+      </g>
+    </g>
+    <path d="M106 172 L134 172 L120 196 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="5" stroke-linejoin="round"/>
+    <ellipse cx="62" cy="180" rx="10" ry="6" fill="#f2797b"/>
+    <ellipse cx="178" cy="180" rx="10" ry="6" fill="#f2797b"/>
+    <g stroke="#555b63" stroke-width="2" fill="none">
+      <rect x="160" y="278" width="24" height="12" rx="3"/>
+      <path d="M58 290 a10 10 0 0 1 14 0 M54 285 a16 16 0 0 1 22 0"/>
+    </g>
+    <rect x="163" y="281" width="15" height="6" rx="1" fill="#555b63"/>
+    <circle cx="65" cy="292" r="2" fill="#555b63"/>
+  </svg>
+  <div>
+    <h1>MicroCluck</h1>
+    <p class="lede">Product requirements for a 25 cm walking robot chicken whose body is a touchscreen.</p>
+    <dl class="meta">
+      <div><dt>Status</dt><dd>Draft v0.5</dd></div>
+      <div><dt>Owner</dt><dd>Neil</dd></div>
+      <div><dt>Updated</dt><dd>27 October 2026</dd></div>
+    </dl>
+    <details class="changes">
+      <summary>Change history</summary>
+      <ul>
+        <li><strong>v0.5</strong> Resolved the H1/H2 early-start contradiction. Added H3 Mechanical design (the later hardware milestones are now H4 to H7). Added a scripted SIT state, an upright check before enable (S10) and hang protection (S9). Retired the Markdown copy of the PRD. Added a possible issue watchlist (§12).</li>
+        <li><strong>v0.4</strong> HTML format. Simulation-first roadmap with a design-freeze purchase gate, design validation step, virtual MicroCluck host twin and hardware abstraction layer. Diagrams.</li>
+        <li><strong>v0.3</strong> Through-hole 74HC126 servo bus buffer.</li>
+        <li><strong>v0.2</strong> Named MicroCluck. Comb, tail, three-toed feet. Expression set, face rig, stabilized eyes, sounds.</li>
+        <li><strong>v0.1</strong> Initial draft.</li>
+      </ul>
+    </details>
+  </div>
+</header>
+
+<details class="mobile-toc">
+  <summary>Contents</summary>
+  <ol>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#goals">Goals and non-goals</a></li>
+    <li><a href="#approach">Development approach</a></li>
+    <li><a href="#reference">Reference design</a></li>
+    <li><a href="#architecture">System architecture</a></li>
+    <li><a href="#hardware">Hardware</a></li>
+    <li><a href="#sim">Simulation and training</a></li>
+    <li><a href="#twin">Virtual MicroCluck</a></li>
+    <li><a href="#firmware">Firmware</a></li>
+    <li><a href="#milestones">Milestones</a></li>
+    <li><a href="#claw">v2 claw</a></li>
+    <li><a href="#risks">Risks</a></li>
+    <li><a href="#questions">Open questions</a></li>
+    <li><a href="#repo">Repo layout</a></li>
+    <li><a href="#claude-code">Notes for Claude Code</a></li>
+    <li><a href="#references">References</a></li>
+  </ol>
+</details>
+
+<!-- 1 -->
+<h2 id="summary"><span class="n">1</span>Summary</h2>
+<p><strong>MicroCluck</strong> is a ~25 cm bipedal walking robot chicken in the style of Pollen Robotics' Microduck. Its whole torso is a vertical, front-facing <strong>Freenove ESP32-S3 3.5" touchscreen</strong> (FNK0104 family) showing an animated chicken face, with a comb on top, tail feathers at the back and three-toed feet. It has no separate head, neck or beak.</p>
+<p>Walking comes from a reinforcement-learning policy trained in simulation (forked from Pollen's open-source <code>microduck_rl</code>) and run <strong>entirely on the ESP32-S3 at 50 Hz</strong>. It is driven from a <strong>phone browser over the robot's own Wi-Fi</strong>. A claw on top is planned for v2.</p>
+<p>Two decisions shape everything else:</p>
+<ul>
+  <li><strong>Single MCU.</strong> The ESP32-S3 runs the control loop, policy inference, servo bus, IMU fusion, face, sound, Wi-Fi controller and OTA. No Raspberry Pi.</li>
+  <li><strong>Simulation first.</strong> The robot is designed, trained and driven end to end in simulation, including the real firmware logic and face, before most parts are ordered (§3).</li>
+</ul>
+<p>The name is a homage to Microduck. MicroCluck is a personal project and is not affiliated with Pollen Robotics or Hugging Face.</p>
+
+<!-- 2 -->
+<h2 id="goals"><span class="n">2</span>Goals and non-goals</h2>
+<h3>v1 goals</h3>
+<div class="tbl"><table>
+  <thead><tr><th>ID</th><th>Goal</th></tr></thead>
+  <tbody>
+    <tr><td>G1</td><td>Stand and walk on flat indoor floors from velocity commands (forward/back, strafe, turn).</td></tr>
+    <tr><td>G2</td><td>Single board: all compute on the Freenove ESP32-S3.</td></tr>
+    <tr><td>G3</td><td>Phone control from any browser (iOS/Android), no app install.</td></tr>
+    <tr><td>G4</td><td>Expressive chicken face mapped to robot state, with touch interaction (§9.6).</td></tr>
+    <tr><td>G5</td><td>Safe failure: dead-man stop, fall detection, servo protection, low-battery handling, E-stop.</td></tr>
+    <tr><td>G6</td><td>OTA firmware and policy updates; live telemetry for sim2real debugging.</td></tr>
+    <tr><td>G7</td><td>Chicken personality: IMU-stabilized eyes (the body moves, the face holds still) and cluck sound effects.</td></tr>
+    <tr><td>G8</td><td>Prove the design, the walking policy and the firmware logic in simulation before buying the bulk of the parts.</td></tr>
+  </tbody>
+</table></div>
+<h3>Non-goals for v1</h3>
+<ul>
+  <li>Camera or vision, voice interaction, ToF or obstacle sensing, autonomous navigation</li>
+  <li>Rough terrain</li>
+  <li>Standing up after a fall (stretch goal for v1.1)</li>
+  <li>Direct Bluetooth gamepad pairing. The ESP32-S3 is BLE-only, so physical controllers connect through the phone (§9.5).</li>
+  <li>Any commercial use. Microduck's meshes are licensed CC BY-NC-SA (§4).</li>
+</ul>
+
+<!-- 3 -->
+<h2 id="approach"><span class="n">3</span>Development approach</h2>
+<p>Work runs in two phases. <strong>Phase A</strong> builds MicroCluck in simulation: the model, the walking policy, a design validation report, the C port of the policy and a <a href="#twin">virtual MicroCluck</a> that runs the real firmware logic and face against the simulator. <strong>Phase B</strong> builds the robot.</p>
+<p>Bench bring-up (H0) needs only the Freenove board, which is already owned, so it runs alongside Phase A. Servos, battery and power parts are ordered at the <strong>design freeze</strong> after S3, once the simulator has settled stance width, mass and torque margins. Two kinds of hardware work may start earlier: driver bring-up on one or two early servos and an IMU (the start of H1 and H2), and fit-check prints of the board mount and bezel on the board you already own (the start of H3). The full exit criteria of H1 to H3 still wait for the freeze.</p>
+
+<figure class="diagram wide">
+<svg viewBox="0 0 760 760" role="img" aria-label="Roadmap: simulation milestones S0 to S5 on the left, hardware milestones H0 to H7 on the right, with a design freeze gate before parts are ordered. H1, H2 and H3 can overlap and all three feed H4.">
+  <text x="190" y="26" text-anchor="middle" class="d-t">Simulation</text>
+  <text x="570" y="26" text-anchor="middle" class="d-t">Hardware</text>
+
+  <rect x="40" y="44" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="63" class="d-t">S0 Toolchain</text>
+  <text x="56" y="80" class="d-s">Reproduce Pollen's duck walking</text>
+
+  <rect x="40" y="102" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="121" class="d-t">S1 MicroCluck model</text>
+  <text x="56" y="138" class="d-s">10 servos, torso, comb, tail, feet</text>
+
+  <rect x="40" y="160" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="179" class="d-t">S2 Walking policy</text>
+  <text x="56" y="196" class="d-s">Backlash and payload randomization</text>
+
+  <rect x="40" y="218" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="237" class="d-t">S3 Design validation</text>
+  <text x="56" y="254" class="d-s">Torque, stance, toes, payload, sit</text>
+
+  <rect x="420" y="44" width="300" height="218" rx="10" class="d-hw"/>
+  <text x="436" y="66" class="d-t">H0 Bench bring-up</text>
+  <text x="436" y="86" class="d-s">Freenove board only, in parallel</text>
+  <text x="436" y="112" class="d-s">Verify 3.5" pinout and PSRAM</text>
+  <text x="436" y="132" class="d-s">Face rig on the real screen</text>
+  <text x="436" y="152" class="d-s">SoftAP, controller page, WebSocket</text>
+  <text x="436" y="172" class="d-s">OTA with rollback, SD logging, sound</text>
+  <text x="436" y="198" class="d-s">Optional: 1–2 servos and an IMU for</text>
+  <text x="436" y="216" class="d-s">early H1 and H2 driver work, plus</text>
+  <text x="436" y="234" class="d-s">fit-check prints for H3</text>
+
+  <line x1="190" y1="88" x2="190" y2="100" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="190" y1="146" x2="190" y2="158" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="190" y1="204" x2="190" y2="216" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="190" y1="262" x2="190" y2="282" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="262" x2="570" y2="282" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="40" y="284" width="680" height="42" rx="21" class="d-gate"/>
+  <text x="380" y="310" text-anchor="middle" class="d-tg">Design freeze: order servos, battery and power parts</text>
+
+  <line x1="190" y1="326" x2="190" y2="344" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="326" x2="570" y2="344" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="40" y="346" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="365" class="d-t">S4 Policy port</text>
+  <text x="56" y="382" class="d-s">C inference, golden tests, closed loop</text>
+
+  <rect x="40" y="404" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="423" class="d-t">S5 Virtual MicroCluck</text>
+  <text x="56" y="440" class="d-s">Your phone drives the simulated chicken</text>
+  <line x1="190" y1="390" x2="190" y2="402" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="40" y="462" width="300" height="44" rx="10" class="d-sim d-dash"/>
+  <text x="56" y="481" class="d-t">S2 again, if needed</text>
+  <text x="56" y="498" class="d-s">Retrain if CAD or weighed masses differ</text>
+
+  <rect x="420" y="346" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="365" class="d-t">H1 Servo bus</text>
+  <text x="436" y="382" class="d-s">74HC126 buffer, 10 servos at 50 Hz</text>
+
+  <rect x="420" y="404" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="423" class="d-t">H2 IMU</text>
+  <text x="436" y="440" class="d-s">Fusion, stabilized eyes on the bench</text>
+
+  <rect x="420" y="462" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="481" class="d-t">H3 Mechanical design</text>
+  <text x="436" y="498" class="d-s">Final CAD, fit-check prints, STLs frozen</text>
+
+  <rect x="420" y="520" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="539" class="d-t">H4 Assembly</text>
+  <text x="436" y="556" class="d-s">Weigh every part, update the model</text>
+
+  <rect x="420" y="578" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="597" class="d-t">H5 First steps</text>
+  <text x="436" y="614" class="d-s">Gantry, standing, then walking</text>
+
+  <rect x="420" y="636" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="655" class="d-t">H6 v1 complete</text>
+  <text x="436" y="672" class="d-s">Phone, faces, sounds, safety on hardware</text>
+
+  <rect x="420" y="694" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="713" class="d-t">H7 v1.1</text>
+  <text x="436" y="730" class="d-s">Fall recovery, learned sit and stand</text>
+
+  <path d="M720 368 H734 M720 426 H734 M720 484 H734" class="d-wire"/>
+  <path d="M734 368 V542 H722" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="564" x2="570" y2="576" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="622" x2="570" y2="634" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="680" x2="570" y2="692" class="d-wire" marker-end="url(#arr)"/>
+
+  <line x1="420" y1="484" x2="344" y2="484" class="d-wire d-dash" marker-end="url(#arr)"/>
+  <path d="M340 426 H380 V600 H416" class="d-wire" marker-end="url(#arr)"/>
+  <text x="374" y="588" class="d-s" text-anchor="end">needs S5</text>
+</svg>
+<figcaption>Simulation milestones gate the parts order. H0 runs from day one on the board you already own, and driver bring-up on one or two servos and fit-check prints may start before the freeze. H1, H2 and H3 can overlap, and H4 needs all three. H5 starts only after the virtual MicroCluck works.</figcaption>
+</figure>
+
+<h3>Purchase plan</h3>
+<div class="tbl"><table>
+  <thead><tr><th>When</th><th>Buy</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Now</td><td>Nothing, apart from filament for fit-check prints; the Freenove board is already owned</td><td>H0 bench bring-up needs only the board, and H3's fit-check prints test the mount and bezel against it.</td></tr>
+    <tr><td>Optional, early</td><td>1–2 XL330-M288-T, 74HC126 and perfboard parts, IMU breakout</td><td>Lets servo driver and IMU work (the start of H1 and H2) begin during Phase A. The full H1 and H2 exit criteria still wait for the freeze. These parts are the same in every design option, so they carry no design risk.</td></tr>
+    <tr><td>At design freeze</td><td>Remaining servos and spares, battery, buck converters, INA226, connectors, print material</td><td>Mechanical decisions are settled in simulation first (§7.2). Production printing follows H3, which freezes the STLs.</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Which machine does what</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Machine</th><th>Role</th></tr></thead>
+  <tbody>
+    <tr><td>RTX 3060 PC (12 GB)</td><td>Policy training. <code>mjlab</code> runs on MuJoCo Warp and needs a CUDA GPU. Hugging Face Jobs is the fallback.</td></tr>
+    <tr><td>Mac Studio (M2 Max)</td><td>Policy playback in CPU MuJoCo, the virtual MicroCluck, firmware development and flashing.</td></tr>
+  </tbody>
+</table></div>
+
+<!-- 4 -->
+<h2 id="reference"><span class="n">4</span>Reference design and constraints</h2>
+<p>The design stays deliberately close to Microduck so its training stack, actuator model and leg kinematics can be reused.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Microduck (reference)</th><th>MicroCluck</th></tr></thead>
+  <tbody>
+    <tr><td>Height and mass</td><td>25 cm, 780 g</td><td>~25 cm, <strong>≤ 800 g budget</strong></td></tr>
+    <tr><td>Servos</td><td>15 (legs, neck and head, beak)</td><td><strong>10</strong> (legs only)</td></tr>
+    <tr><td>Leg joints</td><td>hip_yaw, hip_roll, hip_pitch, knee, ankle</td><td>Same; hip_yaw stays for turning</td></tr>
+    <tr><td>Servo model</td><td>Dynamixel XL330 (BAM actuator model)</td><td><strong>Dynamixel XL330-M288-T</strong> (variant to confirm, §13)</td></tr>
+    <tr><td>Compute</td><td>Rockchip RK3566 with NPU, Linux</td><td>ESP32-S3, FreeRTOS</td></tr>
+    <tr><td>Policy</td><td>PPO in mjlab, 50 Hz, ONNX, 61 inputs to 14 outputs</td><td>Same recipe, retrained: ~39 inputs to 10 outputs</td></tr>
+    <tr><td>Extras</td><td>Camera, ToF, microphones, NFC, beak</td><td>Screen face, speaker, comb, tail, three-toed feet; claw in v2</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Facts carried over from Pollen's repos</h3>
+<ul>
+  <li>Policies are trained at 50 Hz with PPO and exported to ONNX. The exporter bakes the observation normalizer into the ONNX graph.</li>
+  <li>The actor sees 61 values: 48 proprioception plus commands for twist (3), head pose (4) and body pose (6).</li>
+  <li>Actuator fidelity is the dominant sim2real gap at this scale. The XL330 is modeled down to its voltage control law, with randomized battery voltage, voltage sag, command delay and friction. Each task has a <strong>Backlash</strong> variant with ±1° of gear play.</li>
+  <li>Training needs a CUDA GPU; Pollen quotes 1–2 hours for a usable gait at 4096 parallel environments.</li>
+  <li>Robot models are exported from Onshape with <code>onshape-to-robot</code>.</li>
+  <li>A simulated duck can run the real robot software against a body in MuJoCo, which is the model for the virtual MicroCluck (§8).</li>
+  <li><strong>Licensing:</strong> code is Apache-2.0; STL meshes are CC BY-NC-SA 4.0 (non-commercial). The CAD is not published, and Pollen asks that the mechanical design not be called open-source hardware.</li>
+</ul>
+
+<h3>XL330-M288-T key specs</h3>
+<p>18 g. Stall torque 0.52 N·m at 5 V (1.47 A). Input 3.7–6.0 V, 5.0 V recommended. TTL half-duplex bus with <strong>3.3 V logic</strong> (5 V tolerant), 9.6 kbps to 4 Mbps, Protocol 2.0. Feedback includes position, velocity, current, temperature and input voltage. 12-bit absolute encoder. The estimated continuous torque is only ~0.10 N·m, 20% of stall, so thermal margin is a design constraint (§7.2, §9.8).</p>
+
+<!-- 5 -->
+<h2 id="architecture"><span class="n">5</span>System architecture</h2>
+<figure class="diagram wide">
+<svg viewBox="0 0 760 510" role="img" aria-label="System architecture: phone connects over Wi-Fi to the ESP32-S3, which drives a 74HC126 buffer to ten XL330 servos and reads an IMU and INA226 over I2C; a 2S battery feeds separate servo and logic 5 volt bucks">
+  <rect x="20" y="40" width="130" height="70" rx="12" class="d-box"/>
+  <text x="85" y="70" text-anchor="middle" class="d-t">Phone browser</text>
+  <text x="85" y="90" text-anchor="middle" class="d-s">joystick, E-stop</text>
+  <line x1="152" y1="75" x2="226" y2="75" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="189" y="66" text-anchor="middle" class="d-s">Wi-Fi AP</text>
+  <text x="189" y="94" text-anchor="middle" class="d-s">WebSocket</text>
+
+  <rect x="230" y="20" width="300" height="290" rx="14" class="d-strong"/>
+  <text x="380" y="46" text-anchor="middle" class="d-t">ESP32-S3 (Freenove 3.5")</text>
+  <rect x="248" y="62" width="264" height="74" rx="8" class="d-hw"/>
+  <text x="262" y="83" class="d-t">Core 1</text>
+  <text x="262" y="103" class="d-s">control_task: 50 Hz, highest priority</text>
+  <text x="262" y="121" class="d-s">imu_task: 500 Hz to 1 kHz</text>
+  <rect x="248" y="148" width="264" height="94" rx="8" class="d-hw"/>
+  <text x="262" y="169" class="d-t">Core 0</text>
+  <text x="262" y="189" class="d-s">Wi-Fi, HTTP, WebSocket, OTA</text>
+  <text x="262" y="207" class="d-s">LVGL face, audio</text>
+  <text x="262" y="225" class="d-s">Telemetry, SD logging</text>
+  <rect x="248" y="254" width="264" height="40" rx="8" class="d-box d-dash"/>
+  <text x="380" y="279" text-anchor="middle" class="d-s">On board: display, touch, speaker, SD</text>
+
+  <rect x="580" y="40" width="160" height="50" rx="8" class="d-box"/>
+  <text x="660" y="61" text-anchor="middle" class="d-t">74HC126 buffer</text>
+  <text x="660" y="79" text-anchor="middle" class="d-s">UART1, half-duplex</text>
+  <rect x="580" y="110" width="160" height="50" rx="8" class="d-box"/>
+  <text x="660" y="131" text-anchor="middle" class="d-t">10× XL330-M288-T</text>
+  <text x="660" y="149" text-anchor="middle" class="d-s">daisy chain, 2 Mbps</text>
+  <rect x="580" y="180" width="160" height="44" rx="8" class="d-box"/>
+  <text x="660" y="199" text-anchor="middle" class="d-t">IMU</text>
+  <text x="660" y="215" text-anchor="middle" class="d-s">I2C plus data-ready pin</text>
+  <rect x="580" y="236" width="160" height="44" rx="8" class="d-box"/>
+  <text x="660" y="255" text-anchor="middle" class="d-t">INA226</text>
+  <text x="660" y="271" text-anchor="middle" class="d-s">pack voltage, current</text>
+
+  <line x1="530" y1="65" x2="576" y2="65" class="d-wire" marker-end="url(#arr)"/>
+  <text x="553" y="57" text-anchor="middle" class="d-s">UART</text>
+  <line x1="660" y1="90" x2="660" y2="110" class="d-wire"/>
+  <path d="M530 230 H560 M560 202 V258 M560 202 H576 M560 258 H576" class="d-wire"/>
+  <circle cx="560" cy="230" r="3" class="d-dot"/>
+  <text x="545" y="222" text-anchor="middle" class="d-s">I2C</text>
+
+  <rect x="20" y="380" width="150" height="62" rx="10" class="d-box"/>
+  <text x="95" y="405" text-anchor="middle" class="d-t">2S Li-ion pack</text>
+  <text x="95" y="424" text-anchor="middle" class="d-s">7.4 V, with BMS</text>
+  <rect x="200" y="396" width="60" height="30" rx="6" class="d-box"/>
+  <text x="230" y="416" text-anchor="middle" class="d-s">Fuse</text>
+  <rect x="300" y="358" width="180" height="54" rx="10" class="d-box"/>
+  <text x="390" y="381" text-anchor="middle" class="d-t">5 V logic buck</text>
+  <text x="390" y="399" text-anchor="middle" class="d-s">2 A</text>
+  <rect x="300" y="438" width="180" height="54" rx="10" class="d-box"/>
+  <text x="390" y="461" text-anchor="middle" class="d-t">5 V servo buck</text>
+  <text x="390" y="479" text-anchor="middle" class="d-s">≥ 8 A peak, bulk caps</text>
+
+  <path d="M170 411 H200" class="d-power"/>
+  <path d="M260 411 H280 V385 H296" class="d-power" marker-end="url(#arrP)"/>
+  <path d="M280 411 V465 H296" class="d-power" marker-end="url(#arrP)"/>
+  <path d="M390 358 V314" class="d-power" marker-end="url(#arrP)"/>
+  <text x="398" y="340" class="d-s">5 V in</text>
+  <path d="M480 465 H750 V135 H744" class="d-power" marker-end="url(#arrP)"/>
+  <text x="615" y="457" text-anchor="middle" class="d-s">servo rail, 5.0 V</text>
+</svg>
+<figcaption>Data in dark lines, power in orange. Servo and logic supplies are separate, with a common ground.</figcaption>
+</figure>
+
+<!-- 6 -->
+<h2 id="hardware"><span class="n">6</span>Hardware</h2>
+
+<h3 id="bom"><span class="n">6.1</span>Bill of materials</h3>
+<p>Estimates for v1. Verify prices before ordering; timing follows the purchase plan in §3.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
+  <tbody>
+    <tr><td>Freenove ESP32-S3 Display, 3.5" IPS touch (FNK0104)</td><td>1</td><td>Already owned; ships with a speaker</td><td>~$22–30</td></tr>
+    <tr><td>Dynamixel XL330-M288-T</td><td>10 + 2 spare</td><td>Leg servos; spares strongly recommended</td><td>~$24–29 each</td></tr>
+    <tr><td>IMU breakout</td><td>1</td><td>Default ICM-42688-P, but it is supply-constrained; see §13</td><td>~$10–20</td></tr>
+    <tr><td>INA226 power monitor breakout</td><td>1</td><td>Pack voltage and current over I2C, no GPIO</td><td>~$5</td></tr>
+    <tr><td>74HC126 (DIP-14) with socket, perfboard, 10 kΩ pull-up, 0.1 µF cap</td><td>1</td><td>Through-hole servo bus interface (§6.3)</td><td>~$5</td></tr>
+    <tr><td>2S Li-ion or LiPo pack, ~1500–2500 mAh, with BMS</td><td>1</td><td>Plus charger</td><td>~$20–35</td></tr>
+    <tr><td>5 V buck for the servo rail, ≥ 8 A peak</td><td>1</td><td>Low ripple; add ≥ 1000 µF bulk capacitance</td><td>~$10–20</td></tr>
+    <tr><td>5 V buck for logic, 2 A</td><td>1</td><td>Separate from the servo rail</td><td>~$5</td></tr>
+    <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables</td><td>–</td><td></td><td>~$15</td></tr>
+    <tr><td>Printed frame, feet, comb, tail, bumpers (PLA/PETG and TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Including two spare servos</td><td><strong>~$400–510</strong></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="pins"><span class="n">6.2</span>Pin map</h3>
+<div class="callout verify"><p><strong>Verify first.</strong> This map comes from the 2.8" FNK0104B. Check the 3.5" variant against Freenove's pin chart before wiring anything (H0).</p></div>
+<div class="tbl"><table>
+  <thead><tr><th>Function</th><th>GPIO</th><th>Header</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Servo bus TX</td><td>IO21</td><td>P3 expanded IO</td><td>UART1 through the GPIO matrix</td></tr>
+    <tr><td>Servo bus RX</td><td>IO14</td><td>P3</td><td></td></tr>
+    <tr><td>Servo bus direction</td><td>IO2</td><td>P3</td><td>Drives the 74HC126 gate enable; ESP-IDF's <code>UART_MODE_RS485_HALF_DUPLEX</code> toggles it automatically</td></tr>
+    <tr><td>IMU data-ready</td><td>IO3</td><td>P3</td><td>Input only. IO3 is a strapping pin (JTAG source); harmless unless the JTAG eFuse is set</td></tr>
+    <tr><td>I2C SDA, SCL</td><td>16, 15</td><td>P4 I2C</td><td>Shared with the touch controller. IMU at 0x68/0x69, INA226 at 0x40; confirm the touch address on the 3.5"</td></tr>
+    <tr><td>On board</td><td>–</td><td>–</td><td>Display, touch, SD, audio codec and amp, BOOT on IO0. Do not repurpose.</td></tr>
+  </tbody>
+</table></div>
+<p>This uses all four free expansion pins. Anything added later, including the claw, goes on the servo bus or I2C.</p>
+
+<h3 id="bus"><span class="n">6.3</span>Servo bus interface</h3>
+<figure class="diagram wide">
+<svg viewBox="0 0 760 300" role="img" aria-label="Wiring: ESP32 TX feeds one 74HC126 gate enabled by the direction pin; the gate output is the servo data line, which also connects straight to RX and has a 10 kilohm pull-up to 3.3 volts">
+  <rect x="20" y="40" width="150" height="220" rx="10" class="d-strong"/>
+  <text x="95" y="68" text-anchor="middle" class="d-t">ESP32-S3 header</text>
+  <text x="36" y="115" class="d-s">IO21  TX</text>
+  <text x="36" y="155" class="d-s">IO2   DIR</text>
+  <text x="36" y="195" class="d-s">IO14  RX</text>
+  <text x="36" y="235" class="d-s">GND</text>
+  <circle cx="170" cy="110" r="3.5" class="d-dot"/>
+  <circle cx="170" cy="150" r="3.5" class="d-dot"/>
+  <circle cx="170" cy="190" r="3.5" class="d-dot"/>
+  <circle cx="170" cy="230" r="3.5" class="d-dot"/>
+
+  <text x="320" y="62" text-anchor="middle" class="d-t">74HC126, one gate</text>
+  <text x="320" y="80" text-anchor="middle" class="d-s">VCC 3.3 V, 0.1 µF to GND</text>
+  <path d="M300 90 L300 130 L340 110 Z" class="d-box" style="stroke:var(--ink);stroke-width:1.75"/>
+  <path d="M170 110 H300" class="d-wire"/>
+  <path d="M170 150 H320 V120" class="d-wire"/>
+  <text x="328" y="142" class="d-s">EN</text>
+  <path d="M340 110 H540" class="d-wire"/>
+  <circle cx="460" cy="110" r="4" class="d-dot"/>
+  <path d="M460 110 V190 H170" class="d-wire"/>
+  <path d="M460 110 V84" class="d-wire"/>
+  <rect x="452" y="50" width="16" height="34" rx="3" class="d-box" style="stroke:var(--ink);stroke-width:1.5"/>
+  <path d="M460 50 V36" class="d-wire"/>
+  <text x="460" y="28" text-anchor="middle" class="d-s">3.3 V</text>
+  <text x="476" y="60" class="d-s">10 kΩ pull-up</text>
+
+  <rect x="540" y="70" width="200" height="150" rx="10" class="d-hw"/>
+  <text x="640" y="94" text-anchor="middle" class="d-t">XL330 bus, 3-pin</text>
+  <text x="556" y="114" class="d-s">DATA</text>
+  <text x="556" y="154" class="d-s">GND</text>
+  <text x="556" y="194" class="d-s">VDD 5 V</text>
+  <text x="640" y="212" text-anchor="middle" class="d-s">to 10 servos, daisy chained</text>
+  <path d="M540 150 H500 V230 H170" class="d-wire"/>
+  <path d="M540 190 H520 V276" class="d-power"/>
+  <text x="520" y="292" text-anchor="middle" class="d-s">5 V from the servo buck, never the buffer</text>
+</svg>
+<figcaption>Transmit goes through one tri-state gate; receive is wired straight to the data line.</figcaption>
+</figure>
+<ul>
+  <li>The gate drives the bus only while DIR is high, then releases the line so servos can reply.</li>
+  <li>RX also hears the ESP32's own transmissions. The <code>dxl</code> driver discards that echo, or the UART's RS-485 mode is configured to ignore RX during TX.</li>
+  <li>3.3 V logic matches the XL330's TTL level, so no level shifting is needed. Unused gates: inputs and enables tied to GND.</li>
+  <li>Built on perfboard with DIP parts and a socket for the chip. There is no surface-mount soldering anywhere in the build.</li>
+</ul>
+
+<h3 id="power"><span class="n">6.4</span>Power</h3>
+<ul>
+  <li><strong>Servo rail:</strong> regulated 5.0 V, the XL330's recommended voltage. Keep it inside the voltage randomization range used in training.</li>
+  <li><strong>Peak current:</strong> the theoretical worst case is 10 × 1.47 A ≈ 15 A with every servo stalled. Size the buck for at least 8 A peak, add bulk capacitance at the bus entry and fuse the pack.</li>
+  <li><strong>Logic rail:</strong> a separate 5 V buck into the Freenove board, with grounds joined at one star point.</li>
+  <li><strong>Monitoring:</strong> INA226 on the pack; the servos' Present Input Voltage register for the servo rail.</li>
+</ul>
+
+<h3 id="mechanical"><span class="n">6.5</span>Mechanical</h3>
+<p>CAD starts in S1, because the model's masses and inertias come from it, and is finished in H3 once S3 has settled the stance width.</p>
+<ul>
+  <li><strong>Legs:</strong> reuse Microduck's leg geometry from the STLs in <code>microduck_rl</code> (non-commercial license) to keep kinematic parity with Pollen's model. Only the torso and feet change.</li>
+  <li><strong>Torso:</strong> screen frame with a raised bezel and rubber corner bumpers, glass recessed 2–3 mm. Forward falls land on the screen. Bezel in yellow, per the renders.</li>
+  <li><strong>Comb:</strong> snap-on piece on a top mounting boss. The v2 claw uses the same boss and replaces the comb, or the comb becomes the claw's cover.</li>
+  <li><strong>Tail:</strong> feathers in slightly flexible TPU, so the tail doubles as a bumper for backward falls and a third contact point when sitting. It shifts the center of mass backward, so its mass and collision shape go into the model.</li>
+  <li><strong>Feet:</strong> three-toed chicken feet on a flat sole, which is the designed contact surface. Shorten the inner toe, or include the toes in the collision model so the policy learns to avoid foot-to-foot contact on narrow steps.</li>
+  <li><strong>Stance:</strong> hip spacing is decided in simulation (§7.2). Wider spacing stands steadier but makes each step's side-to-side weight shift larger.</li>
+  <li><strong>IMU:</strong> rigidly mounted to the torso frame. Its exact pose relative to the model's base link goes into the model.</li>
+  <li><strong>Cabling:</strong> daisy-chain routing with strain relief across the hip joints.</li>
+</ul>
+
+<p><strong>Mass budget.</strong> Estimates until each part is weighed. Weigh the Freenove board now; it feeds S1 directly.</p>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>Part</th><th>Estimated mass</th></tr></thead>
+  <tbody>
+    <tr><td>10× XL330</td><td>180 g</td></tr>
+    <tr><td>Freenove 3.5" board</td><td>Weigh it</td></tr>
+    <tr><td>2S battery</td><td>70–100 g</td></tr>
+    <tr><td>Frame, feet, bumpers</td><td>~200–250 g</td></tr>
+    <tr><td>Comb and tail</td><td>~15–30 g</td></tr>
+    <tr><td>Electronics, buck converters, cables</td><td>~50–60 g</td></tr>
+    <tr><td>Reserve for the v2 claw</td><td>~60–100 g</td></tr>
+    <tr class="total"><td><strong>Target total for v1</strong></td><td><strong>≤ 800 g</strong></td></tr>
+  </tbody>
+</table></div>
+
+<!-- 7 -->
+<h2 id="sim"><span class="n">7</span>Simulation and training</h2>
+
+<h3 id="fork"><span class="n">7.1</span>Fork and adapt microduck_rl</h3>
+<ol>
+  <li>Fork <code>pollen-robotics/microduck_rl</code> and include it as the <code>sim/</code> submodule. Reproduce Pollen's stock walking policy first (S0).</li>
+  <li>Model the torso, feet, comb and tail in Onshape if possible and export with <code>onshape-to-robot</code>, the same pipeline Pollen uses, so masses and inertias come from the CAD. A hand-edited box torso is acceptable for a first pass.</li>
+  <li>Create MicroCluck versions of the robot models (<code>robot_walk.xml</code>, <code>robot_groundcontact.xml</code> and their backlash variants).</li>
+  <li>Remove the neck and head joints (<code>neck_pitch</code>, <code>head_pitch</code>, <code>head_yaw</code>, <code>head_roll</code>) and the beak.</li>
+  <li>Add the torso with measured or estimated mass, center of mass and inertia for the board, frame, battery, comb and tail. Give the tail a collision shape.</li>
+  <li>Replace the feet with the MicroCluck sole (and toes, if kept long). Set the hip spacing.</li>
+  <li>Change the joint count from 14 to 10 everywhere: actuators, observations, actions, joint-index constants and the repo's regression tests, which lock in joint-index mappings. Remove head-pose commands and their reward terms.</li>
+  <li><strong>Observation contract v1 (proposed, 39 values):</strong> gyro (3), projected gravity (3), joint positions (10), joint velocities (10), last action (10), twist command (3). Confirm the composition of Pollen's 48-value proprioception block in <code>mdp.py</code> before freezing it.</li>
+  <li><strong>Actor network:</strong> a small MLP, target 256-128-64 with ELU, about 52k parameters or 208 KB as float32. The critic can be any size because it is never deployed.</li>
+  <li><strong>Domain randomization:</strong> keep Pollen's defaults and add torso mass and center of mass ±10–15% for measurement error, plus a <strong>0–100 g payload at the top of the torso</strong> so v1 walking survives the v2 claw.</li>
+  <li>Train the Backlash variants. Reduce <code>num-envs</code> if the 3060's 12 GB runs out.</li>
+</ol>
+<p><strong>v1 tasks:</strong> <code>Velocity-Flat</code>, where standing is a zero command. <strong>v1.1:</strong> <code>VelStand</code> for walking plus fall recovery, and <code>SitStand</code>, which can use the tail as a support point. v1 still needs a sit for the dead-man, low-battery and over-temperature stops, but as a scripted joint trajectory (§9.7) rather than a policy, so it costs no training. S3 checks it (§7.2).</p>
+
+<h3 id="validation"><span class="n">7.2</span>Design validation (S3)</h3>
+<p>Before any parts beyond the board are ordered, the simulator answers the mechanical questions. Results go in <code>docs/design-report.md</code>, and each decision becomes an ADR.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Check</th><th>Method</th><th>Pass condition</th></tr></thead>
+  <tbody>
+    <tr><td>Thermal margin</td><td>RMS torque per joint over a 60 s walk at the top commanded speed</td><td>Every joint at or below the XL330's ~0.10 N·m continuous rating at normal walking speed</td></tr>
+    <tr><td>Peak torque</td><td>Peak torque per joint across walking, pushes and payload</td><td>Below ~70% of the 0.52 N·m stall torque</td></tr>
+    <tr><td>Stance width</td><td>Train and compare 2–3 hip spacings</td><td>Best combination of push recovery and energy use (sum of |torque × velocity|)</td></tr>
+    <tr><td>Toe clearance</td><td>Minimum distance between the feet during the gait</td><td>No foot-to-foot contacts</td></tr>
+    <tr><td>Claw headroom</td><td>Largest top payload that still tracks commands</td><td>At least 60 g, the low end of the claw reserve</td></tr>
+    <tr><td>Mass budget</td><td>Sum of modeled parts</td><td>≤ 800 g for v1</td></tr>
+    <tr><td>Scripted sit</td><td>Replay the sit and stand-up trajectories (§9.7) in the model and compute static torque along them</td><td>Rests stably on the feet and tail; peak static torque on the way back up stays below ~70% of the stall torque</td></tr>
+  </tbody>
+</table></div>
+<p>If a joint fails the thermal check, the fixes in order of preference are: reduce mass, shorten the leg's lever arms, then consider a stronger servo for that joint. A different servo model needs its own actuator identification, so it is the last resort.</p>
+
+<h3 id="export"><span class="n">7.3</span>Policy export pipeline</h3>
+<p>Lives in <code>tools/policy_export/</code>.</p>
+<ol>
+  <li>Input is the ONNX file from Pollen's <code>scripts/export.py</code>, with the normalizer baked in. Never convert a checkpoint by hand.</li>
+  <li>Extract weights, biases, activations and the normalizer. Fold the normalizer into the first layer: <code>W' = W / σ</code> and <code>b' = b − W·(μ/σ)</code>.</li>
+  <li>Emit <code>policy_&lt;name&gt;.h</code> with C arrays and metadata: input and output sizes, action scale, default pose and the contract hash.</li>
+  <li>Generate golden vectors: at least 1000 plausible observations and their ONNX outputs.</li>
+  <li><strong>Device test:</strong> C inference against the golden vectors, maximum absolute error ≤ 1e-4.</li>
+  <li><strong>Closed-loop test:</strong> the same C inference, built for the host, drives MuJoCo. The gait must match the ONNX policy's.</li>
+</ol>
+
+<h3 id="contract"><span class="n">7.4</span>Sim2real contract</h3>
+<p><code>docs/sim2real-contract.md</code> is the single, versioned, hashed source of truth. It must match Pollen's runtime (<code>robotd</code>) and constants (<code>microduck_constants.py</code>) exactly:</p>
+<ul>
+  <li>Observation order, units and scaling</li>
+  <li>Where joint velocity comes from: the servo register or a finite difference of position</li>
+  <li>Action post-processing: action scale, default pose offset, clipping</li>
+  <li>Servo control mode and firmware PD gains, since the sim emulates the servo's own PD loop</li>
+  <li>Command ranges, which the phone commands are clamped to</li>
+  <li>Loop rate (50 Hz) and expected command delay</li>
+</ul>
+<p>Firmware refuses to enable torque if a policy's contract hash doesn't match its build.</p>
+
+<!-- 8 -->
+<h2 id="twin"><span class="n">8</span>Virtual MicroCluck</h2>
+<p>The virtual MicroCluck runs the real firmware logic against the simulator on your computer. The phone connects to it exactly as it would to the robot, and the face renders in a desktop window with eyes stabilized by the simulated IMU. Everything except the hardware drivers is developed and tested here first, and it remains the regression harness afterwards.</p>
+
+<figure class="diagram wide">
+<svg viewBox="0 0 760 400" role="img" aria-label="Virtual MicroCluck: the phone talks to a WebSocket server on the host; the firmware core runs as a shared library over a host hardware layer backed by MuJoCo and the BAM actuator model, with the face in an LVGL desktop window. On the robot the same core runs over the ESP32 hardware layer.">
+  <rect x="20" y="62" width="130" height="56" rx="12" class="d-box"/>
+  <text x="85" y="86" text-anchor="middle" class="d-t">Phone browser</text>
+  <text x="85" y="104" text-anchor="middle" class="d-s">same controller page</text>
+
+  <rect x="200" y="20" width="540" height="220" rx="14" class="d-strong"/>
+  <text x="470" y="44" text-anchor="middle" class="d-t">Host twin on your computer</text>
+
+  <rect x="216" y="62" width="140" height="56" rx="8" class="d-box"/>
+  <text x="286" y="86" text-anchor="middle" class="d-t">WebSocket server</text>
+  <text x="286" y="104" text-anchor="middle" class="d-s">§9.5 protocol</text>
+
+  <rect x="400" y="62" width="150" height="56" rx="8" class="d-hw" style="stroke:var(--ink);stroke-width:1.75"/>
+  <text x="475" y="86" text-anchor="middle" class="d-t">Firmware core</text>
+  <text x="475" y="104" text-anchor="middle" class="d-s">control, safety, policy, UI</text>
+
+  <rect x="570" y="62" width="150" height="56" rx="8" class="d-sim"/>
+  <text x="645" y="86" text-anchor="middle" class="d-t">MuJoCo + BAM</text>
+  <text x="645" y="104" text-anchor="middle" class="d-s">XL330 actuator model</text>
+
+  <rect x="216" y="150" width="140" height="56" rx="8" class="d-box"/>
+  <text x="286" y="174" text-anchor="middle" class="d-t">LVGL window</text>
+  <text x="286" y="192" text-anchor="middle" class="d-s">same face code</text>
+
+  <rect x="400" y="150" width="150" height="56" rx="8" class="d-box"/>
+  <text x="475" y="174" text-anchor="middle" class="d-t">hal_host</text>
+  <text x="475" y="192" text-anchor="middle" class="d-s">simulated bus and IMU</text>
+
+  <line x1="152" y1="90" x2="212" y2="90" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <line x1="360" y1="90" x2="396" y2="90" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <line x1="475" y1="120" x2="475" y2="146" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <path d="M552 178 H645 V122" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <path d="M424 120 L360 156" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="200" y="272" width="540" height="110" rx="14" class="d-box d-dash"/>
+  <text x="470" y="296" text-anchor="middle" class="d-t">On the robot: the same core, a different hardware layer</text>
+  <rect x="230" y="312" width="150" height="50" rx="8" class="d-hw" style="stroke:var(--ink);stroke-width:1.75"/>
+  <text x="305" y="334" text-anchor="middle" class="d-t">Firmware core</text>
+  <text x="305" y="352" text-anchor="middle" class="d-s">identical source</text>
+  <rect x="410" y="312" width="130" height="50" rx="8" class="d-box"/>
+  <text x="475" y="342" text-anchor="middle" class="d-t">hal_esp32</text>
+  <rect x="570" y="312" width="150" height="50" rx="8" class="d-hw"/>
+  <text x="645" y="334" text-anchor="middle" class="d-t">Real hardware</text>
+  <text x="645" y="352" text-anchor="middle" class="d-s">servos, IMU, screen</text>
+  <line x1="380" y1="337" x2="406" y2="337" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="540" y1="337" x2="566" y2="337" class="d-wire" marker-end="url(#arr)"/>
+</svg>
+<figcaption>Only the hardware layer changes between the twin and the robot.</figcaption>
+</figure>
+
+<h3 id="hal"><span class="n">8.1</span>Hardware abstraction layer</h3>
+<p>The firmware core (control loop, state machine, safety, policy inference, face logic and protocol handling) is plain C with no ESP-IDF includes. It talks to the world only through this interface, with one implementation for the ESP32 and one for the host.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Interface</th><th>Calls</th></tr></thead>
+  <tbody>
+    <tr><td>Servo bus</td><td>sync read of positions and velocities, sync write of goal positions, torque enable, round-robin health read</td></tr>
+    <tr><td>IMU</td><td>latest gyro and gravity vector</td></tr>
+    <tr><td>Clock</td><td>monotonic microseconds, 50 Hz tick (sim time on the host)</td></tr>
+    <tr><td>Display and input</td><td>LVGL display and touch drivers</td></tr>
+    <tr><td>Audio</td><td>play clip, set volume</td></tr>
+    <tr><td>Network</td><td>protocol messages in and out</td></tr>
+    <tr><td>Power</td><td>pack voltage and current, servo rail voltage</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="host"><span class="n">8.2</span>Host twin</h3>
+<ul>
+  <li>A Python harness runs MuJoCo with the MicroCluck model and the same BAM XL330 actuator model used in training.</li>
+  <li>It loads the firmware core as a shared library and calls the control step at 50 Hz of simulated time.</li>
+  <li>A WebSocket server implements the §9.5 protocol, so the phone's controller page works unchanged on the local network.</li>
+  <li>The face runs in LVGL's SDL desktop port, built from the same UI source. Whether it shares the process or runs alongside is an ADR.</li>
+  <li>Battery voltage, Wi-Fi drops, pushes and a stalled control task can be injected to exercise safety behavior. The simulated servo bus implements the Bus Watchdog, using the behavior H1 measures on real servos.</li>
+  <li>The twin writes the same log format as the robot, so twin and hardware runs can be compared side by side in H5.</li>
+</ul>
+
+<h3 id="fidelity"><span class="n">8.3</span>Fidelity requirements</h3>
+<ul>
+  <li>Servo positions quantized like the 12-bit encoder; velocity in the register's units, or derived as the contract specifies</li>
+  <li>Bus latency and command delay matching the timing budget (§9.3)</li>
+  <li>IMU noise and bias added to the simulated gyro and gravity vector</li>
+  <li>A deterministic mode with fixed seeds for automated tests</li>
+  <li>A headless mode for running the safety and regression tests in CI</li>
+</ul>
+
+<!-- 9 -->
+<h2 id="firmware"><span class="n">9</span>Firmware</h2>
+
+<h3 id="stack"><span class="n">9.1</span>Stack</h3>
+<ul>
+  <li><strong>ESP-IDF v5.x</strong>, C (or C++), FreeRTOS</li>
+  <li>The hardware-independent core builds for ESP-IDF and for the host with CMake (§8.1)</li>
+  <li>LVGL via <code>esp_lvgl_port</code>; ESP-DSP for the matrix math</li>
+  <li><code>esp_http_server</code> with WebSocket support; static assets in LittleFS</li>
+  <li>I2S driver and the onboard codec for sound effects</li>
+  <li>Native OTA with A/B partitions and rollback; SD card logging</li>
+</ul>
+<p>ESP-IDF over Arduino for explicit core pinning and priorities, the RS-485 half-duplex UART mode, <code>esp_timer</code> precision and control of the OTA partition table.</p>
+
+<h3 id="tasks"><span class="n">9.2</span>Task layout</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Task</th><th>Core</th><th>Priority</th><th>Rate</th><th>Responsibility</th></tr></thead>
+  <tbody>
+    <tr><td><code>control_task</code></td><td>1</td><td>Highest</td><td>50 Hz</td><td>Snapshot IMU state, sync read servos, build the observation, run inference, post-process, sync write. Safety checks. One round-robin health read per cycle.</td></tr>
+    <tr><td><code>imu_task</code></td><td>1</td><td>High</td><td>500 Hz–1 kHz</td><td>Read the IMU on its data-ready interrupt, remove gyro bias, run the Mahony filter, publish gyro and gravity (double-buffered).</td></tr>
+    <tr><td><code>net_task</code></td><td>0</td><td>Medium</td><td>On events</td><td>Wi-Fi, HTTP, WebSocket commands in, telemetry out.</td></tr>
+    <tr><td><code>ui_task</code></td><td>0</td><td>Low</td><td>≤ 30 fps</td><td>Face rig, expressions, eye stabilization, status strip, touch.</td></tr>
+    <tr><td><code>audio_task</code></td><td>0</td><td>Low</td><td>On events</td><td>Sound effects through I2S DMA.</td></tr>
+    <tr><td><code>log_task</code></td><td>0</td><td>Low</td><td>Buffered</td><td>Observations, actions and timing to SD.</td></tr>
+    <tr><td>OTA</td><td>0</td><td>Low</td><td>On demand</td><td>Firmware and policy updates.</td></tr>
+  </tbody>
+</table></div>
+<p>State crosses cores through double buffers or single-writer structures. Nothing in <code>control_task</code> blocks or allocates. A task watchdog covers <code>control_task</code> and <code>imu_task</code> (S9).</p>
+
+<h3 id="timing"><span class="n">9.3</span>Timing budget</h3>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>Step in each 20 ms cycle</th><th>Budget</th></tr></thead>
+  <tbody>
+    <tr><td>Sync read of 10 servos at 2 Mbps, Return Delay Time 0</td><td>~1–2 ms</td></tr>
+    <tr><td>Build the observation</td><td>&lt; 0.2 ms</td></tr>
+    <tr><td>Policy inference</td><td><strong>≤ 5 ms target</strong></td></tr>
+    <tr><td>Sync write of 10 goal positions</td><td>&lt; 0.5 ms</td></tr>
+    <tr><td>Slack</td><td>≥ 10 ms</td></tr>
+  </tbody>
+</table></div>
+<p>Loop period p99 jitter must stay ≤ 1 ms <strong>with Wi-Fi, the face (including stabilization) and audio all running</strong>. A cycle-overrun counter goes in telemetry. Set every servo's Return Delay Time to 0, since the default adds a delay per servo, and evaluate Fast Sync Read if the servo firmware supports it.</p>
+
+<h3 id="memory"><span class="n">9.4</span>Memory plan</h3>
+<ul>
+  <li><strong>Internal SRAM:</strong> Wi-Fi and LwIP, task stacks, DMA-capable display buffers, I2S buffers, bus and IMU buffers.</li>
+  <li><strong>PSRAM:</strong> non-DMA LVGL buffers, face accessories, sound clips (or stream from LittleFS or SD), policy weights at ~208 KB per behavior, the log ring buffer.</li>
+  <li>Measure inference with weights in PSRAM first. Move the active policy to internal SRAM or quantize to int8 only if it exceeds 5 ms.</li>
+  <li>Report heap high-water marks in telemetry.</li>
+</ul>
+
+<h3 id="phone"><span class="n">9.5</span>Phone controller and protocol</h3>
+<p><strong>Networking.</strong> The robot runs its own access point by default: SSID <code>microcluck-XXXX</code> with WPA2, at <code>192.168.4.1</code>. Joining home Wi-Fi is an option for development, with mDNS at <code>microcluck.local</code>. The host twin listens on the computer's own address.</p>
+<p><strong>Pages.</strong></p>
+<ul>
+  <li><code>/</code> is the controller, served from flash: a joystick for forward and strafe, a turn control, behavior and expression buttons, and an E-stop. It reads the browser's Gamepad API, so any controller paired to the phone (PS5, Xbox) works.</li>
+  <li><code>/status</code> and <code>/settings</code> are server-rendered fragments, HTMX-style, for configuration, mode, Wi-Fi, gains and volume.</li>
+  <li><code>/ota</code> uploads firmware and policies.</li>
+</ul>
+<p><strong>WebSocket messages on <code>/ws</code></strong> (compact JSON for v1):</p>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>Direction</th><th>Message</th><th>Rate</th></tr></thead>
+  <tbody>
+    <tr><td>Phone to robot</td><td><code>{"t":"cmd","seq":123,"vx":0.10,"vy":0.0,"wz":0.30}</code></td><td>20–30 Hz</td></tr>
+    <tr><td>Phone to robot</td><td><code>{"t":"act","name":"enable"}</code>, <code>{"t":"act","name":"sit"}</code>, <code>{"t":"act","name":"stand"}</code>, <code>{"t":"estop"}</code>, <code>{"t":"face","expr":"love"}</code>, <code>{"t":"sound","name":"cluck"}</code></td><td>On events</td></tr>
+    <tr><td>Robot to phone</td><td><code>{"t":"tel","mode":"WALK","expr":"happy","vbat":7.6,"loop_p99_ms":0.6,"overruns":0,"tilt_deg":4.2,"servo_tmax_c":48,"rssi":-52}</code></td><td>10 Hz</td></tr>
+    <tr><td>Robot to phone</td><td><code>{"t":"nak","act":"enable","why":"not_upright"}</code></td><td>On events</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Dead-man.</strong> No <code>cmd</code> for 300 ms sets the velocity command to zero, so MicroCluck stands still. No connection for 5 s sits it down with the scripted SIT (§9.7).</p>
+
+<h3 id="face"><span class="n">9.6</span>Face, sound and touch</h3>
+<p>A flat vector chicken face on a black screen: big white eyes with dark pupils, small arched brows, an orange beak and pink cheeks. The beak stays fixed; the eyes, brows and accessories carry the expression. The face fills the upper two-thirds of the 320 × 480 portrait screen, and a slim status strip in the lower third shows battery, Wi-Fi and mode.</p>
+
+<div class="faces">
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Curious face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M33 46 Q41 40 50 44 M70 44 Q79 40 87 46" stroke="#f2b705" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="44" cy="62" r="12" fill="#fff"/><circle cx="76" cy="62" r="12" fill="#fff"/>
+      <circle cx="47" cy="60" r="5.5" fill="#1b1b1b"/><circle cx="79" cy="60" r="5.5" fill="#1b1b1b"/>
+      <path d="M53 77 L67 77 L60 89 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+      <ellipse cx="29" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/><ellipse cx="91" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/>
+    </svg>
+    <figcaption><b>Curious</b>Default. Idle, or standing with no command.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Happy face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M33 66 Q44 52 55 66 M65 66 Q76 52 87 66" stroke="#f2b705" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <path d="M26 46 L22 39 M33 42 L31 34 M94 46 L98 39 M87 42 L89 34" stroke="#f2b705" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M50 76 L70 76 L66 91 Q60 98 54 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M55 81 L65 81 L63 88 Q60 92 57 88 Z" fill="#7a1f10"/>
+      <ellipse cx="29" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/><ellipse cx="91" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/>
+    </svg>
+    <figcaption><b>Happy</b>Walking, or a trick finished. Joy marks angle up above the eyes.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Surprised face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M34 42 Q42 36 50 40 M68 36 Q78 30 88 36" stroke="#f2b705" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="43" cy="62" r="10" fill="#fff"/><circle cx="77" cy="60" r="15" fill="#fff"/>
+      <circle cx="44" cy="62" r="4" fill="#1b1b1b"/><circle cx="78" cy="60" r="4.5" fill="#1b1b1b"/>
+      <path d="M93 30 L96 23 M99 36 L106 33 M86 26 L86 19" stroke="#f2b705" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <figcaption><b>Surprised</b>A bump or near-fall below the fall threshold.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Love face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M33 66 Q44 54 55 66 M65 66 Q76 54 87 66" stroke="#f2b705" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <path d="M88 40 C88 34 80 32 80 38 C80 42 88 47 88 47 C88 47 96 42 96 38 C96 32 88 34 88 40 Z" fill="#e8413a"/>
+      <path d="M53 77 L67 77 L60 89 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+      <ellipse cx="29" cy="80" rx="7" ry="4" fill="#f2797b"/><ellipse cx="91" cy="80" rx="7" ry="4" fill="#f2797b"/>
+    </svg>
+    <figcaption><b>Love</b>Tapped on the screen, or the phone's love button.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Dizzy face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M44 62 A1.5 1.5 0 0 1 47 62 A3 3 0 0 1 41 62 A4.5 4.5 0 0 1 50 62 A6 6 0 0 1 38 62 A7.5 7.5 0 0 1 53 62" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M76 62 A1.5 1.5 0 0 1 79 62 A3 3 0 0 1 73 62 A4.5 4.5 0 0 1 82 62 A6 6 0 0 1 70 62 A7.5 7.5 0 0 1 85 62" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round" transform="rotate(-8 60 84)"/>
+    </svg>
+    <figcaption><b>Dizzy</b>Fallen.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Confused face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M32 47 L52 40 M70 47 Q79 45 87 48" stroke="#f2b705" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="44" cy="63" r="12" fill="#fff"/><circle cx="76" cy="64" r="10" fill="#fff"/>
+      <circle cx="41" cy="60" r="5.5" fill="#1b1b1b"/><circle cx="73" cy="61" r="5" fill="#1b1b1b"/>
+      <text x="96" y="42" text-anchor="middle" font-size="20" font-weight="700" fill="#f2b705" style="font-family:var(--font-head)">?</text>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <figcaption><b>Confused</b>Dead-man triggered, or the phone disconnected.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Sleepy face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <circle cx="44" cy="64" r="12" fill="#fff"/><circle cx="76" cy="64" r="12" fill="#fff"/>
+      <circle cx="44" cy="69" r="5" fill="#1b1b1b"/><circle cx="76" cy="69" r="5" fill="#1b1b1b"/>
+      <rect x="30" y="49" width="28" height="15" fill="#000"/><rect x="62" y="49" width="28" height="15" fill="#000"/>
+      <path d="M32 64 H56 M64 64 H88" stroke="#f2b705" stroke-width="3" stroke-linecap="round"/>
+      <text x="86" y="40" font-size="11" font-weight="700" fill="#9aa0a6">z</text>
+      <text x="94" y="31" font-size="15" font-weight="700" fill="#9aa0a6">Z</text>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <figcaption><b>Sleepy</b>Low-battery warning, or a long idle.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Error face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M37 55 L51 69 M51 55 L37 69 M69 55 L83 69 M83 55 L69 69" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M14 124 H106 V134 Q106 146 94 146 H26 Q14 146 14 134 Z" fill="#d7362b"/>
+      <text x="60" y="139" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">FAULT</text>
+    </svg>
+    <figcaption><b>Error</b>Fault or E-stop. Must never be mistaken for a mood.</figcaption>
+  </figure>
+</div>
+<p>Curious, happy, surprised and love come from the renders; dizzy, confused, sleepy and error are first sketches in the same style. Event expressions (surprised, love) briefly override the mode's default.</p>
+
+<p><strong>Face rig.</strong> The face is drawn from LVGL shapes (circles, arcs, triangles), not stored bitmaps. Each expression is a preset of these parameters:</p>
+<ul>
+  <li>per eye: openness (0–1), scale, pupil offset, lid curve from open to the happy arc</li>
+  <li>brow angle on each side</li>
+  <li>beak opening (0–1)</li>
+  <li>cheek strength</li>
+  <li>accessory: none, heart, sparks, question mark, Zzz or spiral</li>
+</ul>
+<p>Transitions tween over 150–300 ms. Blinks fire every 3–6 seconds at random. Gaze follows the turn and strafe commands. Small accessory icons may be images in PSRAM.</p>
+<p><strong>Stabilized eyes.</strong> Like a real chicken's head, the face holds still while the body moves. The whole face shifts opposite to torso roll (horizontally) and pitch (vertically) using the gravity vector from <code>imu_task</code>, low-pass filtered and clamped to about ±20 px. It is off when fallen or E-stopped. Only the face's bounding box redraws, at no more than 30 fps.</p>
+<p><strong>Sound.</strong> The onboard codec and speaker (to confirm on the 3.5") play short clips from LittleFS or SD through <code>audio_task</code>: a cluck when it starts walking and occasionally while walking (rate-limited, not every step), a startled squawk on a bump or fall, a happy cluck when petted and a sleepy coo on low battery or long idle. Volume and mute live in <code>/settings</code>. Sound must never affect control-loop timing.</p>
+<p><strong>Touch.</strong> A tap triggers love. A long press is an E-stop and turns torque off.</p>
+
+<h3 id="states"><span class="n">9.7</span>Mode state machine</h3>
+<figure class="diagram wide">
+<svg viewBox="0 0 760 330" role="img" aria-label="State machine: BOOT to IDLE; enable, allowed only when the torso is upright, to STAND_INIT, then STAND and WALK. STAND can sit into a scripted SIT state, and SIT stands up again through STAND_INIT. A large tilt sends STAND or WALK to FALLEN. SIT and FALLEN return to IDLE with torque off. In v1.1 FALLEN can go to RECOVER and back to STAND. E-stop and low battery apply from any state.">
+  <rect x="20" y="40" width="90" height="54" rx="10" class="d-box"/>
+  <text x="65" y="72" text-anchor="middle" class="d-t">BOOT</text>
+  <rect x="150" y="40" width="110" height="54" rx="10" class="d-box"/>
+  <text x="205" y="63" text-anchor="middle" class="d-t">IDLE</text>
+  <text x="205" y="81" text-anchor="middle" class="d-s">torque off</text>
+  <rect x="300" y="40" width="130" height="54" rx="10" class="d-box"/>
+  <text x="365" y="63" text-anchor="middle" class="d-t">STAND_INIT</text>
+  <text x="365" y="81" text-anchor="middle" class="d-s">ease to home, 2 s</text>
+  <rect x="470" y="40" width="110" height="54" rx="10" class="d-hw"/>
+  <text x="525" y="63" text-anchor="middle" class="d-t">STAND</text>
+  <text x="525" y="81" text-anchor="middle" class="d-s">policy, zero cmd</text>
+  <rect x="620" y="40" width="120" height="54" rx="10" class="d-hw"/>
+  <text x="680" y="63" text-anchor="middle" class="d-t">WALK</text>
+  <text x="680" y="81" text-anchor="middle" class="d-s">policy, phone cmd</text>
+
+  <line x1="110" y1="67" x2="146" y2="67" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="260" y1="67" x2="296" y2="67" class="d-wire" marker-end="url(#arr)"/>
+  <text x="280" y="32" text-anchor="middle" class="d-s">enable, if upright</text>
+  <line x1="430" y1="67" x2="466" y2="67" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="580" y1="58" x2="616" y2="58" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="620" y1="78" x2="584" y2="78" class="d-wire" marker-end="url(#arr)"/>
+  <text x="600" y="32" text-anchor="middle" class="d-s">cmd ≠ 0 / cmd = 0</text>
+
+  <rect x="300" y="160" width="130" height="54" rx="10" class="d-box"/>
+  <text x="365" y="183" text-anchor="middle" class="d-t">SIT</text>
+  <text x="365" y="201" text-anchor="middle" class="d-s">scripted crouch</text>
+  <line x1="485" y1="94" x2="424" y2="157" class="d-wire" marker-end="url(#arr)"/>
+  <text x="440" y="124" text-anchor="end" class="d-s">sit</text>
+  <line x1="365" y1="158" x2="365" y2="98" class="d-wire" marker-end="url(#arr)"/>
+  <text x="373" y="132" class="d-s">stand</text>
+
+  <rect x="610" y="160" width="130" height="54" rx="10" class="d-alert"/>
+  <text x="675" y="183" text-anchor="middle" class="d-t">FALLEN</text>
+  <text x="675" y="201" text-anchor="middle" class="d-s">torque off or limp</text>
+  <line x1="565" y1="94" x2="628" y2="157" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="675" y1="94" x2="675" y2="156" class="d-wire" marker-end="url(#arr)"/>
+  <text x="683" y="122" class="d-s">tilt &gt; 60°</text>
+  <text x="683" y="137" class="d-s">for 200 ms</text>
+
+  <rect x="470" y="160" width="110" height="54" rx="10" class="d-box d-dash"/>
+  <text x="525" y="183" text-anchor="middle" class="d-t">RECOVER</text>
+  <text x="525" y="201" text-anchor="middle" class="d-s">v1.1 stand-up</text>
+  <line x1="610" y1="187" x2="584" y2="187" class="d-wire d-dash" marker-end="url(#arr)"/>
+  <line x1="525" y1="158" x2="525" y2="98" class="d-wire d-dash" marker-end="url(#arr)"/>
+
+  <path d="M675 214 V250 H205 V98" class="d-wire" marker-end="url(#arr)"/>
+  <path d="M365 214 V250" class="d-wire"/>
+  <circle cx="365" cy="250" r="3" class="d-dot"/>
+  <text x="450" y="244" class="d-s">torque off, back to idle</text>
+
+  <rect x="20" y="270" width="340" height="48" rx="10" class="d-alert"/>
+  <text x="36" y="290" class="d-t">ESTOP, from any state</text>
+  <text x="36" y="308" class="d-s">Torque off; needs an explicit re-enable</text>
+  <rect x="390" y="270" width="350" height="48" rx="10" class="d-box"/>
+  <text x="406" y="290" class="d-t">Low battery, from any state</text>
+  <text x="406" y="308" class="d-s">Controlled stop: sit, then torque off, then IDLE</text>
+</svg>
+<figcaption>Each mode selects its default expression (§9.6). SIT is a script, not a policy, and enable is refused unless the torso is upright.</figcaption>
+</figure>
+
+<p><strong>SIT.</strong> A scripted crouch onto the feet and tail, not a policy: joint targets interpolated over about 2 s at low gains, so v1 needs no extra training. It is entered from STAND on a <code>sit</code> command, after 5 s without a connection, on a servo over-temperature (S4) and as the first step of a low-battery stop (S5). WALK stops first, because the command goes to zero, and then sits. Standing up again goes back through STAND_INIT. SIT holds torque at low gains and drops to IDLE with torque off after a timeout, 30 s by default. The v1.1 <code>SitStand</code> policy replaces the script later.</p>
+<p><strong>Enable only when upright.</strong> STAND_INIT eases the legs to the home pose from wherever they happen to be, which is a bad idea with the robot on its back or held at an angle. IDLE to STAND_INIT is refused unless the gravity vector puts the torso within 20° of vertical (default, tunable). The robot answers the phone with a refusal and the reason, and the status strip shows it (S10).</p>
+
+<h3 id="safety"><span class="n">9.8</span>Safety requirements</h3>
+<div class="tbl"><table>
+  <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+  <tbody>
+    <tr><td>S1</td><td>E-stop from the phone or a long press on the screen turns torque off within one control cycle.</td></tr>
+    <tr><td>S2</td><td>Dead-man: 300 ms without a command sets velocity to zero.</td></tr>
+    <tr><td>S3</td><td>Fall detection per §9.7, with torque off or limp to protect the gears and screen.</td></tr>
+    <tr><td>S4</td><td>Servo health: round-robin reads of temperature and hardware error status. Over the temperature threshold, sit and rest (SIT); on a hardware error, including a Bus Watchdog error (S9), torque off and report.</td></tr>
+    <tr><td>S5</td><td>Low battery (INA226): warn, then sit (SIT) and turn torque off before the BMS cuts out.</td></tr>
+    <tr><td>S6</td><td>Phone commands are clamped to the policy's training ranges.</td></tr>
+    <tr><td>S7</td><td>A policy whose contract hash doesn't match the build cannot enable torque.</td></tr>
+    <tr><td>S8</td><td>S1–S7 and S10, and the software side of S9, are covered by automated tests on the host twin.</td></tr>
+    <tr><td>S9</td><td>Hang protection. A task watchdog covers <code>control_task</code> and <code>imu_task</code>, and a stall resets the MCU. When torque is enabled, every servo's Bus Watchdog (register 98, 20 ms units) is set to about 100 ms, so a hung or crashed MCU leaves the servos stopped within roughly 100 ms instead of replaying the last goal. The e-manual says only that the servo stops on expiry, and the error blocks new goals until it is cleared, so H1 measures what torque does afterwards. After any reset, the first bus action is to clear the Bus Watchdog (write 0) and broadcast torque off. The power switch stays reachable as the last resort.</td></tr>
+    <tr><td>S10</td><td>Enable only when upright: IDLE to STAND_INIT is refused unless the torso is within 20° of vertical by the gravity vector. The refusal and its reason reach the phone and the status strip.</td></tr>
+  </tbody>
+</table></div>
+
+<!-- 10 -->
+<h2 id="milestones"><span class="n">10</span>Milestones</h2>
+<p>Each milestone meets its exit criteria before the next one in its track starts. H0 runs in parallel with Phase A. Before the design freeze only two things may start: driver bring-up on one or two early servos and an IMU (the start of H1 and H2) and fit-check prints (the start of H3). The full exit criteria of H1 to H3 wait for the freeze. H1, H2 and H3 do not depend on each other and can overlap; H4 needs all three, and H5 also waits for S5.</p>
+
+<h3>Phase A: simulation</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
+  <tbody>
+    <tr><td>S0 Toolchain</td><td>Forked <code>microduck_rl</code> trains Pollen's stock walking policy on the RTX 3060 (or HF Jobs). The trained policy walks in the viewer, and plays back on the Mac in CPU MuJoCo.</td></tr>
+    <tr><td>S1 MicroCluck model</td><td>10-servo model with torso (weighed board plus estimates), comb, tail, feet and hip spacing. Loads, holds the stand pose, and the updated regression tests pass. Contract v1 drafted.</td></tr>
+    <tr><td>S2 Walking policy</td><td>Backlash variant with the full randomization, including top payload. Tracks the full range of velocity commands, recovers from moderate pushes, stays stable across random seeds.</td></tr>
+    <tr><td>S3 Design validation</td><td>All §7.2 checks pass or have a decision recorded. Design report and ADRs written. BOM frozen and parts ordered.</td></tr>
+    <tr><td>S4 Policy port</td><td>Export pipeline works. C inference matches the golden vectors within 1e-4, and drives MuJoCo with the same gait as the ONNX policy.</td></tr>
+    <tr><td>S5 Virtual MicroCluck</td><td>Your phone drives the simulated chicken end to end. The face renders with stabilized eyes driven by the simulated IMU. S1–S7, S10 and the software side of S9 pass as automated tests on the twin, including the scripted sit.</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Phase B: hardware</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
+  <tbody>
+    <tr><td>H0 Bench bring-up</td><td>3.5" pinout, touch address, PSRAM size and audio codec verified. The face rig runs on the real screen with blinks. SoftAP, controller page and WebSocket echo work. OTA round-trip with rollback. SD logging. A sound clip plays. Built on the same core and HAL split as the twin.</td></tr>
+    <tr><td>H1 Servo bus</td><td>74HC126 interface built. 10 servos with IDs set, 2 Mbps, Return Delay Time 0. 50 Hz sync read and write for 10 minutes with zero bus errors and p99 jitter ≤ 1 ms while Wi-Fi, the face and audio run. Torque enable and disable, health polling. Bus Watchdog verified: with the firmware halted mid-stand the servos stop within about 100 ms, and the torque state afterwards is recorded.</td></tr>
+    <tr><td>H2 IMU</td><td>Gyro bias calibrated at boot. Gravity vector within ±2° at known tilts, stable at 500 Hz or more. Tilt the board and the eyes stay put.</td></tr>
+    <tr><td>H3 Mechanical design</td><td>Final CAD for the torso frame with board mount, bezel and bumpers, the comb with its top boss, the TPU tail, the feet and the cable routing, built on Microduck's legs and the stance width chosen in S3. No interference across the gait's joint ranges. The sit pose rests on the tail in CAD. The model is regenerated from the final CAD, and S2 is retrained if the mass properties fall outside the randomization ranges. Fit-check prints of the board mount, bezel and one foot match the real board. STLs frozen for production printing.</td></tr>
+    <tr><td>H4 Assembly</td><td>Printed and assembled. Every part weighed and the model updated. Retrained if the measured mass properties fall outside the randomization ranges. Golden test passes on the device.</td></tr>
+    <tr><td>H5 First steps</td><td>Suspended on a gantry or string, then assisted standing, free standing and walking on a flat floor. The scripted sit is proven from standing before the first free-standing attempt. Logs compared against twin runs in the same format.</td></tr>
+    <tr><td>H6 v1 complete</td><td>Phone control polished, including the Gamepad API. Full expression set mapped to states. Stabilized eyes while walking. Sounds. S1–S10 verified on the robot, including the scripted sit and stand-up, the upright check and the Bus Watchdog.</td></tr>
+    <tr><td>H7 v1.1</td><td>Fall recovery (<code>VelStand</code>) and a learned sit and stand (tail-assisted) that replaces the script. Policies hot-swap at runtime.</td></tr>
+  </tbody>
+</table></div>
+<p>v2 adds the claw (§11).</p>
+
+<!-- 11 -->
+<h2 id="claw"><span class="n">11</span>v2 claw</h2>
+<ul>
+  <li>Claw servos join the same Dynamixel bus, so no new pins are needed.</li>
+  <li>It mounts on the comb's top boss; the comb is removed or reworked as the claw's cover.</li>
+  <li><strong>Option A:</strong> a fixed gripper on top of the torso for carrying things handed to it. Simplest.</li>
+  <li><strong>Option B:</strong> a one- or two-joint arm (shoulder pitch and gripper) that swings forward and down. Floor pickup needs a crouch-and-reach policy, like Microduck's <code>GroundPick</code> task with its beak.</li>
+  <li>v1 prepares for it with the shared boss, the mass reserve and payload randomization in training (§7.1).</li>
+  <li>Total mass stays at or below ~850 g; the XL330s are sized for Microduck's ~800 g.</li>
+</ul>
+
+<!-- 12 -->
+<h2 id="risks"><span class="n">12</span>Risks and mitigations</h2>
+<div class="tbl"><table>
+  <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+  <tbody>
+    <tr><td>Sim2real gap</td><td>Same servos as Pollen's actuator model, backlash training, measured mass properties, the sim2real contract, identical logs from twin and robot.</td></tr>
+    <tr><td>Mass estimates are wrong</td><td>Weigh the board now; mass randomization covers estimation error; H3 regenerates the model from the final CAD, H4 updates it with weighed parts, and S2 is retrained if needed.</td></tr>
+    <tr><td>Mechanical design takes longer than planned</td><td>CAD starts in S1 and is the source of the model. Fit-check prints on the board you own before the freeze. H3 has its own exit criteria.</td></tr>
+    <tr><td>Firmware hang leaves the servos driven</td><td>Task watchdog, Bus Watchdog on every servo, torque off after any reset, a reachable power switch (S9).</td></tr>
+    <tr><td>Robot enabled lying down or held at an angle</td><td>Enable is refused unless the torso is upright (S10).</td></tr>
+    <tr><td>Reward tuning eats time</td><td>Start from Pollen's tuned task; change one thing at a time from the stock duck.</td></tr>
+    <tr><td>The twin is too idealized</td><td>Encoder quantization, bus latency, IMU noise and command delay in the host HAL (§8.3).</td></tr>
+    <tr><td>3.5" pinout differs from the 2.8"</td><td>Verify in H0. Remap through the GPIO matrix; worst case, poll the IMU instead of using its interrupt.</td></tr>
+    <tr><td>Wi-Fi interrupts cause loop jitter</td><td>Core separation; measured in H1 under full load.</td></tr>
+    <tr><td>Stabilized face forces big redraws</td><td>Redraw only the face's bounding box, cap at 30 fps, clamp the offset; measure core 0 load and reduce if needed.</td></tr>
+    <tr><td>Internal RAM pressure</td><td>PSRAM placement, a small actor network, heap high-water telemetry.</td></tr>
+    <tr><td>Servo overheating</td><td>Thermal check in S3, temperature monitoring and auto-rest, low mass.</td></tr>
+    <tr><td>Screen damage in falls</td><td>Raised bezel, bumpers, recessed glass; tail as a rear bumper.</td></tr>
+    <tr><td>Toes catch the other foot</td><td>Toe clearance check in S3.</td></tr>
+    <tr><td>Brownouts</td><td>Separate rails, bulk capacitance, a BMS sized for peaks.</td></tr>
+    <tr><td>Non-commercial mesh license</td><td>Personal project only; redesign the legs before any commercial use.</td></tr>
+    <tr><td>Servo cost and availability</td><td>Order at design freeze with spares; servos are most of the BOM.</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="watchlist">Possible issue watchlist</h3>
+<p>Defaults and decisions that are reasonable now but may need to change once real hardware or a real phone is in the loop. Each one says where it gets checked.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Current setting</th><th>What could go wrong</th><th>Check at</th></tr></thead>
+  <tbody>
+    <tr><td>Upright limit for enable (S10)</td><td>Torso within 20° of vertical</td><td>Too strict and it refuses a valid stance on a gantry or a slight slope. Too loose and STAND_INIT starts from a pose it cannot recover from.</td><td>S5 twin tests, H5 gantry</td></tr>
+    <tr><td>SIT timeout</td><td>30 s, then torque off and IDLE</td><td>Too long and the servos heat while holding the crouch. Too short and the robot goes limp while someone is still playing with it.</td><td>S3 sit check, H5 and H6</td></tr>
+    <tr><td>Bus Watchdog time (S9)</td><td>About 100 ms (5 units of 20 ms), five control cycles</td><td>Too short and a Wi-Fi or flash stall trips it during a walk. Too long and a hung MCU keeps driving for longer. The e-manual does not say whether torque stays on after expiry, so the resulting safe state is unconfirmed.</td><td>H1, with the firmware halted mid-stand</td></tr>
+    <tr><td>Disconnect behavior</td><td>5 s without a connection sits the robot (it used to keep standing, or optionally sit)</td><td>A phone that sleeps or switches apps makes the robot sit mid-play. A setting in <code>/settings</code> to choose stand or sit may be worth adding.</td><td>H6 phone testing</td></tr>
+    <tr><td>Return Delay Time</td><td>0 on every servo</td><td>At 2 Mbps a servo can start its reply before the 74HC126's DIR line has released, corrupting replies. A small nonzero value costs little: ten servos at 20–50 µs add 0.2–0.5 ms to the sync read, well inside the 10 ms slack. The servo default is 250 units of 2 µs, or 500 µs.</td><td>H1 bus error counts</td></tr>
+  </tbody>
+</table></div>
+
+<!-- 13 -->
+<h2 id="questions"><span class="n">13</span>Open questions</h2>
+<ol>
+  <li>3.5" FNK0104 details: exact pinout, touch controller and address, PSRAM size, 5 V input location, and whether the audio codec and amp match the 2.8".</li>
+  <li>Which XL330 variant (M288 or M077) Pollen's actuator model targets. Check <code>microduck_constants.py</code>.</li>
+  <li>The exact composition of Pollen's 48-value proprioception block and their action post-processing (<code>mdp.py</code>, <code>robotd</code>).</li>
+  <li>IMU choice. The ICM-42688-P is currently supply-constrained, with at least one breakout seller citing severe shortages and raised prices. Alternatives: LSM6DSOX or LSM6DSV16X with on-MCU fusion, or BNO085 with on-chip fusion (its I2C has known quirks on the ESP32).</li>
+  <li>Operating system on the RTX 3060 machine. MuJoCo Warp and mjlab are Linux-first; a Windows machine likely needs WSL2.</li>
+  <li>CAD tool. Onshape is recommended for the <code>onshape-to-robot</code> pipeline.</li>
+  <li>Twin process layout: LVGL in the same process as the harness or alongside it.</li>
+  <li>Battery choice and target runtime.</li>
+  <li>Reuse Microduck's leg STLs as they are, or redesign.</li>
+  <li>Firmware language: C (default), C++ or Rust (esp-rs).</li>
+  <li>Final designs for the dizzy, confused, sleepy and error faces.</li>
+</ol>
+
+<!-- 14 -->
+<h2 id="repo"><span class="n">14</span>Repo layout</h2>
+<pre><code>microcluck/
+├── CLAUDE.md                   Working notes for Claude Code (§15)
+├── docs/
+│   ├── PRD.html                This document
+│   ├── sim2real-contract.md    Observation and action contract (versioned, hashed)
+│   ├── design-report.md        S3 results
+│   ├── face-spec.md            Expression presets, rig parameters, state mapping
+│   ├── wiring.md               Pin map, power, schematics
+│   ├── bom.md
+│   └── decisions/              One ADR per decision
+├── firmware/                   ESP-IDF project
+│   ├── main/
+│   └── components/
+│       ├── core/               Hardware-independent C: control, state machine,
+│       │                       safety, policy, face logic, protocol
+│       └── hal_esp32/          dxl, imu, net, display, audio, power, log
+├── twin/                       Virtual MicroCluck
+│   ├── hal_host/               Simulated bus, IMU, clock, power
+│   ├── harness/                Python: MuJoCo + BAM, WebSocket server, fault injection
+│   └── face_sdl/               LVGL desktop build of the face
+├── web/                        Controller page, bundled into firmware and twin
+├── assets/                     Sound clips, face accessory icons
+├── tools/
+│   └── policy_export/          ONNX to C header, golden vectors, host tests
+├── sim/                        Submodule: fork of microduck_rl
+└── hardware/                   CAD, STLs (legs, feet, comb, tail), wiring</code></pre>
+
+<!-- 15 -->
+<h2 id="claude-code"><span class="n">15</span>Notes for Claude Code</h2>
+<ul>
+  <li>Phase A comes first. H0 bench work, early driver bring-up on one or two servos and fit-check prints may run in parallel. The full exit criteria of H1 to H3, and everything after them, wait for the design freeze (§3).</li>
+  <li>Work milestone by milestone and don't start the next until the exit criteria are met (§10).</li>
+  <li>Code in <code>firmware/components/core</code> never includes ESP-IDF headers. It reaches hardware only through the HAL (§8.1), and every core change must build and pass tests on the twin.</li>
+  <li><code>docs/sim2real-contract.md</code> is the source of truth for observation and action layout. Firmware, twin and sim must reference the same contract hash.</li>
+  <li><code>docs/face-spec.md</code> is the source of truth for expression presets and the state-to-expression mapping.</li>
+  <li>Never hand-edit generated policy headers; regenerate them with <code>tools/policy_export</code>.</li>
+  <li>Nothing in <code>control_task</code> blocks or allocates. The face and audio must never affect its timing.</li>
+  <li>Training runs on the RTX 3060 machine (CUDA). Playback, the twin and firmware work run on the Mac.</li>
+  <li>Hardware-in-the-loop steps (wiring, soldering, flashing, gantry tests, weighing parts) are manual. Flag them for Neil rather than assuming results.</li>
+  <li>Record significant decisions as ADRs in <code>docs/decisions/</code>.</li>
+</ul>
+
+<!-- 16 -->
+<h2 id="references"><span class="n">16</span>References</h2>
+<ul>
+  <li><a href="https://store.pollen-robotics.com/products/microduck">Pollen Robotics: Microduck product page</a></li>
+  <li><a href="https://github.com/pollen-robotics/microduck">pollen-robotics/microduck</a>, the onboard runtime and simulated duck</li>
+  <li><a href="https://github.com/pollen-robotics/microduck_rl">pollen-robotics/microduck_rl</a>, training, robot models and export</li>
+  <li><a href="https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/">ROBOTIS XL330-M288-T e-Manual</a></li>
+  <li><a href="https://openelab.io/products/dynamixel-xl330-m288-t">XL330-M288-T rated torque and encoder</a></li>
+  <li><a href="https://store.freenove.com/products/fnk0104">Freenove FNK0104 ESP32-S3 Display</a> and <a href="http://freenove.com/fnk0104">tutorial</a></li>
+  <li><a href="https://github.com/MrTartuf0/onda-flac-player/wiki/Hardware">FNK0104B (2.8") pinout reference</a></li>
+  <li><a href="https://www.elecrow.com/icm-42688-p-ultra-low-power-imu-breakout.html">ICM-42688-P breakout supply note</a></li>
+  <li><a href="https://github.com/apirrone/Open_Duck_Mini">Open Duck Mini v2</a>, the predecessor project</li>
+</ul>
+
+</main>
+</div>
+
+<script>
+(function () {
+  var face = document.getElementById('heroFace');
+  var eyes = document.getElementById('heroEyes');
+  var pupils = document.getElementById('heroPupils');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function blink() {
+    eyes.classList.remove('blinking');
+    void eyes.getBoundingClientRect();
+    eyes.classList.add('blinking');
+  }
+  eyes.addEventListener('animationend', function () { eyes.classList.remove('blinking'); });
+  face.addEventListener('click', blink);
+  if (!reduce) { setTimeout(blink, 900); }
+
+  if (reduce) return;
+  var raf = null;
+  window.addEventListener('pointermove', function (e) {
+    if (raf) return;
+    raf = requestAnimationFrame(function () {
+      raf = null;
+      var r = face.getBoundingClientRect();
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height * 0.43;
+      var dx = e.clientX - cx;
+      var dy = e.clientY - cy;
+      var d = Math.sqrt(dx * dx + dy * dy) || 1;
+      var k = Math.min(1, d / 300);
+      var ox = (dx / d) * 9 * k;
+      var oy = (dy / d) * 9 * k;
+      pupils.setAttribute('transform', 'translate(' + (ox - 3).toFixed(2) + ' ' + (oy - 3).toFixed(2) + ')');
+    });
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
