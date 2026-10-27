@@ -79,6 +79,10 @@ from .microduck_roulade_env_cfg import (
     MicroduckRouladeRlCfg,
 )
 from .backlash import make_backlash_variant
+from .microcluck_velocity_env_cfg import (
+    make_microcluck_velocity_env_cfg,
+    MicroCluckRlCfg,
+)
 
 # Standard velocity task
 register_mjlab_task(
@@ -273,6 +277,24 @@ _BACKLASH_TASKS = (
     ("Mjlab-RollerCrouch-Flat-Backlash-MicroDuck", make_microduck_roller_crouch_env_cfg, {}, MicroduckRollerCrouchRlCfg, _BL_ROLLERS),
     ("Mjlab-RollerSlope-Flat-Backlash-MicroDuck", make_microduck_roller_slope_env_cfg, {}, MicroduckRollerSlopeRlCfg, _BL_ROLLERS),
 )
+# MicroCluck: 10 leg servos under a screen torso, no neck/head (tasks/microcluck_velocity_env_cfg.py).
+from mjlab_microduck.robot.microcluck_constants import MICROCLUCK_WALK_BACKLASH_ROBOT_CFG
+
+register_mjlab_task(
+    task_id="Mjlab-Velocity-Flat-MicroCluck",
+    env_cfg=make_microcluck_velocity_env_cfg(),
+    play_env_cfg=make_microcluck_velocity_env_cfg(play=True),
+    rl_cfg=MicroCluckRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+register_mjlab_task(
+    task_id="Mjlab-Velocity-Flat-Backlash-MicroCluck",
+    env_cfg=make_backlash_variant(make_microcluck_velocity_env_cfg(), MICROCLUCK_WALK_BACKLASH_ROBOT_CFG),
+    play_env_cfg=make_backlash_variant(make_microcluck_velocity_env_cfg(play=True), MICROCLUCK_WALK_BACKLASH_ROBOT_CFG),
+    rl_cfg=MicroCluckRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+
 for _task_id, _make_cfg, _kw, _rl_cfg, _robot_cfg in _BACKLASH_TASKS:
     register_mjlab_task(
         task_id=_task_id,
