@@ -331,13 +331,15 @@ svg text { font-family: var(--font-body); }
     <h1>MicroCluck</h1>
     <p class="lede">Product requirements for a 25 cm walking robot chicken whose body is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.7</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.9</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>27 October 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.9</strong> OpenSCAD chosen for the parametric parts. Pollen's foot stays and gets three chunky toes in front, defined in hardware/ and kept as an option next to the plain sole (§6.5).</li>
+        <li><strong>v0.8</strong> Corrections from building the first MicroCluck model: unused command slots use tiny sampling ranges, the stock actor is 512-256-128, Pollen trains at action scale 1.0 and runs 0.9, and the head chain is 38% of the stock duck's mass. The robot_groundcontact models exist and are named correctly.</li>
         <li><strong>v0.7</strong> Servos now run straight from the 2S pack, like Microduck and its training model, so the 5 V servo buck is gone (§6.4). Command slots stay zero-padded (49 inputs) and the model is edited by hand instead of re-exported from Onshape (§7.1). Added Pollen's known runtime values to the contract and two watchlist rows.</li>
         <li><strong>v0.6</strong> One development machine: the Windows PC with the RTX 3060. The Mac is out of the plan, and the open question on where the tools run is reworded for native Windows versus WSL2.</li>
         <li><strong>v0.5</strong> Resolved the H1/H2 early-start contradiction. Added H3 Mechanical design (the later hardware milestones are now H4 to H7). Added a scripted SIT state, an upright check before enable (S10) and hang protection (S9). Retired the Markdown copy of the PRD. Added a possible issue watchlist (§12).</li>
@@ -732,7 +734,7 @@ svg text { font-family: var(--font-body); }
   <li><strong>Torso:</strong> screen frame with a raised bezel and rubber corner bumpers, glass recessed 2–3 mm. Forward falls land on the screen. Bezel in yellow, per the renders.</li>
   <li><strong>Comb:</strong> snap-on piece on a top mounting boss. The v2 claw uses the same boss and replaces the comb, or the comb becomes the claw's cover.</li>
   <li><strong>Tail:</strong> feathers in slightly flexible TPU, so the tail doubles as a bumper for backward falls and a third contact point when sitting. It shifts the center of mass backward, so its mass and collision shape go into the model.</li>
-  <li><strong>Feet:</strong> three-toed chicken feet on a flat sole, which is the designed contact surface. Shorten the inner toe, or include the toes in the collision model so the policy learns to avoid foot-to-foot contact on narrow steps.</li>
+  <li><strong>Feet:</strong> three-toed chicken feet on a flat sole, which is the designed contact surface. Shorten the inner toe, or include the toes in the collision model so the policy learns to avoid foot-to-foot contact on narrow steps. The feet keep Pollen's foot and ankle interface and add three chunky toes fused onto the front wall of the sole. The toes are a parametric OpenSCAD part in <code>hardware/</code>: one parameter table (<code>params.scad</code>) drives the printed toes, their appearance in the simulation and the simulation's collision shape, the convex hull of Pollen's sole plus the toes. They touch the floor and extend the contact patch 17 mm forward, so they change the walking dynamics: the plain sole stays the default until the two are compared in training (S2, S3).</li>
   <li><strong>Stance:</strong> hip spacing is decided in simulation (§7.2). Wider spacing stands steadier but makes each step's side-to-side weight shift larger.</li>
   <li><strong>IMU:</strong> rigidly mounted to the torso frame. Its exact pose relative to the model's base link goes into the model.</li>
   <li><strong>Cabling:</strong> daisy-chain routing with strain relief across the hip joints.</li>
@@ -760,14 +762,14 @@ svg text { font-family: var(--font-body); }
 <ol>
   <li>Fork <code>pollen-robotics/microduck_rl</code> and include it as the <code>sim/</code> submodule. Reproduce Pollen's stock walking policy first (S0).</li>
   <li>Edit Pollen's exported XML by hand. Their <code>onshape-to-robot</code> configs (<code>config_mjcf_*.json</code>) cannot be re-run because the CAD is not published. Keep Pollen's leg meshes, and build the torso, comb and tail from primitive shapes whose masses and inertias come from the H3 CAD, or from estimates until it exists.</li>
-  <li>Create MicroCluck versions of the walking model, <code>robot_walk.xml</code>, and its backlash variant (Pollen's <code>add_backlash.py</code> generates these). The <code>robot_allcollisions*.xml</code> models belong to the v1.1 tasks. Confirm in S1 which model each task loads.</li>
+  <li>Create MicroCluck versions of the walking model, <code>robot_walk.xml</code>, and its backlash variant (Pollen's <code>add_backlash.py</code> generates these). Velocity loads the walk models. The <code>robot_groundcontact*.xml</code> and <code>robot_allcollisions*.xml</code> models belong to the v1.1 tasks (StandUp and VelStand). Keep the two sole geoms named <code>left_foot_collision</code> and <code>right_foot_collision</code>, because the collision and contact setup finds them by name.</li>
   <li>Remove the neck and head joints (<code>neck_pitch</code>, <code>head_pitch</code>, <code>head_yaw</code>, <code>head_roll</code>) and the beak.</li>
   <li>Add the torso with measured or estimated mass, center of mass and inertia for the board, frame, battery, comb and tail. Give the tail a collision shape.</li>
   <li>Replace the feet with the MicroCluck sole (and toes, if kept long). Set the hip spacing.</li>
   <li>Re-derive the home pose and the standing trunk height from the new model, because Pollen's values assume the head's mass. A rest pose must hold for about 3 s from noisy starts, with tilt checked as well as height.</li>
-  <li>Change the joint count from 14 to 10 everywhere: actuators, observations, actions, joint-index constants and the repo's regression tests, which lock in joint-index mappings. Keep the head-pose and body-pose command slots in the observation, zero-padded with zero sampling ranges, because Pollen's rule is never to delete a slot. Remove the head-pose reward terms (<code>head_pose_tracking</code>, <code>head_pose_bias</code>) and their curriculum entries, which have no joints left to act on.</li>
+  <li>Change the joint count from 14 to 10 everywhere: actuators, observations, actions, joint-index constants and the repo's regression tests, which lock in joint-index mappings. Keep the head-pose and body-pose command slots in the observation, padded with tiny sampling ranges (about ±0.001) so the inputs stay alive, because Pollen's rule is never to delete a slot. The firmware always sends zeros there. Remove the head-pose reward terms (<code>head_pose_tracking</code>, <code>head_pose_bias</code>) and their curriculum entries, which have no joints left to act on.</li>
   <li><strong>Observation contract v1 (proposed, 49 values):</strong> gyro (3), projected gravity (3), joint positions (10), joint velocities (10), last action (10), then Pollen's 13-slot command block: twist (3), head pose (4, always zero) and body pose (6, always zero). This is Pollen's runtime layout with 10 joints in place of 14, as their <code>robotd</code> design doc describes it. Zero-padding keeps the fork's code and tests close to upstream. The 10 dead inputs cost about 2.5k parameters and can be pruned later.</li>
-  <li><strong>Actor network:</strong> a small MLP, target 256-128-64 with ELU, about 55k parameters or 218 KB as float32. The critic can be any size because it is never deployed.</li>
+  <li><strong>Actor network:</strong> Pollen's actor is 512-256-128 with ELU, about 190k parameters or 0.76 MB as float32 at 49 inputs. The first MicroCluck run keeps it, so the only change from the stock duck is the body. A smaller 256-128-64 actor (about 55k parameters or 218 KB) is an S2 ablation for the ESP32. The critic can be any size because it is never deployed.</li>
   <li><strong>Domain randomization:</strong> keep Pollen's defaults, including the 6.5–8.2 V servo supply with load-dependent sag, which now matches the pack-powered robot, and add torso mass and center of mass ±10–15% for measurement error, plus a <strong>0–100 g payload at the top of the torso</strong> so v1 walking survives the v2 claw.</li>
   <li>Train the Backlash variants. Reduce <code>num-envs</code> if the 3060's 12 GB runs out.</li>
 </ol>
@@ -810,7 +812,7 @@ svg text { font-family: var(--font-body); }
   <li>Command ranges, which the phone commands are clamped to</li>
   <li>Loop rate (50 Hz) and expected command delay</li>
 </ul>
-<p><strong>Pollen's values, to confirm in S0.</strong> From their runtime docs: joint velocity comes from the servo's velocity register, read in the same fast sync read as position. Position P gain is 200 with I and D at zero, and 0.8 times that when standing. Action scale is 0.9 with the home pose as the offset. Return Delay Time is 0 and Shutdown is 52. Their runtime also applies a first-order low-pass to the leg targets, while the training repo says policies are trained unfiltered, so settle that in S0. Stock command ranges are ±0.4 m/s forward, ±0.3 m/s sideways and ±1.0 rad/s turning.</p>
+<p><strong>Pollen's values, to confirm in S0.</strong> From their runtime docs: joint velocity comes from the servo's velocity register, read in the same fast sync read as position. Position P gain is 200 with I and D at zero, and 0.8 times that when standing. Training uses action scale 1.0, but their runtime runs 0.9 with the home pose as the offset, a deliberate deviation to understand before copying it. Return Delay Time is 0 and Shutdown is 52. Their runtime also applies a first-order low-pass to the leg targets, while the training repo says policies are trained unfiltered, so settle that in S0. Stock command ranges are ±0.4 m/s forward, ±0.3 m/s sideways and ±1.0 rad/s turning.</p>
 <p>Firmware refuses to enable torque if a policy's contract hash doesn't match its build.</p>
 
 <!-- 8 -->
@@ -947,7 +949,7 @@ svg text { font-family: var(--font-body); }
 <h3 id="memory"><span class="n">9.4</span>Memory plan</h3>
 <ul>
   <li><strong>Internal SRAM:</strong> Wi-Fi and LwIP, task stacks, DMA-capable display buffers, I2S buffers, bus and IMU buffers.</li>
-  <li><strong>PSRAM:</strong> non-DMA LVGL buffers, face accessories, sound clips (or stream from LittleFS or SD), policy weights at ~218 KB per behavior, the log ring buffer.</li>
+  <li><strong>PSRAM:</strong> non-DMA LVGL buffers, face accessories, sound clips (or stream from LittleFS or SD), policy weights at ~0.76 MB per behavior for the stock-size actor, ~218 KB for the small one, the log ring buffer.</li>
   <li>Measure inference with weights in PSRAM first. Move the active policy to internal SRAM or quantize to int8 only if it exceeds 5 ms.</li>
   <li>Report heap high-water marks in telemetry.</li>
 </ul>
@@ -1242,7 +1244,8 @@ svg text { font-family: var(--font-body); }
     <tr><td>Disconnect behavior</td><td>5 s without a connection sits the robot (it used to keep standing, or optionally sit)</td><td>A phone that sleeps or switches apps makes the robot sit mid-play. A setting in <code>/settings</code> to choose stand or sit may be worth adding.</td><td>H6 phone testing</td></tr>
     <tr><td>Return Delay Time</td><td>0 on every servo</td><td>At 2 Mbps a servo can start its reply before the 74HC126's DIR line has released, corrupting replies. A small nonzero value costs little: ten servos at 20–50 µs add 0.2–0.5 ms to the sync read, well inside the 10 ms slack. The servo default is 250 units of 2 µs, or 500 µs. Microduck runs 1 Mbps with Return Delay Time 0, which is the proven combination, so starting at 1 Mbps is the safer first try.</td><td>H1 bus error counts</td></tr>
     <tr><td>Servo supply voltage</td><td>Pack voltage straight to the servos, 6.6–8.4 V, above the 3.7–6.0 V rating</td><td>Shorter servo life or early failures that Microduck's setup does not show, and an Input Voltage Error alert on every read above 7.0 V if the firmware does not ignore it.</td><td>H1 with the early servos on the real pack, then H5</td></tr>
-    <tr><td>No head to counterbalance</td><td>No head or neck; the 4 head and 6 body command slots are zero-padded</td><td>In the stock training the head tracks its command loosely (a 0.5 rad tolerance) with a separate penalty on its one-second average offset, which suggests the policy may swing it for balance. Without it, push recovery or gait stability may be worse. The torso and tail also move the center of mass, so the home pose needs re-trimming.</td><td>S0 head-locked ablation, S1 stand test, S2 push tests</td></tr>
+    <tr><td>No head to counterbalance</td><td>No head or neck; the 4 head and 6 body command slots are zero-padded</td><td>The stock duck's head chain is 0.28 kg, 38% of its modeled mass, and Pollen's own notes say it must oscillate while stepping. In training the head tracks its command loosely (a 0.5 rad tolerance) with a separate penalty on its one-second average offset, so the policy can swing it for balance. Without it, push recovery or gait stability may be worse. The placeholder MicroCluck torso is lighter (0.63 kg total) with a lower center of mass, but it sits about 5 mm further forward over the ankle, so the home pose is trimmed by +4.7 degrees (S1).</td><td>S0 head-locked ablation, S1 stand test, S2 push tests</td></tr>
+    <tr><td>Chunky foot toes</td><td>Three toes fused on Pollen's sole, 12 mm reach, counted as collision; the plain sole is the default</td><td>The toes extend the contact patch forward (the center of mass margin goes from 28 to 45 mm) but not backward (16 mm), which was already the tight direction. They can drag during the swing, clip the other foot on narrow steps, and flex in TPU where the simulation is rigid. The gait may shift from Pollen's recipe.</td><td>S2 A/B training (plain vs toes), S3 toe clearance, H5</td></tr>
   </tbody>
 </table></div>
 
@@ -1254,7 +1257,7 @@ svg text { font-family: var(--font-body); }
   <li>Pollen's action post-processing: their runtime applies a low-pass to the leg targets while the training repo says policies are unfiltered (<code>mdp.py</code>, <code>robotd</code>). The 48-value proprioception block is settled: gyro, gravity, joint positions, joint velocities and last action.</li>
   <li>IMU choice. The ICM-42688-P is currently supply-constrained, with at least one breakout seller citing severe shortages and raised prices. Alternatives: LSM6DSOX or LSM6DSV16X with on-MCU fusion, or BNO085 with on-chip fusion (its I2C has known quirks on the ESP32).</li>
   <li>Where the tools run on the single Windows PC. MuJoCo Warp and mjlab are Linux-first, so training likely runs under WSL2. The twin and the firmware tooling can run natively on Windows or in WSL2, and each has a catch. WSL2's default NAT networking hides the twin's WebSocket server from the phone unless mirrored networking or port forwarding is set up. Flashing the ESP32 from WSL2 needs USB passthrough (usbipd-win), while a native ESP-IDF install flashes directly. Whether the BAM actuator model and the twin harness run on native Windows is unconfirmed.</li>
-  <li>CAD tool for the physical design (H3). Pollen's Onshape CAD is not published and the simulation model is edited by hand, so the tool no longer has to match their pipeline. Any tool that exports STLs and mass properties works.</li>
+  <li>CAD tool for the physical design (H3). Decided: OpenSCAD for the parametric parts, with the foot toes done in <code>hardware/</code> and the frame, bezel, comb and tail to follow the same pattern. Organic pieces such as the comb and tail feathers can be sketched elsewhere and exported to STL.</li>
   <li>Twin process layout: LVGL in the same process as the harness or alongside it.</li>
   <li>Battery choice and target runtime. It stays a 2S Li-ion pack, because the actuator model assumes 6.5–8.2 V at the servos.</li>
   <li>Reuse Microduck's leg STLs as they are, or redesign.</li>
@@ -1290,7 +1293,7 @@ svg text { font-family: var(--font-body); }
 ├── tools/
 │   └── policy_export/          ONNX to C header, golden vectors, host tests
 ├── sim/                        Submodule: fork of microduck_rl
-└── hardware/                   CAD, STLs (legs, feet, comb, tail), wiring</code></pre>
+└── hardware/                   OpenSCAD parts and parameter tables (foot first), STLs, wiring</code></pre>
 
 <!-- 15 -->
 <h2 id="claude-code"><span class="n">15</span>Notes for Claude Code</h2>
