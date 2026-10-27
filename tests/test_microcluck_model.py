@@ -87,35 +87,30 @@ def test_head_terms_removed_but_command_slots_kept(task):
     assert all(hi <= 0.01 for _, hi in cfg.commands["head_pose"].ranges + cfg.commands["body_pose"].ranges)
 
 
-CHICKEN_SCENE = MODEL_DIR / "scene_walk_chicken.xml"
+# --- toes: a visual-only add-on on Pollen's sole -------------------------------------------------------
+
+TOES_BUILT = all((build.ASSETS / n).exists() for n in build.TOE_STLS)
 
 
-def _sole_extent_at_stand(scene):
-    """Per side: sole x/y extent relative to the ankle axis and its lowest world z, in the STAND key."""
-    model = mujoco.MjModel.from_xml_path(str(scene))
+@pytest.mark.skipif(not TOES_BUILT, reason="toe STLs not built (hardware/tools/build_toes.sh)")
+@pytest.mark.parametrize("scene", ["scene_walk.xml", "scene_walk_backlash.xml"])
+def test_toes_are_visual_only_and_contact_is_pollens_sole(scene):
+    model = mujoco.MjModel.from_xml_path(str(MODEL_DIR / scene))
     data = mujoco.MjData(model)
     mujoco.mj_resetDataKeyframe(model, data, mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_KEY, "STAND"))
     mujoco.mj_forward(model, data)
-    out = {}
-    for side in ("left", "right"):
-        gid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_foot_collision")
-        mid = model.geom_dataid[gid]
-        v0, n = model.mesh_vertadr[mid], model.mesh_vertnum[mid]
-        world = model.mesh_vert[v0:v0 + n] @ data.geom_xmat[gid].reshape(3, 3).T + data.geom_xpos[gid]
-        ank = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"ankle_{side}")
-        out[side] = (world - data.xpos[ank], world[:, 2].min())
-    return model, out
-
-
-@pytest.mark.skipif(not CHICKEN_SCENE.exists(), reason="chicken foot not built (hardware/tools/build_foot.sh)")
-def test_chicken_foot_matches_pollen_footprint_extents_and_ground_plane():
-    model, chicken = _sole_extent_at_stand(CHICKEN_SCENE)
-    _, pollen = _sole_extent_at_stand(MODEL_DIR / "scene_walk.xml")
-    assert model.nu == 10
     assert model.body_subtreemass[1] == pytest.approx(build.TARGET_TOTAL_MASS, abs=1e-6)
     for side in ("left", "right"):
-        rel, zmin = chicken[side]
-        assert rel[:, 0].min() == pytest.approx(-0.020, abs=0.0015)  # heel behind the ankle axis
-        assert rel[:, 0].max() == pytest.approx(0.034, abs=0.0015)  # toe tips ahead of it
-        assert np.ptp(rel[:, 1]) == pytest.approx(0.0414, abs=0.002)  # width of the toe envelope
-        assert zmin == pytest.approx(pollen[side][1], abs=1e-4)  # same ground plane as Pollen's sole
+        toes = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_toes_visual")
+        assert toes >= 0
+        assert model.geom_contype[toes] == 0 and model.geom_conaffinity[toes] == 0
+        # the toes reach past the front wall (34 mm ahead of the ankle axis) and stay off the floor
+        ank = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"ankle_{side}")
+        mid = model.geom_dataid[toes]
+        v0, n = model.mesh_vertadr[mid], model.mesh_vertnum[mid]
+        world = model.mesh_vert[v0:v0 + n] @ data.geom_xmat[toes].reshape(3, 3).T + data.geom_xpos[toes]
+        assert (world - data.xpos[ank])[:, 0].max() > 0.034 + 0.012
+        assert world[:, 2].min() > 0.004
+        # contact is still exactly Pollen's sole: the lowest point of the collision mesh defines the ground
+        sole = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_foot_collision")
+        assert model.geom_contype[sole] != 0 or model.geom_conaffinity[sole] != 0
