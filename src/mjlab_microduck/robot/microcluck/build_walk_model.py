@@ -26,13 +26,16 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 
+import mujoco
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
 SRC_DIR = HERE.parent / "microduck"
 SRC_XML = SRC_DIR / "robot_walk.xml"
-OUT_XML = HERE / "robot_walk.xml"
-OUT_XML_BACKLASH = HERE / "robot_walk_backlash.xml"
+# The chicken-foot variant needs these binary STLs, written by hardware/tools/build_foot.sh <out> <assets>
+# from the OpenSCAD sources in the MicroCluck repo (hardware/params.scad is the single parameter table).
+ASSETS = HERE / "assets"
+FOOT_STLS = [f"{kind}_{side}.stl" for kind in ("foot", "foot_collision") for side in ("left", "right")]
 
 # --- PLACEHOLDER budget (PRD 6.5 mass budget, middle of each range, v1 without the claw reserve) ---
 # 10 x XL330 180 g + board 60 g + battery 85 g + frame/feet/bumpers 225 g + comb/tail 22 g + electronics 55 g
@@ -208,21 +211,91 @@ def build() -> None:
                 f'pos="{SCREEN_FACE[1]}" rgba="{SCREEN_FACE[2]}"/>\n')
     lines = lines[:t0] + kept + lines[first_child:]
 
-    OUT_XML.write_text("".join(lines))
-
-    # 4. backlash twin (2 deg total play), same as Pollen's walk_backlash pipeline
-    OUT_XML_BACKLASH.write_text(OUT_XML.read_text())
-    subprocess.run([sys.executable, str(SRC_DIR / "add_backlash.py"), str(OUT_XML_BACKLASH), "--backlash-deg", "2.0"],
-                   check=True)
-
-    # 5. scenes with a 10-joint STAND key
-    write_scene(HERE / "scene_walk.xml", "robot_walk.xml", backlash=False)
-    write_scene(HERE / "scene_walk_backlash.xml", "robot_walk_backlash.xml", backlash=True)
+    # 4. Pollen's sole variant first (default); the chicken foot is placed from its stand pose
+    write_variant("", lines)
+    if all((ASSETS / n).exists() for n in FOOT_STLS):
+        write_variant("_chicken", chicken_lines(lines, foot_placements()))
+    else:
+        print("chicken-foot STLs not found in assets/: skipped (run hardware/tools/build_foot.sh <out> <assets>)")
 
     print(f"legs {legs:.4f} kg (kept), trunk {mass:.4f} kg, total {legs + mass:.4f} kg")
     print(f"trunk CoM in trunk frame: {np.round(com, 4)}")
     for p, m in parts:
         print(f"  {p.name:18s} {m:.4f} kg  {p.note}")
+
+
+def write_variant(suffix: str, lines: list[str]) -> None:
+    """Write robot_walk{suffix}.xml, its 2-degree backlash twin (Pollen's add_backlash.py) and the scenes."""
+    robot = HERE / f"robot_walk{suffix}.xml"
+    backlash = HERE / f"robot_walk_backlash{suffix}.xml"
+    robot.write_text("".join(lines))
+    backlash.write_text(robot.read_text())
+    subprocess.run([sys.executable, str(SRC_DIR / "add_backlash.py"), str(backlash), "--backlash-deg", "2.0"], check=True)
+    write_scene(HERE / f"scene_walk{suffix}.xml", robot.name, backlash=False, src_name="scene_walk.xml")
+    write_scene(HERE / f"scene_walk_backlash{suffix}.xml", backlash.name, backlash=True, src_name="scene_walk_backlash.xml")
+
+
+def lowest_sole_z(m, d) -> float:
+    zmin = 1e9
+    for side in ("left", "right"):
+        gid = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_foot_collision")
+        mid = m.geom_dataid[gid]
+        v0, n = m.mesh_vertadr[mid], m.mesh_vertnum[mid]
+        world = m.mesh_vert[v0:v0 + n] @ d.geom_xmat[gid].reshape(3, 3).T + d.geom_xpos[gid]
+        zmin = min(zmin, world[:, 2].min())
+    return float(zmin)
+
+
+def foot_placements() -> dict[str, tuple[np.ndarray, np.ndarray]]:
+    """Pose of the hardware/ foot frame in each ankle body frame.
+
+    The foot is defined in the stand-pose foot frame (world-aligned axes, origin on the ground under the
+    ankle axis), so the placement comes from forward kinematics at the home pose of the model just written.
+    """
+    m = mujoco.MjModel.from_xml_path(str(HERE / "scene_walk.xml"))
+    d = mujoco.MjData(m)
+    mujoco.mj_resetDataKeyframe(m, d, mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_KEY, "STAND"))
+    mujoco.mj_forward(m, d)
+    ground = lowest_sole_z(m, d)  # the new sole sits where Pollen's lowest sole point is
+    placements = {}
+    for side in ("left", "right"):
+        ank = mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, f"ankle_{side}")
+        rot, pos = d.xmat[ank].reshape(3, 3), d.xpos[ank].copy()
+        origin = np.array([pos[0], pos[1], ground])
+        quat = np.zeros(4)
+        mujoco.mju_mat2Quat(quat, rot.T.flatten())
+        placements[side] = (rot.T @ (origin - pos), quat)
+    return placements
+
+
+def chicken_lines(lines: list[str], placements) -> list[str]:
+    """Swap Pollen's sole/foot meshes for the hardware/ chicken foot (visual + the named collision plate)."""
+    out: list[str] = []
+    emitted: set[str] = set()
+    pollen = {"left": ("sole_left", "foot_left"), "right": ("sole_right", "foot_right")}
+    for l in lines:
+        if any(l.strip() == f"<!-- Part {n} -->" for names in pollen.values() for n in names):
+            continue
+        side = next((s for s, names in pollen.items() if any(f'mesh="{n}"' in l for n in names)), None)
+        if side:
+            if side not in emitted:
+                emitted.add(side)
+                indent = l[: len(l) - len(l.lstrip())]
+                pos, quat = placements[side]
+                pose = f'pos="{fmt(pos)}" quat="{fmt(quat)}"'
+                out.append(f"{indent}<!-- MicroCluck foot ({side}): hardware/foot.scad, placed from the stand pose -->\n")
+                out.append(f'{indent}<geom type="mesh" class="visual" mesh="mc_foot_{side}" {pose} rgba="1 0.403922 0.121569 1"/>\n')
+                out.append(f'{indent}<geom type="mesh" name="{side}_foot_collision" class="collision" '
+                           f'mesh="mc_foot_collision_{side}" {pose} rgba="0.956863 0.686275 0.137255 1"/>\n')
+            continue
+        if l.strip() == "</asset>":
+            for side in ("left", "right"):
+                for kind in ("foot", "foot_collision"):
+                    out.append(f'    <mesh name="mc_{kind}_{side}" file="../../microcluck/assets/{kind}_{side}.stl" '
+                               f'scale="0.001 0.001 0.001"/>\n')
+        out.append(l)
+    assert emitted == {"left", "right"}, f"foot geoms not found: {emitted}"
+    return out
 
 
 def stand_qpos(backlash: bool) -> str:
@@ -243,8 +316,8 @@ def stand_ctrl() -> str:
     return " ".join(f"{v:.8g}" for v in left + right)
 
 
-def write_scene(path: Path, robot_file: str, backlash: bool) -> None:
-    src = (SRC_DIR / path.name).read_text()
+def write_scene(path: Path, robot_file: str, backlash: bool, src_name: str) -> None:
+    src = (SRC_DIR / src_name).read_text()
     head = src.split("<keyframe>")[0].replace("robot_walk.xml", robot_file).replace("robot_walk_backlash.xml", robot_file)
     n_joints = 20 if backlash else 10
     zeros = " ".join("0" for _ in range(n_joints))

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import mujoco
+import numpy as np
 import pytest
 
 import mjlab_microduck.tasks  # noqa: F401  (registers the tasks)
@@ -84,3 +85,37 @@ def test_head_terms_removed_but_command_slots_kept(task):
     assert len(cfg.commands["head_pose"].ranges) == 4
     assert len(cfg.commands["body_pose"].ranges) == 6
     assert all(hi <= 0.01 for _, hi in cfg.commands["head_pose"].ranges + cfg.commands["body_pose"].ranges)
+
+
+CHICKEN_SCENE = MODEL_DIR / "scene_walk_chicken.xml"
+
+
+def _sole_extent_at_stand(scene):
+    """Per side: sole x/y extent relative to the ankle axis and its lowest world z, in the STAND key."""
+    model = mujoco.MjModel.from_xml_path(str(scene))
+    data = mujoco.MjData(model)
+    mujoco.mj_resetDataKeyframe(model, data, mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_KEY, "STAND"))
+    mujoco.mj_forward(model, data)
+    out = {}
+    for side in ("left", "right"):
+        gid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_foot_collision")
+        mid = model.geom_dataid[gid]
+        v0, n = model.mesh_vertadr[mid], model.mesh_vertnum[mid]
+        world = model.mesh_vert[v0:v0 + n] @ data.geom_xmat[gid].reshape(3, 3).T + data.geom_xpos[gid]
+        ank = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"ankle_{side}")
+        out[side] = (world - data.xpos[ank], world[:, 2].min())
+    return model, out
+
+
+@pytest.mark.skipif(not CHICKEN_SCENE.exists(), reason="chicken foot not built (hardware/tools/build_foot.sh)")
+def test_chicken_foot_matches_pollen_footprint_extents_and_ground_plane():
+    model, chicken = _sole_extent_at_stand(CHICKEN_SCENE)
+    _, pollen = _sole_extent_at_stand(MODEL_DIR / "scene_walk.xml")
+    assert model.nu == 10
+    assert model.body_subtreemass[1] == pytest.approx(build.TARGET_TOTAL_MASS, abs=1e-6)
+    for side in ("left", "right"):
+        rel, zmin = chicken[side]
+        assert rel[:, 0].min() == pytest.approx(-0.020, abs=0.0015)  # heel behind the ankle axis
+        assert rel[:, 0].max() == pytest.approx(0.034, abs=0.0015)  # toe tips ahead of it
+        assert np.ptp(rel[:, 1]) == pytest.approx(0.0414, abs=0.002)  # width of the toe envelope
+        assert zmin == pytest.approx(pollen[side][1], abs=1e-4)  # same ground plane as Pollen's sole
