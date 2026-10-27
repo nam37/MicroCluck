@@ -4,7 +4,7 @@ A ~25 cm bipedal walking robot chicken whose body is a touchscreen. It follows P
 
 **Status:** planning. The product requirements document is all that exists so far.
 
-- [Product requirements](docs/PRD.html), draft v0.5. It is a single HTML file: download it and open it in a browser, because GitHub shows the source rather than the rendered page.
+- [Product requirements](docs/PRD.html), draft v0.6. It is a single HTML file: download it and open it in a browser, because GitHub shows the source rather than the rendered page.
 - [Earlier Markdown draft (v0.3)](docs/archive/PRD-v0.3.md), superseded and kept for history.
 
 ## Notes

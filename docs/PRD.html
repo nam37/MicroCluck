@@ -331,13 +331,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroCluck</h1>
     <p class="lede">Product requirements for a 25 cm walking robot chicken whose body is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.5</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.6</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>27 October 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.6</strong> One development machine: the Windows PC with the RTX 3060. The Mac is out of the plan, and the open question on where the tools run is reworded for native Windows versus WSL2.</li>
         <li><strong>v0.5</strong> Resolved the H1/H2 early-start contradiction. Added H3 Mechanical design (the later hardware milestones are now H4 to H7). Added a scripted SIT state, an upright check before enable (S10) and hang protection (S9). Retired the Markdown copy of the PRD. Added a possible issue watchlist (§12).</li>
         <li><strong>v0.4</strong> HTML format. Simulation-first roadmap with a design-freeze purchase gate, design validation step, virtual MicroCluck host twin and hardware abstraction layer. Diagrams.</li>
         <li><strong>v0.3</strong> Through-hole 74HC126 servo bus buffer.</li>
@@ -520,11 +521,13 @@ svg text { font-family: var(--font-body); }
 </table></div>
 
 <h3>Which machine does what</h3>
+<p>One machine does everything: the Windows 11 PC with the RTX 3060 (12 GB). No Mac is involved. Training ties up the GPU for an hour or two per run, so twin and firmware work in that window uses the CPU.</p>
 <div class="tbl"><table>
-  <thead><tr><th>Machine</th><th>Role</th></tr></thead>
+  <thead><tr><th>Job</th><th>Where it runs</th></tr></thead>
   <tbody>
-    <tr><td>RTX 3060 PC (12 GB)</td><td>Policy training. <code>mjlab</code> runs on MuJoCo Warp and needs a CUDA GPU. Hugging Face Jobs is the fallback.</td></tr>
-    <tr><td>Mac Studio (M2 Max)</td><td>Policy playback in CPU MuJoCo, the virtual MicroCluck, firmware development and flashing.</td></tr>
+    <tr><td>Policy training</td><td><code>mjlab</code> runs on MuJoCo Warp and needs a CUDA GPU. It is Linux-first, so a Windows PC likely trains under WSL2. Hugging Face Jobs is the fallback.</td></tr>
+    <tr><td>Policy playback and the virtual MicroCluck</td><td>CPU MuJoCo on the same PC. Native Windows or WSL2 is still open (§13).</td></tr>
+    <tr><td>Firmware development and flashing</td><td>ESP-IDF on the same PC, flashing over USB.</td></tr>
   </tbody>
 </table></div>
 
@@ -1161,7 +1164,7 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
   <tbody>
-    <tr><td>S0 Toolchain</td><td>Forked <code>microduck_rl</code> trains Pollen's stock walking policy on the RTX 3060 (or HF Jobs). The trained policy walks in the viewer, and plays back on the Mac in CPU MuJoCo.</td></tr>
+    <tr><td>S0 Toolchain</td><td>Forked <code>microduck_rl</code> trains Pollen's stock walking policy on the RTX 3060 (or HF Jobs). The trained policy walks in the viewer, and plays back in CPU MuJoCo with the GPU idle.</td></tr>
     <tr><td>S1 MicroCluck model</td><td>10-servo model with torso (weighed board plus estimates), comb, tail, feet and hip spacing. Loads, holds the stand pose, and the updated regression tests pass. Contract v1 drafted.</td></tr>
     <tr><td>S2 Walking policy</td><td>Backlash variant with the full randomization, including top payload. Tracks the full range of velocity commands, recovers from moderate pushes, stays stable across random seeds.</td></tr>
     <tr><td>S3 Design validation</td><td>All §7.2 checks pass or have a decision recorded. Design report and ADRs written. BOM frozen and parts ordered.</td></tr>
@@ -1242,7 +1245,7 @@ svg text { font-family: var(--font-body); }
   <li>Which XL330 variant (M288 or M077) Pollen's actuator model targets. Check <code>microduck_constants.py</code>.</li>
   <li>The exact composition of Pollen's 48-value proprioception block and their action post-processing (<code>mdp.py</code>, <code>robotd</code>).</li>
   <li>IMU choice. The ICM-42688-P is currently supply-constrained, with at least one breakout seller citing severe shortages and raised prices. Alternatives: LSM6DSOX or LSM6DSV16X with on-MCU fusion, or BNO085 with on-chip fusion (its I2C has known quirks on the ESP32).</li>
-  <li>Operating system on the RTX 3060 machine. MuJoCo Warp and mjlab are Linux-first; a Windows machine likely needs WSL2.</li>
+  <li>Where the tools run on the single Windows PC. MuJoCo Warp and mjlab are Linux-first, so training likely runs under WSL2. The twin and the firmware tooling can run natively on Windows or in WSL2, and each has a catch. WSL2's default NAT networking hides the twin's WebSocket server from the phone unless mirrored networking or port forwarding is set up. Flashing the ESP32 from WSL2 needs USB passthrough (usbipd-win), while a native ESP-IDF install flashes directly. Whether the BAM actuator model and the twin harness run on native Windows is unconfirmed.</li>
   <li>CAD tool. Onshape is recommended for the <code>onshape-to-robot</code> pipeline.</li>
   <li>Twin process layout: LVGL in the same process as the harness or alongside it.</li>
   <li>Battery choice and target runtime.</li>
@@ -1290,7 +1293,7 @@ svg text { font-family: var(--font-body); }
   <li><code>docs/face-spec.md</code> is the source of truth for expression presets and the state-to-expression mapping.</li>
   <li>Never hand-edit generated policy headers; regenerate them with <code>tools/policy_export</code>.</li>
   <li>Nothing in <code>control_task</code> blocks or allocates. The face and audio must never affect its timing.</li>
-  <li>Training runs on the RTX 3060 machine (CUDA). Playback, the twin and firmware work run on the Mac.</li>
+  <li>Everything runs on the one Windows PC with the RTX 3060; there is no Mac. Training uses CUDA, likely under WSL2. Playback, the twin and firmware work share the same machine, and §13 covers native Windows versus WSL2.</li>
   <li>Hardware-in-the-loop steps (wiring, soldering, flashing, gantry tests, weighing parts) are manual. Flag them for Neil rather than assuming results.</li>
   <li>Record significant decisions as ADRs in <code>docs/decisions/</code>.</li>
 </ul>
