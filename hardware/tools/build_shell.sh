@@ -41,5 +41,13 @@ if [ -n "$sim" ]; then
   done
   if [ "$wings" = yes ]; then python3 "$here/tools/stl_ascii_to_binary.py" "$out/wings.stl" "$sim/wings.stl"; else rm -f "$sim/wings.stl"; fi
   cp "$here/torso.scad" "$sim/torso.scad"
+  # the sim's checks read this copy, so it carries the same overrides as the build ("$@" is -D name=value pairs)
+  while [ $# -ge 2 ]; do
+    a=$2
+    shift 2
+    n=${a%%=*}
+    v=${a#*=}
+    sed -i "s|^$n\([[:space:]]*\)=[^;]*;|$n\1= $v;|" "$sim/torso.scad"
+  done
 fi
 ls -la "$out"/shell*.stl "$out"/wings.stl 2>/dev/null | awk '{print $5, $9}'

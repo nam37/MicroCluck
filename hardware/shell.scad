@@ -19,12 +19,12 @@ module slab(x, hw, z0, z1, r) {
             translate([x, sy * (hw - r), z]) rotate([0, 90, 0]) cylinder(r = r, h = 0.01);
 }
 
-// ---- egg profile: t = 0 at the bezel's back face, 1 at the tail's front face ----
+// ---- egg profile: t = 0 at the bezel's back face, 1 at the outer face of the rear wall ----
 function lerp(a, b, u) = a + (b - a) * u;
 function t_of(x) = max(0, min(1, (bezel_back_x - x) / (bezel_back_x - shell_rear_x)));
 function p_hw(t) = lerp(shell_rear_hw, shell_front_hw, 1 - pow(t, egg_power_hw));
 function p_z1(t) = lerp(shell_rear_z1, shell_front_top, 1 - pow(t, egg_power_top));
-function p_z0(t) = lerp(shell_floor_z, shell_rear_z0, t);
+function p_z0(t) = lerp(shell_floor_z, shell_rear_z0, pow(t, egg_power_floor));
 function p_r(t)  = lerp(shell_corner_r, shell_corner_rr, pow(t, egg_corner_pow));
 
 // Rounded rear edge in the side view (radius r, 0 = square). The slices near the rear wall shrink by the circle's sag,
@@ -50,16 +50,18 @@ module outer_egg() {
 // Slope of a profile along x (mm per mm) at t. A wall measured along the surface normal is thicker than the
 // in-plane inset of a slice by a factor sqrt(1 + slope^2), so each slice is inset by the wall times that factor.
 function slope(a, b, power, t) = abs(a - b) * power * pow(t, power - 1) / (bezel_back_x - shell_rear_x);
-// egg_wall_pad covers what the slope term misses: at the rear corners the surface slopes and curves at once
-function wall_at(s) = shell_wall * sqrt(1 + s * s) + egg_wall_pad;
+// The pad covers what the slope term misses: at the rear corners the surface slopes and curves at once. It grows from
+// egg_wall_pad at the front to egg_wall_pad_rear over the rear half of the body (from t = 0.44 to 0.6, behind the battery).
+function ramp(t) = max(0, min(1, (t - 0.44) / 0.16));
+function wall_at(s, t) = shell_wall * sqrt(1 + s * s) + lerp(egg_wall_pad, egg_wall_pad_rear, ramp(t));
 
 // One slice of the cavity at x: the wall insets follow the local slope, e is the extra inset of the rounded rear edge.
 module cavity_slice(x, t, e) {
-    side = wall_at(slope(shell_front_hw, shell_rear_hw, egg_power_hw, t));
-    top = wall_at(slope(shell_front_top, shell_rear_z1, egg_power_top, t));
-    // the floor is nearly flat, so it only needs the pad at the rear corners, behind the battery
-    floor_ = wall_at(abs(shell_rear_z0 - shell_floor_z) / (bezel_back_x - shell_rear_x))
-             - egg_wall_pad * (1 - max(0, min(1, (t - 0.44) / 0.16)));
+    side = wall_at(slope(shell_front_hw, shell_rear_hw, egg_power_hw, t), t);
+    top = wall_at(slope(shell_front_top, shell_rear_z1, egg_power_top, t), t);
+    // the floor stays low under the battery, so it only needs the pad at the rear corners, behind it
+    fs = slope(shell_floor_z, shell_rear_z0, egg_power_floor, t);
+    floor_ = shell_wall * sqrt(1 + fs * fs) + egg_wall_pad_rear * ramp(t);
     slab(x, p_hw(t) - side - e, p_z0(t) + floor_ + e, p_z1(t) - top - e, max(p_r(t) - max(side, top) - e, 0.5));
 }
 
@@ -99,11 +101,12 @@ module outer()  { if (egg) outer_egg();  else outer_box(); }
 module cavity() { if (egg) cavity_egg(); else cavity_box(); }
 
 module cutouts() {
-    // tail socket through the rear wall: the tail's footprint plus clearance
-    translate([shell_rear_x - 1, -(tail_size[1] / 2 - 3 + tail_socket_gap), tail_pos[2] - (tail_size[2] / 2 - 6) - tail_socket_gap])
-        cube([shell_wall + 2, tail_size[1] - 6 + 2 * tail_socket_gap, tail_size[2] - 12 + 2 * tail_socket_gap]);
-    // USB-C slot, rear underside
-    translate([shell_rear_x + 6, -usb_slot[0] / 2, shell_rear_z0 - 1]) cube([10, usb_slot[0], usb_slot[1] + 1]);
+    // tail opening through the rear wall, for the tail's mounting stub (the tail itself sits behind the wall)
+    translate([shell_rear_x - 1, -tail_stub_size[0] / 2, tail_stub_z - tail_stub_size[1] / 2])
+        cube([shell_wall + 2, tail_stub_size[0], tail_stub_size[1]]);
+    // USB-C slot, rear underside: a column through the floor, which rises toward the rear
+    translate([shell_rear_x + 6, -usb_slot[0] / 2, shell_floor_z - 8])
+        cube([10, usb_slot[0], shell_rear_z0 + usb_slot[1] - (shell_floor_z - 8)]);
     // power-switch hole, right-hand wall (-y), behind the battery. The egg moves it behind the wing disc.
     sx = egg ? electronics_pos[0] - 10 : electronics_pos[0];
     translate([sx, -shell_front_hw - 2, electronics_pos[2] + 8]) rotate([-90, 0, 0]) cylinder(d = switch_dia, h = shell_front_hw - 14);
