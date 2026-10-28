@@ -87,6 +87,50 @@ def test_head_terms_removed_but_command_slots_kept(task):
     assert all(hi <= 0.01 for _, hi in cfg.commands["head_pose"].ranges + cfg.commands["body_pose"].ranges)
 
 
+# --- torso layout: battery, electronics and the shell are drawn; geometry matches hardware/torso.scad ---
+
+TORSO_SCAD = build.ASSETS / "torso.scad"  # copied from the MicroCluck repo by hardware/tools/build_shell.sh
+
+
+def _scad_vec(text, name):
+    import re
+
+    m = re.search(rf"\b{name}\s*=\s*\[([^\]]*)\]", text)
+    assert m, f"{name} not found in torso.scad"
+    return [float(v) for v in m.group(1).split(",")]
+
+
+def test_battery_and_electronics_are_drawn(walk_model):
+    for name in ("battery_2s_visual", "electronics_visual", "bezel_and_bumpers_visual", "tail_visual"):
+        gid = mujoco.mj_name2id(walk_model, mujoco.mjtObj.mjOBJ_GEOM, name)
+        assert gid >= 0, name
+        assert walk_model.geom_contype[gid] == 0 and walk_model.geom_conaffinity[gid] == 0  # visual only
+
+
+@pytest.mark.skipif(not (build.ASSETS / "shell.stl").exists(), reason="shell STL not built (hardware/tools/build_shell.sh)")
+def test_shell_is_a_visual_only_mesh(walk_model):
+    gid = mujoco.mj_name2id(walk_model, mujoco.mjtObj.mjOBJ_GEOM, "shell_visual")
+    assert gid >= 0
+    assert walk_model.geom_contype[gid] == 0 and walk_model.geom_conaffinity[gid] == 0
+    assert walk_model.body_subtreemass[1] == pytest.approx(build.TARGET_TOTAL_MASS, abs=1e-6)  # no mass added
+
+
+@pytest.mark.skipif(not TORSO_SCAD.exists(), reason="torso.scad not copied (hardware/tools/build_shell.sh)")
+def test_torso_scad_layout_matches_the_sim_parts_table():
+    text = TORSO_SCAD.read_text()
+    scad_name = {
+        "chassis_block": "chassis", "hip_yaw_servos": "hipservos", "freenove_board": "board",
+        "bezel_and_bumpers": "bezel", "battery_2s": "battery", "electronics": "electronics",
+        "comb": "comb", "tail": "tail",
+    }
+    for part in build.PARTS:
+        key = scad_name[part.name]
+        pos = np.array(_scad_vec(text, f"{key}_pos")) / 1000.0
+        size = np.array(_scad_vec(text, f"{key}_size")) / 1000.0
+        assert pos == pytest.approx(np.array(part.pos), abs=1e-6), part.name
+        assert size == pytest.approx(np.array(part.size), abs=1e-6), part.name
+
+
 # --- toes variant: chunky toes fused onto Pollen's sole, counted as collision --------------------------
 
 TOES_BUILT = all((build.ASSETS / n).exists() for n in build.TOE_STLS)

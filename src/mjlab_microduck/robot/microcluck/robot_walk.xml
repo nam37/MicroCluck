@@ -103,9 +103,12 @@
       <!-- Link yaw2roll -->
       <!-- MicroCluck torso visuals (class visual: no contact). Masses live in the inertial above. -->
       <geom type="box" class="visual" name="bezel_and_bumpers_visual" size="0.007 0.033 0.054" pos="0.029 0 0.075" rgba="0.95 0.72 0.02 1"/>
+      <geom type="box" class="visual" name="battery_2s_visual" size="0.0095 0.019 0.0325" pos="0.0115 0 0.06" rgba="0.20 0.22 0.30 1"/>
+      <geom type="box" class="visual" name="electronics_visual" size="0.008 0.023 0.02" pos="-0.008 0 0.055" rgba="0.12 0.55 0.30 1"/>
       <geom type="box" class="visual" name="comb_visual" size="0.005 0.006 0.01" pos="0.025 0 0.139" rgba="0.84 0.21 0.17 1"/>
       <geom type="box" class="visual" name="tail_visual" size="0.015 0.015 0.035" pos="-0.045 0 0.06" rgba="0.95 0.72 0.02 1"/>
       <geom type="box" class="visual" name="screen_face_visual" size="0.0005 0.027 0.040" pos="0.0365 0.0 0.082" rgba="0.02 0.02 0.03 1"/>
+      <geom type="mesh" class="visual" name="shell_visual" mesh="mc_shell" pos="0 0 0" rgba="0.95 0.72 0.02 0.30"/>
       <body name="yaw2roll" pos="0.006 0.0175 -0.005" quat="0 -0.707107 -0.707107 -0">
         <!-- Joint from trunk_base to yaw2roll -->
         <joint axis="0 0 1" name="left_hip_yaw" type="hinge" range="-0.4363323129985824 0.5235987755982988" class="chosen_actuator"/>
@@ -320,6 +323,7 @@
     <material name="ankle_right_material" rgba="1 0.403922 0.121569 1"/>
     <material name="sole_right_material" rgba="0.956863 0.686275 0.137255 1"/>
     <material name="foot_right_material" rgba="1 0.403922 0.121569 1"/>
+    <mesh name="mc_shell" file="../../microcluck/assets/shell.stl" scale="0.001 0.001 0.001"/>
   </asset>
   <actuator>
     <position class="chosen_actuator" name="left_hip_yaw" joint="left_hip_yaw"/>

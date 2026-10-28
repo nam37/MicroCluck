@@ -86,9 +86,9 @@ PARTS = [
     Part("bezel_and_bumpers", None, (0.014, 0.066, 0.108), (0.029, 0.0, 0.075),
          "PLACEHOLDER: remainder of the budget, so the total matches TARGET_TOTAL_MASS", rgba="0.95 0.72 0.02 1"),
     Part("battery_2s", 0.085, (0.019, 0.038, 0.065), (0.0115, 0.0, 0.060),
-         "PLACEHOLDER: 2S pack, 70-100 g in the PRD; position behind the screen is a guess"),
+         "PLACEHOLDER: 2S pack, 70-100 g in the PRD; position behind the screen is a guess", rgba="0.20 0.22 0.30 1"),
     Part("electronics", 0.055, (0.016, 0.046, 0.040), (-0.008, 0.0, 0.055),
-         "PLACEHOLDER: INA226, logic buck, buffer board, wiring"),
+         "PLACEHOLDER: INA226, logic buck, buffer board, wiring", rgba="0.12 0.55 0.30 1"),
     Part("comb", 0.008, (0.010, 0.012, 0.020), (0.025, 0.0, 0.139),
          "PLACEHOLDER: snap-on comb on the top boss", rgba="0.84 0.21 0.17 1"),
     Part("tail", 0.014, (0.030, 0.030, 0.070), (-0.045, 0.0, 0.060),
@@ -211,6 +211,7 @@ def build() -> None:
     kept.append(f'{indent}<geom type="box" class="visual" name="screen_face_visual" size="{SCREEN_FACE[0]}" '
                 f'pos="{SCREEN_FACE[1]}" rgba="{SCREEN_FACE[2]}"/>\n')
     lines = lines[:t0] + kept + lines[first_child:]
+    lines = add_shell_visual(lines)
 
     # 4. write the model; if the toe STLs exist, add them as visuals placed from the stand pose of the
     #    model just written, then write it again
@@ -224,6 +225,23 @@ def build() -> None:
     print(f"trunk CoM in trunk frame: {np.round(com, 4)}")
     for p, m in parts:
         print(f"  {p.name:18s} {m:.4f} kg  {p.note}")
+
+
+def add_shell_visual(lines: list[str]) -> list[str]:
+    """Draw the body shell (hardware/shell.scad) as a translucent visual-only mesh in the trunk frame, so the
+    battery and electronics inside stay visible. No contact, no mass: the physics is unchanged."""
+    if not (ASSETS / "shell.stl").exists():
+        return lines
+    out: list[str] = []
+    for l in lines:
+        if l.strip() == "</asset>":
+            out.append('    <mesh name="mc_shell" file="../../microcluck/assets/shell.stl" scale="0.001 0.001 0.001"/>\n')
+        out.append(l)
+        if 'name="screen_face_visual"' in l:
+            indent = l[: len(l) - len(l.lstrip())]
+            out.append(f'{indent}<geom type="mesh" class="visual" name="shell_visual" mesh="mc_shell" pos="0 0 0" '
+                       f'rgba="0.95 0.72 0.02 0.30"/>\n')
+    return out
 
 
 def write_variant(suffix: str, lines: list[str]) -> None:
