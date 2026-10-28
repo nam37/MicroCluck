@@ -24,3 +24,7 @@ print(f"shell: x {x0:.1f}..{x1:.1f} ({x1 - x0:.1f} long), y {y0:.1f}..{y1:.1f} (
 print(f"       watertight {shell.is_watertight}, wall volume {shell.volume / 1000:.2f} cm3 "
       f"-> about {shell.volume / 1000 * density:.0f} g at {density} g/cm3; outer envelope {env.volume / 1000:.1f} cm3")
 print(f"       center of the shell mass (x, y, z) mm: {[round(float(v), 1) for v in shell.center_mass]}")
+if (build / "wings.stl").exists():  # egg style: two solid discs, a decorative extra
+    wings = trimesh.load(build / "wings.stl")
+    print(f"wings: both discs {wings.volume / 1000:.1f} cm3 -> about {wings.volume / 1000 * density:.1f} g solid "
+          f"(less if printed hollow); center (x, z) mm: {[round(float(v), 1) for v in wings.center_mass[[0, 2]]]}")

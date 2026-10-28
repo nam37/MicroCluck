@@ -36,32 +36,65 @@ the swing and clip the other foot on narrow steps; shorten the inner toe (`inner
 | File | What it is |
 |---|---|
 | `torso.scad` | **The torso table.** Positions and sizes of the bezel, board, battery, electronics, comb and tail in the sim's trunk frame, plus the shell parameters. Geometry only: masses live in the sim. |
-| `shell.scad` | The hollow body shell that joins the screen bezel's back face to the tail's front face: front open (the bezel closes it), rear wall with a tail socket, a USB-C slot, a power-switch hole and vents. Pass `-D 'envelope=true'` for the solid outer shape. |
-| `tools/build_shell.sh` | Exports `shell.stl` and `shell_envelope.stl`; with a sim assets folder it also writes binary copies and a copy of `torso.scad`. |
+| `shell.scad` | The hollow body shell. It runs back from the screen bezel's back face to a rear wall at `shell_rear_x` (-64 mm by default, which encloses the placeholder tail block): front open (the bezel closes it), a tail opening in the rear wall, a USB-C slot, a power-switch hole and vents. `-D 'part="envelope"'` gives the solid outer shape, `part="cavity"` the inner space and `part="wings"` the two wing discs; `-D 'shell_style="box"'` builds the straight-sided shell. |
+| `tools/build_shell.sh` | Exports `shell.stl`, `shell_envelope.stl`, `shell_cavity.stl` and (egg style) `wings.stl`; with a sim assets folder it also writes binary copies and a copy of `torso.scad`. Optional arguments after the assets folder: the style (`egg` or `box`), then any `name=value` override of a `torso.scad` parameter for that build. |
 | `tools/shell_report.py` | Prints the shell's size, wall volume and an estimated mass (needs `trimesh`). |
 
 The part layout in `torso.scad` must match `PARTS` in the sim repo's `build_walk_model.py`; a test there compares the two.
 Every value is a placeholder until the parts are weighed and measured.
 
+### Shell styles
+
+`shell_style` in `torso.scad` picks the shape. All styles share the bezel end cap (66 mm wide, set by the bezel), so the
+bezel interface never changes.
+
+- **`egg` (the default), as sketched:** a convex stack of slices that stays full behind the screen, then rounds off toward
+  the rear. The top is flush with the bezel and slopes down about 20 degrees, the rear edge is rounded (`egg_edge_r`), and the
+  body runs back to `shell_rear_x = -64`, 86 mm deep, so it encloses the placeholder tail block (x = -60 .. -30). Two wing
+  discs (`wings.stl`, 30 mm, 3.5 mm proud) lie on the sides at x = 4 mm, z = 72 mm, printed as a separate part in a second colour.
+- **`egg`, compact:** the first egg, 52 mm deep with the tail block outside it. Build it with
+  `build_shell.sh out "" egg shell_rear_x=-30 shell_front_top=124 shell_rear_z0=27 shell_rear_z1=94 shell_corner_rr=16 egg_power_top=2.0 egg_edge_r=0`.
+- **`box`:** the first shell, 52 mm deep with straight sides: `build_shell.sh out "" box shell_rear_x=-30 shell_front_top=124 shell_rear_z0=27 shell_rear_z1=94 shell_corner_rr=16`.
+
 The shell parameters were chosen with the sim's checks, `scripts/microcluck_shell_clearance.py`:
 
-- **Fit:** the battery and electronics blocks must sit inside the cavity (the check excludes the open front).
-- **Leg clearance:** signed clearance between the shell's convex envelope and every leg mesh hull, over the stock walker's
-  real gait poses (recorded with `scripts/torque_baseline.py --dump-joints`) plus random poses over 70% of each joint's range.
+- **Fit:** the battery, electronics and (when the body encloses it) tail blocks must sit inside the exported cavity, `shell_cavity.stl`
+  (the check excludes the open front). It also measures the thinnest wall, as the distance from the cavity to the outer shell.
+- **Leg clearance:** signed clearance between the shell's convex envelope and every leg mesh hull, over MicroCluck's own
+  gait poses (recorded with `scripts/torque_baseline.py --dump-joints`) plus random poses over 70% of each joint's range.
+  The leg meshes are compared as convex hulls, which is conservative.
+- **Wing gap:** the wing discs sit high on the sides, so the check reports the vertical gap from the lowest point of a disc to
+  the highest leg point over every pose.
 
-Current result with the defaults: fit margins +0.7 mm (battery) and +0.8 mm (electronics); no intersections in 4,000 sampled
-poses; in real gait 99% of poses clear by more than 26 mm (5.5 mm in the stress poses); the closest approach is 1.7 mm over
-a 2,000-pose sample of the stock walker's gait and 1.1 mm over the stress poses, both against the right thigh and the shell's lower rear corner. The leg meshes are compared as convex hulls, which
-is conservative.
+Results for the three shells. Fit margins and wall are against the real cavity. The clearance rows use MicroCluck's own
+gait (plain sole, `model_4999.pt`) and the same 6,000 stress poses for all three; the first third of the 96,000 recorded poses
+(32,000) is the common set, and the deep egg also has the other two thirds:
 
-With MicroCluck's own trained gait (plain sole, `model_4999.pt`) the check covers all 96,000 recorded poses: none
-intersects the shell, 99% clear by more than 26 mm, and the closest approach is 7.5 mm, against the left thigh. That figure is
-over every pose, whereas the stock walker's 1.7 mm is over a sample, so the two are not directly comparable. Rerun the check
-after any change to the gait, the stance or the shell.
+| | Box (52 mm) | Compact egg (52 mm) | Deep egg (86 mm, default) |
+|---|---|---|---|
+| Battery margin to the inner wall | +0.6 mm | +0.7 mm | +2.0 mm |
+| Electronics margin | +0.5 mm | +2.1 mm | +6.5 mm |
+| Tail block margin | outside the shell | outside the shell | +0.8 mm |
+| Thinnest wall (nominal 1.6 mm) | 1.60 mm | 1.56 mm | 1.51 mm |
+| Wall volume in PETG, upper bound | 37 g | 38 g | 63 g |
+| Centre of the shell's mass, x | -3.7 mm | -4.7 mm | -20.8 mm |
+| Wing discs, both, solid | none | 7.9 g | 7.9 g |
+| Closest leg approach, real gait, 32,000 poses | 7.5 mm | 6.4 mm | -0.8 mm (1 pose intersects) |
+| Closest leg approach, real gait, all 96,000 poses | 7.5 mm | not run | -0.8 mm (the other thirds: 1.0 and 4.0 mm) |
+| Closest leg approach, stress sweep, 6,000 poses | 1.1 mm, none intersect | -0.4 mm, 2 intersect | -12.8 mm, 130 intersect (2.2%) |
+| Closest wing disc to a leg | none | 26 mm | 26 mm |
 
-Shell mass: about 37 g at full wall volume in PETG (1.6 mm walls), an upper bound. In the sim the shell is a translucent,
-visual-only mesh: it adds no mass and no contact, so the physics is unchanged. The placeholder frame mass already in
-the budget stands in for it.
+The deep egg's closest leg part is the left thigh in real gait and the right ankle in the stress poses. Its rear floor is
+the lowest part of the shell (z = 20 mm, below the front's 24 mm) because the 70 mm placeholder tail block, whose bottom is at
+z = 25 mm, has to fit inside the rounded rear edge. So the shell's low rear underside is set by the placeholder block, and it
+sits where the thighs swing back. The stress poses that intersect are legs folded far back (hip pitch about -1.0, knee past 1.0,
+ankle past -1.0), outside what the walking policy does, but a scripted sit or a fall recovery may visit them.
+
+Shell mass is the full wall volume times the PETG density, an upper bound that a thinner wall or a sparse print would
+reduce. In the sim the shell is a translucent, visual-only mesh: it adds no mass and no contact, so the physics is
+unchanged, and the sim's frame mass (the 60.9 g left over for the bezel and bumpers) was set when the shell was the box.
+The deep egg with its wing discs is about 34 g heavier than the box (63 g and 7.9 g against 37 g), and the shell's centre of
+mass sits 17 mm further back. Neither is in the sim yet, so the walking numbers so far do not include them.
 
 ## Build
 

@@ -17,23 +17,29 @@ electronics_pos = [-8, 0, 55];     electronics_size = [16, 46, 40];     // INA22
 comb_pos        = [25, 0, 139];    comb_size        = [10, 12, 20];
 tail_pos        = [-45, 0, 60];    tail_size        = [30, 30, 70];
 
-// SHELL: a hollow body that joins the screen bezel's back face to the tail's front face. Front open
-// (the bezel closes it), rear wall with a tail socket, thin PETG-like walls.
+// SHELL: a hollow body that runs back from the screen bezel's back face. Front open (the bezel closes it), rear wall
+// with a tail opening, thin PETG-like walls.
 bezel_back_x    = bezel_pos[0] - bezel_size[0] / 2;     // 22
-tail_front_x    = tail_pos[0] + tail_size[0] / 2;       // -30
+tail_front_x    = tail_pos[0] + tail_size[0] / 2;       // -30: the placeholder tail block spans x = -60 .. -30
+tail_rear_x     = tail_pos[0] - tail_size[0] / 2;       // -60
+
+// Where the outer face of the rear wall sits. -64 puts the wall just behind the tail block's rear face (-60), so the
+// body encloses that block (the block is the placeholder for the rear body mass; the real tail feathers attach to the
+// rear wall). -30 stops the body at the block's front face and leaves it outside, as the first shell did.
+shell_rear_x    = -64;
 
 shell_wall      = 1.6;
-// The numbers below were chosen with the sim's checks (scripts/microcluck_shell_clearance.py): the battery and
-// electronics blocks must sit inside the cavity, and the legs must stay clear of the shell over the stock walker's
-// real gait poses plus a stress sweep of the joint ranges.
+// The numbers below were chosen with the sim's checks (scripts/microcluck_shell_clearance.py): the battery,
+// electronics and tail blocks must sit inside the cavity, and the legs must stay clear of the shell over the stock
+// walker's real gait poses plus a stress sweep of the joint ranges.
 shell_floor_z   = 24;     // lowest point at the front, just above the hip servos (22.5); the battery's lower edge (27.5) clears it
 shell_front_hw  = 33;     // half width at the bezel (= the bezel's half width)
-shell_front_top = 124;    // just under the bezel top (129)
-shell_rear_hw   = 24;     // half width at the tail: wide enough that the 46 mm electronics block fits
-shell_rear_z0   = 27;     // rear floor, a little higher than the front: the thighs swing back under it
-shell_rear_z1   = 94;     // rear top: the back slopes down to the tail's top (95)
+shell_front_top = 127;    // just under the bezel top (129)
+shell_rear_hw   = 24;     // half width at the rear wall: wide enough that the 46 mm electronics block fits
+shell_rear_z0   = 20;     // rear floor: low enough that the 70 mm tail block (bottom at z = 25) sits inside the rounded rear edge
+shell_rear_z1   = 102;    // rear top: the back slopes down from the bezel's top at about 20 degrees
 shell_corner_r  = 5;      // corner radius of the front section (small, so the battery's corners fit)
-shell_corner_rr = 16;     // corner radius of the rear section: rounds the lower rear corners away from the thighs
+shell_corner_rr = 12;     // corner radius of the rear section: rounds the rear corners away from the thighs
 
 tail_socket_gap = 0.4;    // clearance around the tail's mounting stub
 usb_slot        = [11, 4.5];     // USB-C opening in the rear underside: width (y), height (z)
@@ -43,3 +49,23 @@ vent_len        = 22;
 vent_w          = 2;
 
 density_g_cm3   = 1.27;   // PETG, for the mass estimate only
+
+// SHELL STYLE. "box" is the hull of the two end caps above (straight sides). "egg" keeps the same two caps, so the
+// bezel and tail interfaces do not change, but stacks slices between them so the body stays full behind the screen and
+// then rounds off toward the tail, with side wing discs. Everything is convex, so the sim's clearance check still works.
+shell_style     = "egg";
+egg_slices      = 9;      // slices in the hull between the caps
+egg_power_hw    = 2.2;    // half width: stays near the bezel's 33 mm, then falls to the rear cap's (higher = fuller)
+egg_power_top   = 1.3;    // top: 1 slopes straight down from the bezel, higher keeps it high behind the screen first
+egg_corner_pow  = 0.7;    // corner radius grows from the front cap's to the rear cap's (lower = rounder sooner)
+egg_edge_r      = 8;      // radius of the rounded rear edge in the side view (0 = a square edge)
+egg_wall_pad    = 0.4;    // extra inset of the cavity so the wall never thins below shell_wall (tuned with the sim's wall check)
+
+// Wing discs on both sides (egg style only). Decorative, printed in a second colour, and a place for a cover or a
+// later shoulder hub. They sit high on the body, well above the legs; the sim checks the vertical gap to the legs.
+wing_dia        = 30;
+wing_t          = 3.5;    // thickness standing proud of the wall
+wing_dome       = 1.2;    // how much the rim is chamfered
+wing_sink       = 1.0;    // how far the disc sinks into the wall, so the two fuse
+wing_x          = 4;      // centre, along the body (the front edge stays clear of the bezel at x = 22)
+wing_z          = 72;
