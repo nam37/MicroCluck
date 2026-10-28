@@ -51,8 +51,13 @@ The shell parameters were chosen with the sim's checks, `scripts/microcluck_shel
 
 Current result with the defaults: fit margins +0.7 mm (battery) and +0.8 mm (electronics); no intersections in 4,000 sampled
 poses; in real gait 99% of poses clear by more than 26 mm (5.5 mm in the stress poses); the closest approach is 1.7 mm over
-real gait poses and 1.1 mm over the stress poses, both against the right thigh and the shell's lower rear corner. The leg meshes are compared as convex hulls, which
-is conservative. Rerun the check with MicroCluck's own gait once a policy walks.
+a 2,000-pose sample of the stock walker's gait and 1.1 mm over the stress poses, both against the right thigh and the shell's lower rear corner. The leg meshes are compared as convex hulls, which
+is conservative.
+
+With MicroCluck's own trained gait (plain sole, `model_4999.pt`) the check covers all 96,000 recorded poses: none
+intersects the shell, 99% clear by more than 26 mm, and the closest approach is 7.5 mm, against the left thigh. That figure is
+over every pose, whereas the stock walker's 1.7 mm is over a sample, so the two are not directly comparable. Rerun the check
+after any change to the gait, the stance or the shell.
 
 Shell mass: about 37 g at full wall volume in PETG (1.6 mm walls), an upper bound. In the sim the shell is a translucent,
 visual-only mesh: it adds no mass and no contact, so the physics is unchanged. The placeholder frame mass already in
