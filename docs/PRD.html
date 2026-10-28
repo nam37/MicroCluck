@@ -331,13 +331,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroCluck</h1>
     <p class="lede">Product requirements for a 25 cm walking robot chicken whose body is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.10</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.11</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>27 October 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.11</strong> A parametric body shell in hardware/ joins the bezel to the tail; the sim draws the battery, electronics and shell, and checks fit and leg clearance (§6.5).</li>
         <li><strong>v0.10</strong> S0 results: the stock walker's torque baseline shows Pollen's own duck exceeds the datasheet continuous rating on hip pitch and knee, so the S3 thermal and peak-torque checks are now relative to the stock duck. First MicroCluck training run started.</li>
         <li><strong>v0.9</strong> OpenSCAD chosen for the parametric parts. Pollen's foot stays and gets three chunky toes in front, defined in hardware/ and kept as an option next to the plain sole (§6.5).</li>
         <li><strong>v0.8</strong> Corrections from building the first MicroCluck model: unused command slots use tiny sampling ranges, the stock actor is 512-256-128, Pollen trains at action scale 1.0 and runs 0.9, and the head chain is 38% of the stock duck's mass. The robot_groundcontact models exist and are named correctly.</li>
@@ -734,6 +735,7 @@ svg text { font-family: var(--font-body); }
   <li><strong>Legs:</strong> reuse Microduck's leg geometry from the STLs in <code>microduck_rl</code> (non-commercial license) to keep kinematic parity with Pollen's model. Only the torso and feet change.</li>
   <li><strong>Torso:</strong> screen frame with a raised bezel and rubber corner bumpers, glass recessed 2–3 mm. Forward falls land on the screen. Bezel in yellow, per the renders.</li>
   <li><strong>Comb:</strong> snap-on piece on a top mounting boss. The v2 claw uses the same boss and replaces the comb, or the comb becomes the claw's cover.</li>
+  <li><strong>Body shell:</strong> a hollow shell joins the screen bezel's back face to the tail and holds the battery and electronics, with a tail socket, a USB-C slot, a power-switch hole and vents. It is a parametric OpenSCAD part in <code>hardware/</code> (<code>torso.scad</code> for the layout, <code>shell.scad</code> for the body), 52 × 66 × 100 mm and about 37 g at full wall volume in PETG. The simulation checks that the battery and electronics fit inside it and that the legs clear it over the stock walker's gait poses plus a joint-range stress sweep. Nothing intersects in 4,000 sampled poses, but the worst case is tight (1.7 mm in real gait poses, at the lower rear corner), so the check is rerun when MicroCluck has its own gait. The shell is visual-only in the sim for now: the placeholder frame mass already in the budget stands in for it. Fastening to the bezel and tail, and the battery door, are not designed yet.</li>
   <li><strong>Tail:</strong> feathers in slightly flexible TPU, so the tail doubles as a bumper for backward falls and a third contact point when sitting. It shifts the center of mass backward, so its mass and collision shape go into the model.</li>
   <li><strong>Feet:</strong> three-toed chicken feet on a flat sole, which is the designed contact surface. Shorten the inner toe, or include the toes in the collision model so the policy learns to avoid foot-to-foot contact on narrow steps. The feet keep Pollen's foot and ankle interface and add three chunky toes fused onto the front wall of the sole. The toes are a parametric OpenSCAD part in <code>hardware/</code>: one parameter table (<code>params.scad</code>) drives the printed toes, their appearance in the simulation and the simulation's collision shape, the convex hull of Pollen's sole plus the toes. They touch the floor and extend the contact patch 17 mm forward, so they change the walking dynamics: the plain sole stays the default until the two are compared in training (S2, S3).</li>
   <li><strong>Stance:</strong> hip spacing is decided in simulation (§7.2). Wider spacing stands steadier but makes each step's side-to-side weight shift larger.</li>
