@@ -24,6 +24,8 @@ ap.add_argument("--task", default="Mjlab-StandUp-Flat-MicroCluck")
 ap.add_argument("--checkpoint", default=None)
 ap.add_argument("--start", choices=["face_down", "face_up", "sitting", "standing"], default="face_down")
 ap.add_argument("--roll-max", type=float, default=0.0, help="face-up only: random partial roll about the long axis, degrees")
+ap.add_argument("--z-offset", type=float, default=0.0,
+                help="metres added to the trunk height before the standing test (legs mounted dz higher: pass dz)")
 ap.add_argument("--n", type=int, default=64)
 ap.add_argument("--seconds", type=float, default=6.0)
 ap.add_argument("--device", default="cuda:0")
@@ -66,7 +68,7 @@ with torch.inference_mode():
     for i in range(steps):
         act = policy(obs) if policy else torch.zeros(a.n, base.action_manager.total_action_dim, device=a.device)
         obs, _, _, _ = env.step(act)
-        z = robot.data.root_link_pos_w[:, 2]
+        z = robot.data.root_link_pos_w[:, 2] + a.z_offset
         gz = robot.data.projected_gravity_b[:, 2]
         up = (z > 0.10) & (gz < -0.94)
         upright_hist.append(up)

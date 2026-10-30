@@ -45,6 +45,10 @@ ap.add_argument("--clean", action="store_true",
 ap.add_argument("--tail-box", type=float, nargs=5, metavar=("HX", "HY", "HZ", "CX", "CZ"), default=None,
                 help="replace the tail placeholder (visual and collider) by a box with these half sizes and this centre, metres, "
                      "trunk frame. The tail's 14 g stays in the trunk inertial where it was (a 10 mm move is 0.2 mm of centre of mass)")
+ap.add_argument("--height-ref", action="store_true",
+                help="add a massless body 'height_ref' near the top of the trunk (x 20 mm, z 120 mm). With the legs raised the trunk "
+                     "frame is LOWER standing than lying on the back, so height rewards written for the trunk frame pull the wrong "
+                     "way; the stand-up task measures height at this point instead (MICROCLUCK_HEIGHT_REF=height_ref)")
 ap.add_argument("--move-chassis", action="store_true",
                 help="with --clean: also move Pollen's chassis plate (visual and its 50 g placeholder mass) with the leg chain; "
                      "without it the plate and mass stay at the old low position, hanging below the body between the legs")
@@ -171,6 +175,18 @@ def thigh_colliders(text: str) -> str:
     return "".join(out)
 
 
+def height_ref(text: str) -> str:
+    """A static, massless (0.1 g) body fixed to the trunk, near the top of the body, for height rewards."""
+    pattern = re.compile(r'(\n)([ \t]*)(<body name="yaw2roll")')
+    m = pattern.search(text)
+    assert m, "yaw2roll body"
+    ind = m[2]
+    block = (f'{ind}<body name="height_ref" pos="0.02 0 0.12">\n'
+             f'{ind}  <inertial pos="0 0 0" mass="0.0001" diaginertia="1e-10 1e-10 1e-10"/>\n'
+             f'{ind}</body>\n')
+    return text[:m.start(2)] + block + text[m.start(2):]
+
+
 def tail_box(text: str, hx: float, hy: float, hz: float, cx: float, cz: float) -> str:
     n = 0
     for name in ("tail_visual", "tail_collision"):
@@ -213,6 +229,8 @@ if a.clean:
     text = hips_inside_shell(text)
 if a.tail_box:
     text = tail_box(text, *a.tail_box)
+if a.height_ref:
+    text = height_ref(text)
 if a.thigh_collision or a.leg_collision:
     text = thigh_colliders(text)
 if a.leg_collision:

@@ -299,6 +299,7 @@ register_mjlab_task(
 # "FaceDown" on face-down starts only with a stronger entropy bonus.
 from .microcluck_standup_env_cfg import (
     MicroCluckFaceDownRlCfg,
+    MicroCluckLyingRlCfg,
     MicroCluckProneRlCfg,
     MicroCluckStandUpRlCfg,
     make_microcluck_standup_env_cfg,
@@ -309,6 +310,14 @@ register_mjlab_task(
     env_cfg=make_microcluck_standup_env_cfg(face_down_only=True),
     play_env_cfg=make_microcluck_standup_env_cfg(play=True, face_down_only=True),
     rl_cfg=MicroCluckFaceDownRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+
+register_mjlab_task(
+    task_id="Mjlab-StandUp-Lying-Flat-MicroCluck",
+    env_cfg=make_microcluck_standup_env_cfg(lying_only=True),
+    play_env_cfg=make_microcluck_standup_env_cfg(play=True, lying_only=True),
+    rl_cfg=MicroCluckLyingRlCfg,
     runner_cls=MicroduckOnPolicyRunner,
 )
 

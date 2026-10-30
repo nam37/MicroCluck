@@ -23,9 +23,10 @@ zero actions). The full one keeps the stock ground-state curriculum (standing, s
 at 35% face-up).
 """
 
+import os
 from copy import deepcopy
 
-from mjlab.managers import CurriculumTermCfg
+from mjlab.managers import CurriculumTermCfg, SceneEntityCfg
 
 from mjlab_microduck.robot.microcluck import build_walk_model as _build
 from mjlab_microduck.robot.microcluck_constants import MICROCLUCK_STANDUP_ROBOT_CFG
@@ -46,6 +47,32 @@ _STOCK_OVERRIDES = {
     "ENABLE_HEAD_COM_RANDOMIZATION": False,
 }
 
+# Raised-hip bodies (scripts/make_sidehip_variant.py --height-ref): with the legs mounted higher the trunk frame is LOWER
+# standing than lying on the back, so the stock height rewards, written for the trunk frame, pull the wrong way. Name a
+# massless body near the top of the trunk and the height rewards measure it instead; MICROCLUCK_HEIGHT_REF_STAND_Z is its
+# height standing at the home pose (trunk z 0.0463 + 0.12 for the hips-back body).
+HEIGHT_REF = os.environ.get("MICROCLUCK_HEIGHT_REF")
+HEIGHT_REF_STAND_Z = float(os.environ.get("MICROCLUCK_HEIGHT_REF_STAND_Z", "0.1663"))
+if HEIGHT_REF:
+    _STOCK_OVERRIDES["STAND_Z"] = HEIGHT_REF_STAND_Z
+    _STOCK_OVERRIDES["SIT_Z"] = HEIGHT_REF_STAND_Z - 0.055  # the stock band between the seated and the standing height
+
+_HEIGHT_REWARD_KEYS = ("height", "upward_velocity", "composite")  # reward functions whose name says they use the height
+
+
+def _use_height_ref(cfg) -> None:
+    for name, term in cfg.rewards.items():
+        asset = term.params.get("asset_cfg")
+        if asset is None or tuple(asset.body_names or ()) != ("trunk_base",):
+            continue
+        if any(k in getattr(term.func, "__name__", "") for k in _HEIGHT_REWARD_KEYS):
+            term.params["asset_cfg"] = SceneEntityCfg("robot", body_names=(HEIGHT_REF,))
+            if "max_height" in term.params:
+                term.params["max_height"] = HEIGHT_REF_STAND_Z + 0.010
+            if name == "arrival_damping":
+                term.params["height_low"], term.params["height_high"] = HEIGHT_REF_STAND_Z - 0.025, HEIGHT_REF_STAND_Z - 0.005
+
+
 _HEAD_REWARDS = ("head_pose_tracking", "head_pose_bias")
 _HEAD_CURRICULA = ("head_pose_range", "head_com_range", "head_pose_bias_weight")
 
@@ -55,13 +82,15 @@ PRONE_MIX = {"standing_prob": 0.30, "sitting_prob": 0.0, "face_down_prob": 0.70,
 FACE_DOWN_MIX = {"standing_prob": 0.0, "sitting_prob": 0.0, "face_down_prob": 1.0, "face_up_prob": 0.0}
 # Face-up only (lying on the back, with the stock task's partial roll toward the side unless a script sets it to 0).
 FACE_UP_MIX = {"standing_prob": 0.0, "sitting_prob": 0.0, "face_down_prob": 0.0, "face_up_prob": 1.0}
+# Lying only: half face-down, half on the back with the stock task's roll toward the side (up to 90 deg). No easy starts.
+LYING_MIX = {"standing_prob": 0.0, "sitting_prob": 0.0, "face_down_prob": 0.5, "face_up_prob": 0.5}
 # The stock bonus is 0.01; the FaceDown run triples it to keep the action noise from collapsing again.
 FACE_DOWN_ENTROPY_COEF = 0.03
 
 
 def make_microcluck_standup_env_cfg(
     play: bool = False, rough: bool = False, prone_only: bool = False, face_down_only: bool = False,
-    face_up_only: bool = False,
+    face_up_only: bool = False, lying_only: bool = False,
 ):
     saved = {name: getattr(_stock, name) for name in _STOCK_OVERRIDES}
     for name, value in _STOCK_OVERRIDES.items():
@@ -81,7 +110,11 @@ def make_microcluck_standup_env_cfg(
     r = UNUSED_COMMAND_RANGE
     cfg.commands["head_pose"].ranges = tuple((-r, r) for _ in range(4))
 
-    mix = FACE_UP_MIX if face_up_only else FACE_DOWN_MIX if face_down_only else PRONE_MIX if prone_only else None
+    if HEIGHT_REF:
+        _use_height_ref(cfg)
+
+    mix = (LYING_MIX if lying_only else FACE_UP_MIX if face_up_only else FACE_DOWN_MIX if face_down_only
+           else PRONE_MIX if prone_only else None)
     if mix is not None:
         cfg.events["set_ground_state"].params.update(mix)
         cfg.curriculum["ground_state_mix"] = CurriculumTermCfg(
@@ -105,3 +138,4 @@ def make_microcluck_standup_rl_cfg(run_name: str, entropy_coef: float | None = N
 MicroCluckStandUpRlCfg = make_microcluck_standup_rl_cfg("standup")
 MicroCluckProneRlCfg = make_microcluck_standup_rl_cfg("prone")
 MicroCluckFaceDownRlCfg = make_microcluck_standup_rl_cfg("facedown", entropy_coef=FACE_DOWN_ENTROPY_COEF)
+MicroCluckLyingRlCfg = make_microcluck_standup_rl_cfg("lying", entropy_coef=FACE_DOWN_ENTROPY_COEF)
