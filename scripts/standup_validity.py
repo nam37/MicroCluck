@@ -29,6 +29,8 @@ ap.add_argument("--play", required=True)
 ap.add_argument("--n", type=int, default=16)
 ap.add_argument("--seed", type=int, default=1)
 ap.add_argument("--every", type=int, default=3, help="distance checks every this many steps (the floor check uses every step)")
+ap.add_argument("--contacts", action="store_true",
+                help="also count, per geom pair, how many replay steps it is in contact (any pair, for models with thigh colliders)")
 a = ap.parse_args()
 
 configure_torch_backends()
@@ -75,6 +77,12 @@ import os  # noqa: E402
 xml = os.environ["MICROCLUCK_STANDUP_XML"]
 m = mujoco.MjModel.from_xml_path(xml)
 d = mujoco.MjData(m)
+# the same rule as mjlab's FULL_COLLISION: only geoms named *_collision collide, every other geom is switched off
+import re  # noqa: E402
+
+for g in range(m.ngeom):
+    on = re.fullmatch(r".*_collision", mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_GEOM, g) or "") is not None
+    m.geom_contype[g] = m.geom_conaffinity[g] = 1 if on else 0
 bname = lambda g: mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_BODY, m.geom_bodyid[g])
 gname = lambda g: mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_GEOM, g) or f"geom{g}"
 mname = lambda g: mujoco.mj_id2name(m, mujoco.mjtObj.mjOBJ_MESH, m.geom_dataid[g]) or ""
@@ -94,6 +102,7 @@ n_steps = len(rec_pos)
 floor_min = np.zeros((n_steps, a.n))  # lowest vertex of any visual-only leg part, per step and robot (m)
 floor_who = [[""] * a.n for _ in range(n_steps)]
 dist = {}  # (part body, torso geom) -> minimum distance (m)
+worst_at: dict = {}  # the same keys -> (step, robot) of that minimum
 fromto = np.zeros(6)
 for t in range(n_steps):
     for r in range(a.n):
@@ -111,10 +120,35 @@ for t in range(n_steps):
         if t % a.every == 0 and r < 8:
             for g in parts:
                 for h in torso:
-                    key = (bname(g), gname(h))
+                    key = (f"{bname(g)}:{mname(g)}", gname(h))
                     dd = mujoco.mj_geomDistance(m, d, g, h, 0.05, fromto)
                     if dd < dist.get(key, 9.0):
                         dist[key] = dd
+                        worst_at[key] = (t, r)
+
+if a.contacts:
+    floor_id = -1
+    census: dict = {}
+    n_seen = 0
+    for t in range(0, n_steps, 2):
+        for r in range(min(a.n, 8)):
+            d.qpos[0:3] = rec_pos[t][r]
+            d.qpos[3:7] = rec_quat[t][r]
+            d.qpos[7:7 + rec_q[t].shape[1]] = rec_q[t][r]
+            d.qpos[2] = max(d.qpos[2], 0.0)
+            mujoco.mj_forward(m, d)
+            n_seen += 1
+            seen = set()
+            for c in d.contact[: d.ncon]:
+                if c.dist < 0.0005:
+                    n1, n2 = (gname(c.geom1), bname(c.geom1)), (gname(c.geom2), bname(c.geom2))
+                    seen.add(tuple(sorted([f"{n1[0]}[{n1[1]}]", f"{n2[0]}[{n2[1]}]"])))
+            for k in seen:
+                census.setdefault(k, [0, 0.0])
+                census[k][0] += 1
+    print(f"\ncontact census (pairs touching or overlapping, over {n_seen} sampled states; the floor is geom0 or unnamed):")
+    for k, (cnt, _) in sorted(census.items(), key=lambda kv: -kv[1][0])[:14]:
+        print(f"   {100 * cnt / n_seen:5.1f}% of states  {k[0]}  x  {k[1]}")
 
 mm = lambda v: f"{1000 * v:7.1f} mm"
 print(f"\nlowest visual-only leg vertex over the replay, all robots: {mm(floor_min.min())} "
@@ -124,4 +158,14 @@ print(f"per robot, deepest below the floor (mm): median {1000 * np.median(worst)
       f"robots with a part more than 5 mm below the floor: {int((worst < -0.005).sum())}/{a.n}, more than 15 mm: {int((worst < -0.015).sum())}/{a.n}")
 print("\ndeepest overlap with the torso collision pieces (negative = overlap), 8 robots, by thigh-chain body:")
 for (b, h), v in sorted(dist.items(), key=lambda kv: kv[1])[:12]:
-    print(f"   {mm(v)}  {b} x {h}")
+    print(f"   {mm(v)}  {b} x {h}   (step {worst_at[(b, h)][0]}, robot {worst_at[(b, h)][1]})")
+if a.contacts:
+    key = min(dist, key=dist.get)
+    t, r = worst_at[key]
+    d.qpos[0:3], d.qpos[3:7] = rec_pos[t][r], rec_quat[t][r]
+    d.qpos[7:7 + rec_q[t].shape[1]] = rec_q[t][r]
+    mujoco.mj_forward(m, d)
+    print(f"\nthe worst state, {key[0]} x {key[1]} at step {t}, robot {r}: {d.ncon} contacts, those with dist < 2 mm:")
+    for c in d.contact[: d.ncon]:
+        if c.dist < 0.002:
+            print(f"   {1000 * c.dist:6.1f} mm  {gname(c.geom1)}[{bname(c.geom1)}] x {gname(c.geom2)}[{bname(c.geom2)}]")

@@ -45,6 +45,10 @@ ap.add_argument("--clean", action="store_true",
 ap.add_argument("--dx", type=float, default=0.0,
                 help="move the leg mounts along the body (negative = back, away from the screen); stand-up base only, the walking "
                      "home pose is not re-trimmed for it")
+ap.add_argument("--leg-collision", action="store_true",
+                help="collide every leg part in the simulation: the thigh (as --thigh-collision), the shank with its servo, and "
+                     "the hip brackets. mjlab only collides geoms named *_collision and switches every other geom off, and the "
+                     "stock stand-up model leaves the shank and hip-bracket colliders unnamed, so they never touch anything")
 ap.add_argument("--thigh-collision", action="store_true",
                 help="also collide the thigh (the upper-leg mesh and its two servos, as convex hulls) with the floor and the "
                      "torso; the stock stand-up model leaves them visual-only")
@@ -141,6 +145,28 @@ def thigh_colliders(text: str) -> str:
     return "".join(out)
 
 
+def leg_colliders(text: str) -> str:
+    """Make the shanks, their servos and the hip brackets real colliders. The stand-up model already has a collider on each
+    shank mesh and each hip bracket, but unnamed, so mjlab's `.*_collision` rule switches them off; name them, and add a
+    collider for the servo on each shank."""
+    out, body, n = [], None, 0
+    for line in text.splitlines(keepends=True):
+        m = re.search(r'<body name="([^"]+)"', line)
+        if m:
+            body = m[1]
+        if body in ("leg", "leg_2") and 'class="visual"' in line and 'mesh="xl330"' in line:
+            out.append(line)
+            n += 1
+            out.append(line.replace('class="visual"', f'class="collision" name="{body}_servo_collision"'))
+            continue
+        if 'class="collision"' in line and "name=" not in line and re.search(r'mesh="(leg|hip_l)"', line):
+            n += 1
+            line = line.replace('class="collision"', f'class="collision" name="{body}_{re.search(r"mesh=.(leg|hip_l)", line)[1]}_collision"', 1)
+        out.append(line)
+    assert n == 6, f"expected 2 shank meshes, 2 shank servos and 2 hip brackets, got {n}"
+    return "".join(out)
+
+
 # the left leg chain starts at yaw2roll (y > 0), the right at bearing_roll (y < 0)
 text = shift_body(text, "yaw2roll", +a.dy, a.dz, a.dx)
 text = shift_body(text, "bearing_roll", -a.dy, a.dz, a.dx)
@@ -148,8 +174,10 @@ if a.clean:
     text = move_yaw_servos(text, a.dy, a.dz, a.dx)
     text = drop_plate(text)
     text = hips_inside_shell(text)
-if a.thigh_collision:
+if a.thigh_collision or a.leg_collision:
     text = thigh_colliders(text)
+if a.leg_collision:
+    text = leg_colliders(text)
 
 if a.base == "standup":
     for side in ("left", "right"):
