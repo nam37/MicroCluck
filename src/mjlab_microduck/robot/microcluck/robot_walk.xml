@@ -81,10 +81,10 @@
   <!-- </contact> -->
   <worldbody>
     <!-- Link trunk_base -->
-    <body name="trunk_base" pos="0 0 0.11976" quat="1 0 0 0" childclass="microduck">
+    <body name="trunk_base" pos="0 0 0.11977" quat="1 0 0 0" childclass="microduck">
       <freejoint name="trunk_base_freejoint"/>
-      <!-- MicroCluck trunk: 0.3689 kg, placeholder budget (see build_walk_model.py PARTS) -->
-      <inertial pos="0.01108633 0 0.053018923" mass="0.36890822" fullinertia="0.000562757 0.000606221 0.0002061887 0 -7.7570552e-05 0"/>
+      <!-- MicroCluck trunk: 0.3917 kg, placeholder budget (see build_walk_model.py PARTS) -->
+      <inertial pos="0.0054373341 6.3937389e-06 0.054025425" mass="0.39167301" fullinertia="0.00061355488 0.00069015051 0.00029341775 5.8709135e-08 -3.9137963e-05 -2.2475452e-08"/>
       <!-- Part seeed_bearing__configuration__22x16x4 -->
       <geom type="mesh" class="visual" pos="0.006 0.0175 -0.005" quat="1 -0 -0 0" mesh="seeed_bearing__configuration__22x16x4" material="seeed_bearing__configuration__22x16x4_material"/>
       <!-- Part trunk_base -->
@@ -106,9 +106,10 @@
       <geom type="box" class="visual" name="battery_2s_visual" size="0.0095 0.019 0.0325" pos="0.0115 0 0.06" rgba="0.20 0.22 0.30 1"/>
       <geom type="box" class="visual" name="electronics_visual" size="0.008 0.023 0.02" pos="-0.008 0 0.055" rgba="0.12 0.55 0.30 1"/>
       <geom type="box" class="visual" name="comb_visual" size="0.005 0.006 0.01" pos="0.025 0 0.139" rgba="0.84 0.21 0.17 1"/>
-      <geom type="box" class="visual" name="tail_visual" size="0.015 0.015 0.035" pos="-0.045 0 0.06" rgba="0.95 0.72 0.02 1"/>
+      <geom type="box" class="visual" name="tail_visual" size="0.015 0.015 0.035" pos="-0.063 0 0.06" rgba="0.95 0.72 0.02 1"/>
       <geom type="box" class="visual" name="screen_face_visual" size="0.0005 0.027 0.040" pos="0.0365 0.0 0.082" rgba="0.02 0.02 0.03 1"/>
       <geom type="mesh" class="visual" name="shell_visual" mesh="mc_shell" pos="0 0 0" rgba="0.95 0.72 0.02 0.30"/>
+      <geom type="mesh" class="visual" name="wings_visual" mesh="mc_wings" pos="0 0 0" rgba="0.95 0.72 0.02 1"/>
       <body name="yaw2roll" pos="0.006 0.0175 -0.005" quat="0 -0.707107 -0.707107 -0">
         <!-- Joint from trunk_base to yaw2roll -->
         <joint axis="0 0 1" name="left_hip_yaw" type="hinge" range="-0.4363323129985824 0.5235987755982988" class="chosen_actuator"/>
@@ -324,6 +325,7 @@
     <material name="sole_right_material" rgba="0.956863 0.686275 0.137255 1"/>
     <material name="foot_right_material" rgba="1 0.403922 0.121569 1"/>
     <mesh name="mc_shell" file="../../microcluck/assets/shell.stl" scale="0.001 0.001 0.001"/>
+    <mesh name="mc_wings" file="../../microcluck/assets/wings.stl" scale="0.001 0.001 0.001"/>
   </asset>
   <actuator>
     <position class="chosen_actuator" name="left_hip_yaw" joint="left_hip_yaw"/>

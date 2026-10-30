@@ -2,7 +2,7 @@
 
     uv run python scripts/torque_baseline.py Mjlab-Velocity-Flat-MicroDuck --checkpoint ~/stock_s0_model_2000.pt
 
-Runs the play configuration (random velocity commands, no pushes) with the BAM actuator model and records the
+Runs the play configuration (random velocity commands, and the play config's pushes: +-0.3 m/s every 0.5-1 s) with the BAM actuator model and records the
 actuator output every control step. The PRD's S3 design checks compare MicroCluck against these numbers:
 RMS per joint against the XL330's ~0.10 N.m continuous rating, peak against ~70% of the stall torque.
 """

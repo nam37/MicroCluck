@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import math
 import os
+import struct
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -40,7 +41,11 @@ TOE_STLS = [f"{kind}_{side}.stl" for kind in ("toes", "collision_with_toes") for
 
 # --- PLACEHOLDER budget (PRD 6.5 mass budget, middle of each range, v1 without the claw reserve) ---
 # 10 x XL330 180 g + board 60 g + battery 85 g + frame/feet/bumpers 225 g + comb/tail 22 g + electronics 55 g
-TARGET_TOTAL_MASS = 0.627  # kg
+# This total was set when the body shell was the 37 g box, which sat inside the bezel/bumper remainder. The body
+# shell and wing discs are now parts of their own, with mass and inertia taken from their meshes, so the total moves by
+# whatever they weigh beyond the box (see TARGET_TOTAL_MASS below). With the box shell it stays 0.627 kg.
+BASE_TOTAL_MASS = 0.627  # kg
+SHELL_IN_BASE_MASS = 0.037  # kg, the box shell that BASE_TOTAL_MASS already contained
 
 LEG_BODIES = {
     "yaw2roll", "hip_l", "upper_leg_left", "leg", "ankle_left",
@@ -61,18 +66,21 @@ ANKLE0 = 0.452984
 # Radians added to |hip_pitch| and |ankle|, solved by trim_home.py (CoM over the ankle axis), and the
 # trunk height solved with it so the soles just touch the floor. The env vars are experiment hooks
 # only (e.g. MICROCLUCK_STAND_TRIM=0 MICROCLUCK_STAND_TRUNK_Z=0.12 for the untrimmed pose).
-STAND_TRIM = float(os.environ.get("MICROCLUCK_STAND_TRIM", "0.082720"))
-STAND_TRUNK_Z = float(os.environ.get("MICROCLUCK_STAND_TRUNK_Z", "0.11776"))
+# Re-solved with the body shell and wing discs in the inertial (0.082720 and 0.11776 before, with the shell's mass
+# not in the model): at the old trim the shell put the whole-body CoM 2.7 mm behind the ankle axis, against +0.6 mm.
+STAND_TRIM = float(os.environ.get("MICROCLUCK_STAND_TRIM", "0.028350"))
+STAND_TRUNK_Z = float(os.environ.get("MICROCLUCK_STAND_TRUNK_Z", "0.11777"))
 
 
 @dataclass
 class Part:
     name: str
-    mass: float | None  # kg; None = remainder so the total hits TARGET_TOTAL_MASS
+    mass: float | None  # kg; None = remainder so the total hits TARGET_TOTAL_MASS (see below)
     size: tuple[float, float, float]  # full box size (x, y, z), m
     pos: tuple[float, float, float]  # box center in the trunk_base frame (x forward, y left, z up), m
     note: str
     rgba: str | None = None  # draw a visual box when set
+    inertia: np.ndarray | None = None  # full 3x3 about the part's own CoM, kg m^2; None = a solid box of `size`
 
 
 # Trunk frame: x forward, y left, z up; Pollen's hip axes sit at x=0.006, z=-0.005 .. 0.
@@ -91,11 +99,73 @@ PARTS = [
          "PLACEHOLDER: INA226, logic buck, buffer board, wiring", rgba="0.12 0.55 0.30 1"),
     Part("comb", 0.008, (0.010, 0.012, 0.020), (0.025, 0.0, 0.139),
          "PLACEHOLDER: snap-on comb on the top boss", rgba="0.84 0.21 0.17 1"),
-    Part("tail", 0.014, (0.030, 0.030, 0.070), (-0.045, 0.0, 0.060),
-         "PLACEHOLDER: TPU tail; mass only, no collision geom for the walking task", rgba="0.95 0.72 0.02 1"),
+    Part("tail", 0.014, (0.030, 0.030, 0.070), (-0.063, 0.0, 0.060),
+         "PLACEHOLDER: TPU tail behind the shell's rear wall (was x=-0.045, inside the 52 mm shell's footprint); "
+         "mass only, no collision geom for the walking task", rgba="0.95 0.72 0.02 1"),
 ]
 # Thin dark face on the front of the bezel so the screen reads in renders (visual only, no mass).
 SCREEN_FACE = ("0.0005 0.027 0.040", "0.0365 0.0 0.082", "0.02 0.02 0.03 1")
+
+
+def read_stl_triangles(path: Path) -> np.ndarray:
+    """(n, 3, 3) triangle vertices of a binary STL, in metres (hardware/ writes them in millimetres)."""
+    data = path.read_bytes()
+    n = struct.unpack("<I", data[80:84])[0]
+    tri = np.frombuffer(data, dtype=np.dtype([("n", "<3f4"), ("v", "<9f4"), ("a", "<u2")]), count=n, offset=84)
+    return tri["v"].reshape(-1, 3, 3).astype(float) / 1000.0
+
+
+def mesh_mass_properties(tri: np.ndarray, density: float) -> tuple[float, np.ndarray, np.ndarray]:
+    """Mass, centre of mass and inertia about it (kg, m, kg m^2) of a closed triangle mesh of uniform density
+    (kg/m^3), summed over the signed tetrahedra from the origin to each triangle. Works for several closed pieces."""
+    a, b, c = tri[:, 0], tri[:, 1], tri[:, 2]
+    vol = np.einsum("ij,ij->i", a, np.cross(b, c)) / 6.0
+    total = vol.sum()
+    com = (vol[:, None] * (a + b + c) / 4.0).sum(axis=0) / total
+    s = a + b + c
+    outer = lambda u, v: np.einsum("ij,ik->ijk", u, v)  # noqa: E731
+    # integral of x x^T over a tetrahedron with a vertex at the origin: V/20 (sum p p^T + (sum p)(sum p)^T)
+    second = (vol[:, None, None] / 20.0 * (outer(a, a) + outer(b, b) + outer(c, c) + outer(s, s))).sum(axis=0) * density
+    about_origin = np.trace(second) * np.eye(3) - second
+    mass = density * total
+    return mass, com, about_origin - mass * ((com @ com) * np.eye(3) - np.outer(com, com))
+
+
+def torso_density() -> float:
+    """PETG density from the torso.scad copy in the assets (hardware/tools/build_shell.sh), kg/m^3."""
+    scad = ASSETS / "torso.scad"
+    if scad.exists():
+        import re
+
+        m = re.search(r"^density_g_cm3\s*=\s*([\d.]+);", scad.read_text(), re.M)
+        if m:
+            return float(m.group(1)) * 1000.0
+    return 1270.0
+
+
+def shell_parts() -> list[Part]:
+    """The body shell and the wing discs (hardware/shell.scad) as parts: mass, centre and inertia from their meshes at
+    the full wall volume, an upper bound. MICROCLUCK_SHELL_MASS=0 leaves them out (the old, shell-less budget)."""
+    if os.environ.get("MICROCLUCK_SHELL_MASS", "1") == "0":
+        return []
+    rho = torso_density()
+    parts = []
+    for name, stl, note in (
+        ("body_shell", "shell.stl", "PETG shell from hardware/shell.scad, full wall volume (upper bound)"),
+        ("wing_discs", "wings.stl", "two solid PETG discs from hardware/shell.scad (upper bound)"),
+    ):
+        if not (ASSETS / stl).exists():
+            continue
+        tri = read_stl_triangles(ASSETS / stl)
+        mass, com, inertia = mesh_mass_properties(tri, rho)
+        size = tuple(float(v) for v in (tri.reshape(-1, 3).max(axis=0) - tri.reshape(-1, 3).min(axis=0)))
+        parts.append(Part(name, float(mass), size, tuple(float(v) for v in com), note, inertia=inertia))
+    return parts
+
+
+SHELL_PARTS = shell_parts()
+# The total moves by what the shell and wing discs weigh beyond the box shell that BASE_TOTAL_MASS already held.
+TARGET_TOTAL_MASS = BASE_TOTAL_MASS + (sum(p.mass for p in SHELL_PARTS) - SHELL_IN_BASE_MASS if SHELL_PARTS else 0.0)
 
 
 def leg_mass(xml_path: Path) -> float:
@@ -109,23 +179,28 @@ def leg_mass(xml_path: Path) -> float:
 
 
 def resolve_masses(legs: float) -> list[tuple[Part, float]]:
-    fixed = sum(p.mass for p in PARTS if p.mass is not None)
+    parts = PARTS + SHELL_PARTS
+    fixed = sum(p.mass for p in parts if p.mass is not None)
     remainder = TARGET_TOTAL_MASS - legs - fixed
     if remainder <= 0:
         raise SystemExit(f"placeholder masses exceed the budget: remainder {remainder:.4f} kg")
-    return [(p, p.mass if p.mass is not None else remainder) for p in PARTS]
+    return [(p, p.mass if p.mass is not None else remainder) for p in parts]
 
 
 def combined_inertial(parts: list[tuple[Part, float]]) -> tuple[float, np.ndarray, np.ndarray]:
-    """Total mass, CoM and full inertia about the CoM (boxes + parallel axis theorem)."""
+    """Total mass, CoM and full inertia about the CoM (each part's own inertia, a solid box unless it has one, plus
+    the parallel axis theorem)."""
     mass = sum(m for _, m in parts)
     com = sum(m * np.array(p.pos) for p, m in parts) / mass
     inertia = np.zeros((3, 3))
     for p, m in parts:
-        dx, dy, dz = p.size
-        box = (m / 12.0) * np.diag([dy * dy + dz * dz, dx * dx + dz * dz, dx * dx + dy * dy])
+        if p.inertia is not None:
+            own = p.inertia
+        else:
+            dx, dy, dz = p.size
+            own = (m / 12.0) * np.diag([dy * dy + dz * dz, dx * dx + dz * dz, dx * dx + dy * dy])
         d = np.array(p.pos) - com
-        inertia += box + m * ((d @ d) * np.eye(3) - np.outer(d, d))
+        inertia += own + m * ((d @ d) * np.eye(3) - np.outer(d, d))
     return mass, com, inertia
 
 
@@ -229,18 +304,26 @@ def build() -> None:
 
 def add_shell_visual(lines: list[str]) -> list[str]:
     """Draw the body shell (hardware/shell.scad) as a translucent visual-only mesh in the trunk frame, so the
-    battery and electronics inside stay visible. No contact, no mass: the physics is unchanged."""
+    battery and electronics inside stay visible. The geoms have no contact and no mass of their own; the shell's and
+    the wing discs' mass lives in the trunk inertial (SHELL_PARTS). The egg-style shell also has two wing discs
+    (wings.stl), drawn opaque."""
     if not (ASSETS / "shell.stl").exists():
         return lines
+    wings = (ASSETS / "wings.stl").exists()
     out: list[str] = []
     for l in lines:
         if l.strip() == "</asset>":
             out.append('    <mesh name="mc_shell" file="../../microcluck/assets/shell.stl" scale="0.001 0.001 0.001"/>\n')
+            if wings:
+                out.append('    <mesh name="mc_wings" file="../../microcluck/assets/wings.stl" scale="0.001 0.001 0.001"/>\n')
         out.append(l)
         if 'name="screen_face_visual"' in l:
             indent = l[: len(l) - len(l.lstrip())]
             out.append(f'{indent}<geom type="mesh" class="visual" name="shell_visual" mesh="mc_shell" pos="0 0 0" '
                        f'rgba="0.95 0.72 0.02 0.30"/>\n')
+            if wings:
+                out.append(f'{indent}<geom type="mesh" class="visual" name="wings_visual" mesh="mc_wings" pos="0 0 0" '
+                           f'rgba="0.95 0.72 0.02 1"/>\n')
     return out
 
 

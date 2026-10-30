@@ -18,6 +18,7 @@ re-based on measured values, the smaller 256-128-64 actor from the PRD (the stoc
 for the first run so the comparison with the stock duck stays clean).
 """
 
+import os
 from copy import deepcopy
 
 from mjlab_microduck.robot.microcluck_constants import MICROCLUCK_WALK_ROBOT_CFG
@@ -29,6 +30,10 @@ from mjlab_microduck.tasks.microduck_velocity_env_cfg import (
 # Sampling range of the unused command slots (rad / m). Tiny but non-zero, like Pollen's initial
 # head/body ranges, so the observation normalizer sees a (near-)constant, well-defined input.
 UNUSED_COMMAND_RANGE = 0.001
+
+# Experiment hook for side-mounted-leg variants (scripts/make_sidehip_variant.py --base walk): the legs are mounted this
+# many metres higher on the body, so the robot stands this much lower and the spawn height drops by the same amount.
+LEG_DZ = float(os.environ.get("MICROCLUCK_LEG_DZ", "0"))
 
 _HEAD_REWARDS = ("head_pose_tracking", "head_pose_bias")
 _HEAD_EVENTS = ("randomize_head_com",)
@@ -51,6 +56,10 @@ def make_microcluck_velocity_env_cfg(play: bool = False, rough: bool = False):
     r = UNUSED_COMMAND_RANGE
     cfg.commands["head_pose"].ranges = tuple((-r, r) for _ in range(4))
     cfg.commands["body_pose"].ranges = tuple((-r, r) for _ in range(6))
+
+    if LEG_DZ:  # the stock spawn range (0.12, 0.13) is a few mm above the stock standing height
+        z0, z1 = cfg.events["reset_base"].params["pose_range"]["z"]
+        cfg.events["reset_base"].params["pose_range"]["z"] = (z0 - LEG_DZ, z1 - LEG_DZ)
     return cfg
 
 

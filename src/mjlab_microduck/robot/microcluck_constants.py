@@ -28,15 +28,29 @@ if _FOOT not in ("plain", "toes"):
     raise ValueError(f"MICROCLUCK_FOOT must be 'plain' or 'toes', got {_FOOT!r}")
 _SUFFIX = "" if _FOOT == "plain" else "_toes"
 
-MICROCLUCK_WALK_XML: Path = _MICROCLUCK_DIR / f"robot_walk{_SUFFIX}.xml"
+# MICROCLUCK_WALK_XML points the walking tasks at an experiment variant instead (scripts/make_sidehip_variant.py --base walk;
+# also set MICROCLUCK_LEG_DZ, see tasks/microcluck_velocity_env_cfg.py).
+MICROCLUCK_WALK_XML: Path = (
+    Path(os.environ["MICROCLUCK_WALK_XML"]) if "MICROCLUCK_WALK_XML" in os.environ else _MICROCLUCK_DIR / f"robot_walk{_SUFFIX}.xml"
+)
 MICROCLUCK_WALK_BACKLASH_XML: Path = _MICROCLUCK_DIR / f"robot_walk_backlash{_SUFFIX}.xml"
+# Walking model plus ground-contact collision on the legs and torso, for fall recovery (build_standup_model.py).
+# MICROCLUCK_STANDUP_XML points the stand-up tasks at an experiment variant instead (scripts/make_sidehip_variant.py).
+MICROCLUCK_STANDUP_XML: Path = (
+    Path(os.environ["MICROCLUCK_STANDUP_XML"]) if "MICROCLUCK_STANDUP_XML" in os.environ else _MICROCLUCK_DIR / "robot_standup.xml"
+)
 
 assert MICROCLUCK_WALK_XML.exists(), f"XML not found: {MICROCLUCK_WALK_XML} (run build_walk_model.py)"
 assert MICROCLUCK_WALK_BACKLASH_XML.exists(), f"XML not found: {MICROCLUCK_WALK_BACKLASH_XML}"
+assert MICROCLUCK_STANDUP_XML.exists(), f"XML not found: {MICROCLUCK_STANDUP_XML} (run build_standup_model.py)"
 
 
 def get_microcluck_walk_spec() -> mujoco.MjSpec:
     return mujoco.MjSpec.from_file(str(MICROCLUCK_WALK_XML))
+
+
+def get_microcluck_standup_spec() -> mujoco.MjSpec:
+    return mujoco.MjSpec.from_file(str(MICROCLUCK_STANDUP_XML))
 
 
 def get_microcluck_walk_backlash_spec() -> mujoco.MjSpec:
@@ -85,6 +99,16 @@ MICROCLUCK_WALK_BACKLASH_ROBOT_CFG = EntityCfg(
     collisions=(FULL_COLLISION,),
     articulation=EntityArticulationInfoCfg(
         actuators=(backlash_actuators,),
+        soft_joint_pos_limit_factor=0.9,
+    ),
+)
+
+MICROCLUCK_STANDUP_ROBOT_CFG = EntityCfg(
+    spec_fn=get_microcluck_standup_spec,
+    init_state=MICROCLUCK_HOME_FRAME,
+    collisions=(FULL_COLLISION,),
+    articulation=EntityArticulationInfoCfg(
+        actuators=(actuators,),
         soft_joint_pos_limit_factor=0.9,
     ),
 )

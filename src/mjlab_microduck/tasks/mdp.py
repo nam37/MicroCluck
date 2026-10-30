@@ -176,6 +176,13 @@ def _servo_joint_ids(env: "ManagerBasedRlEnv", asset: Entity) -> list:
     return ids
 
 
+def _leg_action_ids(env: "ManagerBasedRlEnv") -> list:
+    """Action-vector indices of the leg joints: 0-4 and 9-13 in the 14-servo layout (neck/head at 5-8), and all of
+    them on a robot without a neck (MicroCluck, 10 servos)."""
+    n = env.action_manager.action.shape[1]
+    return list(range(0, 5)) + list(range(9, 14)) if n == 14 else list(range(n))
+
+
 def _env_origin_z(env: "ManagerBasedRlEnv", env_ids: torch.Tensor) -> torch.Tensor:
     """Terrain height of each env's origin. Every spawn function that writes an
     ABSOLUTE trunk z must add this: on rough terrain (slope pyramids put the
@@ -296,7 +303,7 @@ def reset_action_history(
     if hasattr(env, '_prev_leg_actions'):
         # Set to current action (or zero if no action yet)
         if hasattr(env, 'action_manager') and env.action_manager.action is not None:
-            leg_joint_indices = list(range(0, 5)) + list(range(9, 14))
+            leg_joint_indices = _leg_action_ids(env)
             env._prev_leg_actions[env_ids] = env.action_manager.action[env_ids][:, leg_joint_indices]
         else:
             env._prev_leg_actions[env_ids] = 0.0
@@ -312,7 +319,7 @@ def reset_action_history(
     # Reset leg action acceleration cache
     if hasattr(env, '_prev_leg_actions_for_acc'):
         if hasattr(env, 'action_manager') and env.action_manager.action is not None:
-            leg_joint_indices = list(range(0, 5)) + list(range(9, 14))
+            leg_joint_indices = _leg_action_ids(env)
             current_action = env.action_manager.action[env_ids][:, leg_joint_indices]
             env._prev_leg_actions_for_acc[env_ids] = current_action
             env._prev_prev_leg_actions_for_acc[env_ids] = current_action
@@ -410,7 +417,7 @@ def leg_action_rate_l2(
         Penalty tensor of shape (num_envs,)
     """
     # Get leg joint indices
-    leg_joint_indices = list(range(0, 5)) + list(range(9, 14))
+    leg_joint_indices = _leg_action_ids(env)
 
     # Get current and previous actions for leg joints only
     # Actions are stored in env (assuming the action is available)
@@ -486,7 +493,7 @@ def leg_action_acceleration_l2(
         Penalty tensor of shape (num_envs,)
     """
     # Get leg joint indices
-    leg_joint_indices = list(range(0, 5)) + list(range(9, 14))
+    leg_joint_indices = _leg_action_ids(env)
 
     if not hasattr(env, 'action_manager'):
         return torch.zeros(env.num_envs, device=env.device)
@@ -1590,7 +1597,7 @@ def leg_joint_vel_l2(
 
     # Get leg joint indices (left hip-ankle: 0-4, right hip-ankle: 9-13).
     # Servo view: passive_* joints (backlash, wheels) don't shift the indices.
-    leg_joint_indices = list(range(0, 5)) + list(range(9, 14))
+    leg_joint_indices = _leg_action_ids(env)
     joint_vel = _servo_joint_vel(env, asset)
     leg_joint_vel = joint_vel[:, leg_joint_indices]
 

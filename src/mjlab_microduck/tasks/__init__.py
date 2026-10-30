@@ -295,6 +295,38 @@ register_mjlab_task(
     runner_cls=MicroduckOnPolicyRunner,
 )
 
+# MicroCluck fall recovery (tasks/microcluck_standup_env_cfg.py): "Prone" trains on face-down and standing starts only,
+# "FaceDown" on face-down starts only with a stronger entropy bonus.
+from .microcluck_standup_env_cfg import (
+    MicroCluckFaceDownRlCfg,
+    MicroCluckProneRlCfg,
+    MicroCluckStandUpRlCfg,
+    make_microcluck_standup_env_cfg,
+)
+
+register_mjlab_task(
+    task_id="Mjlab-StandUp-FaceDown-Flat-MicroCluck",
+    env_cfg=make_microcluck_standup_env_cfg(face_down_only=True),
+    play_env_cfg=make_microcluck_standup_env_cfg(play=True, face_down_only=True),
+    rl_cfg=MicroCluckFaceDownRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+
+register_mjlab_task(
+    task_id="Mjlab-StandUp-Prone-Flat-MicroCluck",
+    env_cfg=make_microcluck_standup_env_cfg(prone_only=True),
+    play_env_cfg=make_microcluck_standup_env_cfg(play=True, prone_only=True),
+    rl_cfg=MicroCluckProneRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+register_mjlab_task(
+    task_id="Mjlab-StandUp-Flat-MicroCluck",
+    env_cfg=make_microcluck_standup_env_cfg(),
+    play_env_cfg=make_microcluck_standup_env_cfg(play=True),
+    rl_cfg=MicroCluckStandUpRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+
 for _task_id, _make_cfg, _kw, _rl_cfg, _robot_cfg in _BACKLASH_TASKS:
     register_mjlab_task(
         task_id=_task_id,
