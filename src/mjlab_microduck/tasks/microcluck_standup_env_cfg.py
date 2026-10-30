@@ -53,12 +53,15 @@ _HEAD_CURRICULA = ("head_pose_range", "head_com_range", "head_pose_bias_weight")
 PRONE_MIX = {"standing_prob": 0.30, "sitting_prob": 0.0, "face_down_prob": 0.70, "face_up_prob": 0.0}
 # Face-down only: nothing easy to exploit, so the shared action noise is only ever rewarded for finding a way up.
 FACE_DOWN_MIX = {"standing_prob": 0.0, "sitting_prob": 0.0, "face_down_prob": 1.0, "face_up_prob": 0.0}
+# Face-up only (lying on the back, with the stock task's partial roll toward the side unless a script sets it to 0).
+FACE_UP_MIX = {"standing_prob": 0.0, "sitting_prob": 0.0, "face_down_prob": 0.0, "face_up_prob": 1.0}
 # The stock bonus is 0.01; the FaceDown run triples it to keep the action noise from collapsing again.
 FACE_DOWN_ENTROPY_COEF = 0.03
 
 
 def make_microcluck_standup_env_cfg(
-    play: bool = False, rough: bool = False, prone_only: bool = False, face_down_only: bool = False
+    play: bool = False, rough: bool = False, prone_only: bool = False, face_down_only: bool = False,
+    face_up_only: bool = False,
 ):
     saved = {name: getattr(_stock, name) for name in _STOCK_OVERRIDES}
     for name, value in _STOCK_OVERRIDES.items():
@@ -78,7 +81,7 @@ def make_microcluck_standup_env_cfg(
     r = UNUSED_COMMAND_RANGE
     cfg.commands["head_pose"].ranges = tuple((-r, r) for _ in range(4))
 
-    mix = FACE_DOWN_MIX if face_down_only else PRONE_MIX if prone_only else None
+    mix = FACE_UP_MIX if face_up_only else FACE_DOWN_MIX if face_down_only else PRONE_MIX if prone_only else None
     if mix is not None:
         cfg.events["set_ground_state"].params.update(mix)
         cfg.curriculum["ground_state_mix"] = CurriculumTermCfg(

@@ -313,6 +313,14 @@ register_mjlab_task(
 )
 
 register_mjlab_task(
+    task_id="Mjlab-StandUp-FaceUp-Flat-MicroCluck",
+    env_cfg=make_microcluck_standup_env_cfg(face_up_only=True),
+    play_env_cfg=make_microcluck_standup_env_cfg(play=True, face_up_only=True),
+    rl_cfg=MicroCluckFaceDownRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+
+register_mjlab_task(
     task_id="Mjlab-StandUp-Prone-Flat-MicroCluck",
     env_cfg=make_microcluck_standup_env_cfg(prone_only=True),
     play_env_cfg=make_microcluck_standup_env_cfg(play=True, prone_only=True),

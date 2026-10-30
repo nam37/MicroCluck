@@ -46,6 +46,9 @@ ap.add_argument("--freeze-hip", action="store_true",
 ap.add_argument("--z-offset", type=float, default=0.0,
                 help="metres added to the trunk height before it is scored, for variants whose standing trunk is lower "
                      "(legs mounted dz higher: pass dz)")
+ap.add_argument("--roll-max", type=float, default=None,
+                help="face-up starts only: random partial roll toward the side, up to this many degrees (the stock task uses 90; "
+                     "0 = flat on the back). Default: leave the task's setting")
 a = ap.parse_args()
 
 configure_torch_backends()
@@ -54,6 +57,7 @@ saved = torch.load(a.play, map_location=a.device) if a.play else None
 if saved:
     a.keyframes, a.seconds, a.asym = saved["keyframes"], saved["seconds"], saved["asym"]
     a.z_offset = saved.get("z_offset", 0.0)
+    a.task, a.roll_max = saved.get("task", a.task), saved.get("roll_max", None)
 n_env = a.n if saved else a.pop
 
 cfg = load_env_cfg(a.task)
@@ -62,6 +66,8 @@ cfg.seed = a.seed
 cfg.episode_length_s = a.seconds + 2.0
 cfg.curriculum.clear()
 cfg.events.pop("push_robot", None)
+if a.roll_max is not None:
+    cfg.events["set_ground_state"].params["face_up_roll_max"] = float(np.radians(a.roll_max))
 if a.video:
     cfg.viewer.width, cfg.viewer.height = 1280, 720
     cfg.viewer.distance, cfg.viewer.elevation, cfg.viewer.azimuth = a.distance, -20.0, 130.0
@@ -183,6 +189,6 @@ with torch.inference_mode():
               f"highest trunk {1000 * float(peak.max()):.0f} mm, closest to upright {tilt(prog.max()):.0f} deg of tilt, "
               f"noise {float(sigma.mean()):.2f}, {time.time() - t0:.0f} s", flush=True)
         torch.save({"best": best_theta.cpu(), "mean": mu.cpu(), "keyframes": K, "seconds": a.seconds, "asym": a.asym,
-                    "best_score": best_ever, "z_offset": a.z_offset}, a.out)
+                    "best_score": best_ever, "z_offset": a.z_offset, "task": a.task, "roll_max": a.roll_max}, a.out)
 print(f"saved {a.out}; best score {best_ever:.3f} (1.5 = up and upright for the last second)")
 env.close()
