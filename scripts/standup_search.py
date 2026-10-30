@@ -50,6 +50,16 @@ ap.add_argument("--z-offset", type=float, default=0.0,
 ap.add_argument("--start-roll", type=float, default=None,
                 help="face-up task: start every robot on its back rolled by exactly this many degrees to a random side "
                      "(90 = lying on a side), instead of the task's random start. Overrides --roll-max")
+ap.add_argument("--play-start-roll", type=float, default=None,
+                help="--play: start every robot rolled by exactly this many degrees from flat on the back instead of the saved start "
+                     "(tests a saved motion at other angles)")
+ap.add_argument("--prefix", default=None,
+                help="a saved search whose motion is played first (its mean motion, or the best candidate with --prefix-best) before each "
+                     "candidate, e.g. the roll onto the front; only what happens after it is scored, and --seconds is the candidate's part")
+ap.add_argument("--prefix-best", action="store_true", help="play the prefix's best single candidate instead of its mean motion")
+ap.add_argument("--goal", choices=["stand", "prone"], default="stand",
+                help="stand: be upright for the last second. prone: be lying face-down (screen to the floor) for the last second, "
+                     "the hand-off to the face-down stand-up")
 ap.add_argument("--roll-max", type=float, default=None,
                 help="face-up starts only: random partial roll toward the side, up to this many degrees (the stock task uses 90; "
                      "0 = flat on the back). Default: leave the task's setting")
@@ -63,12 +73,17 @@ if saved:
     a.z_offset = saved.get("z_offset", 0.0)
     a.task, a.roll_max = saved.get("task", a.task), saved.get("roll_max", None)
     a.start_roll = saved.get("start_roll", None)
+    a.goal = saved.get("goal", "stand")
+    a.prefix, a.prefix_best = saved.get("prefix"), saved.get("prefix_best", False)
+    if a.play_start_roll is not None:
+        a.start_roll, a.roll_max = a.play_start_roll, None
 n_env = a.n if saved else a.pop
+prefix = torch.load(a.prefix, map_location=a.device) if a.prefix else None
 
 cfg = load_env_cfg(a.task)
 cfg.scene.num_envs = n_env
 cfg.seed = a.seed
-cfg.episode_length_s = a.seconds + 2.0
+cfg.episode_length_s = a.seconds + (prefix["seconds"] if prefix else 0.0) + 2.0
 cfg.curriculum.clear()
 cfg.events.pop("push_robot", None)
 if a.roll_max is not None:
@@ -93,9 +108,16 @@ def tilt(p) -> float:
     return float(np.degrees(np.arccos(min(max(float(p), 0.0), 1.0))))
 
 
-def expand(theta: torch.Tensor) -> torch.Tensor:
-    """(N, K, free) -> (N, K, 10): mirrored legs unless --asym."""
-    return theta if a.asym else torch.cat([theta, -theta], dim=-1)
+def expand(theta: torch.Tensor, asym: bool | None = None) -> torch.Tensor:
+    """(N, K, free) -> (N, K, 10): mirrored legs unless --asym (or the given flag)."""
+    return theta if (a.asym if asym is None else asym) else torch.cat([theta, -theta], dim=-1)
+
+
+pfx_theta, pfx_steps = None, 0
+if prefix:
+    pfx_theta = expand(prefix["best" if a.prefix_best else "mean"].to(dev).unsqueeze(0), prefix["asym"])  # (1, K, 10)
+    pfx_steps = round(prefix["seconds"] / env.step_dt)
+settle_skip = 0 if pfx_steps else settle_steps  # the robots spawn up to 90 mm high and drop first, unless a prefix has already run
 
 
 first_g: list = []  # projected gravity at the first step of the latest rollout, for the start-orientation breakdown
@@ -121,6 +143,15 @@ def rollout(theta10: torch.Tensor, frames=None, trace=None):
         ct, st = torch.cos(theta / 2), torch.sin(theta / 2)  # roll about the spine (body z), right-multiplied as in the task
         env.sim.data.qpos[:, 3:7] = torch.stack([w * ct - z * st, x * ct + y * st, y * ct - x * st, w * st + z * ct], dim=1)
         env.sim.data.qvel[:, :6] = 0.0
+    for i in range(pfx_steps):  # the prefix motion, not scored
+        pos = i / (pfx_steps - 1) * (pfx_theta.shape[1] - 1)
+        k0 = min(int(pos), pfx_theta.shape[1] - 2)
+        frac = pos - k0
+        env.step((pfx_theta[:, k0] * (1 - frac) + pfx_theta[:, k0 + 1] * frac).expand(n_env, -1))
+        if i == 0:
+            first_g[:] = [robot.data.projected_gravity_b.clone()]
+        if frames is not None:
+            frames.append(env.render())
     K = theta10.shape[1]
     best = torch.zeros(n_env, device=dev)
     final = torch.zeros(n_env, device=dev)
@@ -133,7 +164,7 @@ def rollout(theta10: torch.Tensor, frames=None, trace=None):
         frac = pos - k0
         act = theta10[:, k0] * (1 - frac) + theta10[:, k0 + 1] * frac
         env.step(act)
-        if i == 0:
+        if i == 0 and not pfx_steps:
             first_g[:] = [robot.data.projected_gravity_b.clone()]  # the start orientation, before the robot has moved much
         z_raw = robot.data.root_link_pos_w[:, 2]
         z = z_raw + a.z_offset
@@ -142,14 +173,17 @@ def rollout(theta10: torch.Tensor, frames=None, trace=None):
         ok = torch.isfinite(z_raw) & torch.isfinite(gz) & (z_raw > 0.022) & (z_raw < 0.16)
         h = ((z - 0.04) / 0.07).clamp(0, 1)
         p = (-gz).clamp(0, 1)
+        gx = robot.data.projected_gravity_b[:, 0]
         c = torch.where(ok, p * (0.3 + 0.7 * h), torch.zeros_like(p))
-        if i >= settle_steps:  # the robots spawn up to 90 mm high and drop to rest first
+        if a.goal == "prone":  # credit for the screen facing the floor (gravity along +x in the body frame), not for height
+            c = torch.where(ok, gx.clamp(0, 1), torch.zeros_like(p))
+        if i >= settle_skip:  # the robots spawn up to 90 mm high and drop to rest first
             best = torch.maximum(best, c)
             peak_z = torch.maximum(peak_z, z)
             peak_p = torch.maximum(peak_p, p)
         if i >= steps - last_second:
             final += c / last_second
-        held.append(ok & (z > 0.10) & (gz < -0.94))
+        held.append(ok & (gx > 0.9) if a.goal == "prone" else ok & (z > 0.10) & (gz < -0.94))
         if trace is not None:
             trace.append((z_raw.clone(), gz.clone(), ok.clone()))
         if frames is not None:
@@ -164,7 +198,7 @@ if saved:
     trace: list = []
     with torch.inference_mode():
         score, up, peak, prog = rollout(expand(theta), frames, trace)
-    print(f"replay of {a.play}: {n_env} robots, {a.seconds:g} s: up for the last second {int(up.sum())}/{n_env} "
+    print(f"replay of {a.play}: {n_env} robots, {a.seconds:g} s: {'face-down' if a.goal == 'prone' else 'up'} for the last second {int(up.sum())}/{n_env} "
           f"({100 * up.float().mean():.0f}%), peak trunk height median {1000 * float(peak.median()):.0f} mm, "
           f"max {1000 * float(peak.max()):.0f} mm, closest to upright (tilt from vertical, 90 = lying) median "
           f"{tilt(prog.median()):.0f} deg, best {tilt(prog.max()):.0f} deg")
@@ -215,6 +249,7 @@ with torch.inference_mode():
               f"highest trunk {1000 * float(peak.max()):.0f} mm, closest to upright {tilt(prog.max()):.0f} deg of tilt, "
               f"noise {float(sigma.mean()):.2f}, {time.time() - t0:.0f} s", flush=True)
         torch.save({"best": best_theta.cpu(), "mean": mu.cpu(), "keyframes": K, "seconds": a.seconds, "asym": a.asym,
-                    "best_score": best_ever, "z_offset": a.z_offset, "task": a.task, "roll_max": a.roll_max, "start_roll": a.start_roll}, a.out)
+                    "best_score": best_ever, "z_offset": a.z_offset, "task": a.task, "roll_max": a.roll_max, "start_roll": a.start_roll, "goal": a.goal,
+                    "prefix": a.prefix, "prefix_best": a.prefix_best}, a.out)
 print(f"saved {a.out}; best score {best_ever:.3f} (1.5 = up and upright for the last second)")
 env.close()
