@@ -39,6 +39,7 @@ ap.add_argument("--device", default="cuda:0")
 ap.add_argument("--out", default="standup_search_best.pt")
 ap.add_argument("--play", default=None, help="replay a saved result instead of searching")
 ap.add_argument("--n", type=int, default=64, help="robots for --play")
+ap.add_argument("--use-mean", action="store_true", help="--play: replay the search distribution's mean motion instead of the best single candidate")
 ap.add_argument("--video", default=None, help="--play: mp4 of env 0")
 ap.add_argument("--distance", type=float, default=0.5)
 ap.add_argument("--freeze-hip", action="store_true",
@@ -46,6 +47,9 @@ ap.add_argument("--freeze-hip", action="store_true",
 ap.add_argument("--z-offset", type=float, default=0.0,
                 help="metres added to the trunk height before it is scored, for variants whose standing trunk is lower "
                      "(legs mounted dz higher: pass dz)")
+ap.add_argument("--start-roll", type=float, default=None,
+                help="face-up task: start every robot on its back rolled by exactly this many degrees to a random side "
+                     "(90 = lying on a side), instead of the task's random start. Overrides --roll-max")
 ap.add_argument("--roll-max", type=float, default=None,
                 help="face-up starts only: random partial roll toward the side, up to this many degrees (the stock task uses 90; "
                      "0 = flat on the back). Default: leave the task's setting")
@@ -58,6 +62,7 @@ if saved:
     a.keyframes, a.seconds, a.asym = saved["keyframes"], saved["seconds"], saved["asym"]
     a.z_offset = saved.get("z_offset", 0.0)
     a.task, a.roll_max = saved.get("task", a.task), saved.get("roll_max", None)
+    a.start_roll = saved.get("start_roll", None)
 n_env = a.n if saved else a.pop
 
 cfg = load_env_cfg(a.task)
@@ -93,6 +98,9 @@ def expand(theta: torch.Tensor) -> torch.Tensor:
     return theta if a.asym else torch.cat([theta, -theta], dim=-1)
 
 
+first_g: list = []  # projected gravity at the first step of the latest rollout, for the start-orientation breakdown
+
+
 def rollout(theta10: torch.Tensor, frames=None, trace=None):
     """Play each robot's keyframes from a fresh face-down start. Returns score, up-at-end, peak height, peak uprightness.
 
@@ -104,6 +112,15 @@ def rollout(theta10: torch.Tensor, frames=None, trace=None):
     0.000 for every candidate (no gradient), and measuring pitch with atan2(gx, -gz) read a robot lying on its side or
     on its back as fully upright, which a search with independent legs found in its first generation."""
     env.reset()
+    if a.start_roll is not None:  # every robot on its back rolled by exactly this far, to a random side, random heading
+        n = n_env
+        yaw = torch.rand(n, device=dev) * 2 * np.pi - np.pi
+        cy, sy, s = torch.cos(yaw / 2), torch.sin(yaw / 2), 2.0 ** -0.5
+        w, x, y, z = s * cy, s * sy, -s * cy, s * sy  # the task's face-up orientation
+        theta = torch.where(torch.rand(n, device=dev) < 0.5, 1.0, -1.0) * float(np.radians(a.start_roll))
+        ct, st = torch.cos(theta / 2), torch.sin(theta / 2)  # roll about the spine (body z), right-multiplied as in the task
+        env.sim.data.qpos[:, 3:7] = torch.stack([w * ct - z * st, x * ct + y * st, y * ct - x * st, w * st + z * ct], dim=1)
+        env.sim.data.qvel[:, :6] = 0.0
     K = theta10.shape[1]
     best = torch.zeros(n_env, device=dev)
     final = torch.zeros(n_env, device=dev)
@@ -116,6 +133,8 @@ def rollout(theta10: torch.Tensor, frames=None, trace=None):
         frac = pos - k0
         act = theta10[:, k0] * (1 - frac) + theta10[:, k0 + 1] * frac
         env.step(act)
+        if i == 0:
+            first_g[:] = [robot.data.projected_gravity_b.clone()]  # the start orientation, before the robot has moved much
         z_raw = robot.data.root_link_pos_w[:, 2]
         z = z_raw + a.z_offset
         gz = robot.data.projected_gravity_b[:, 2]
@@ -140,7 +159,7 @@ def rollout(theta10: torch.Tensor, frames=None, trace=None):
 
 
 if saved:
-    theta = saved["best"].to(dev).unsqueeze(0).expand(n_env, -1, -1)
+    theta = saved["mean" if a.use_mean else "best"].to(dev).unsqueeze(0).expand(n_env, -1, -1)
     frames = [] if a.video else None
     trace: list = []
     with torch.inference_mode():
@@ -149,6 +168,13 @@ if saved:
           f"({100 * up.float().mean():.0f}%), peak trunk height median {1000 * float(peak.median()):.0f} mm, "
           f"max {1000 * float(peak.max()):.0f} mm, closest to upright (tilt from vertical, 90 = lying) median "
           f"{tilt(prog.median()):.0f} deg, best {tilt(prog.max()):.0f} deg")
+    if "FaceUp" in a.task:
+        g0 = first_g[0]
+        roll0 = torch.rad2deg(torch.atan2(g0[:, 1].abs(), -g0[:, 0]))  # 0 = flat on the back, 90 = on its side
+        edges = [0, 15, 30, 45, 60, 75, 91]
+        print("by start orientation (roll away from flat on the back, deg): " + ", ".join(
+            f"{lo}-{hi - 1 if hi == 91 else hi}: {int((up & (roll0 >= lo) & (roll0 < hi)).sum())}/{int(((roll0 >= lo) & (roll0 < hi)).sum())}"
+            for lo, hi in zip(edges[:-1], edges[1:])))
     print("trace, median over robots every 0.2 s: time s | trunk-frame height mm | tilt deg (90 = lying) | robots in the valid band")
     for i in range(0, len(trace), round(0.2 / env.step_dt)):
         z_t, gz_t, ok_t = trace[i]
@@ -189,6 +215,6 @@ with torch.inference_mode():
               f"highest trunk {1000 * float(peak.max()):.0f} mm, closest to upright {tilt(prog.max()):.0f} deg of tilt, "
               f"noise {float(sigma.mean()):.2f}, {time.time() - t0:.0f} s", flush=True)
         torch.save({"best": best_theta.cpu(), "mean": mu.cpu(), "keyframes": K, "seconds": a.seconds, "asym": a.asym,
-                    "best_score": best_ever, "z_offset": a.z_offset, "task": a.task, "roll_max": a.roll_max}, a.out)
+                    "best_score": best_ever, "z_offset": a.z_offset, "task": a.task, "roll_max": a.roll_max, "start_roll": a.start_roll}, a.out)
 print(f"saved {a.out}; best score {best_ever:.3f} (1.5 = up and upright for the last second)")
 env.close()

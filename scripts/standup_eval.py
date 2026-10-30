@@ -85,6 +85,16 @@ print(f"upright at some point: {int(reached.sum())}/{a.n}; median time to first 
       f"{float(first_up[reached].median()) if reached.any() else float('nan'):.2f} s")
 print(f"final trunk height mm: median {float(z.median()):.0f}, min {float(z.min()):.0f}, max {float(z.max()):.0f}; "
       f"still face-down (gravity x > 0.7): {int((gx > 0.7).sum())}, still face-up (x < -0.7): {int((gx < -0.7).sum())}")
+gy = robot.data.projected_gravity_b[:, 1]
+gz_end = robot.data.projected_gravity_b[:, 2]
+screen_tilt = torch.rad2deg(torch.arccos((-gx).clamp(-1, 1)))  # angle between the screen normal and straight up (0 = screen up)
+print("screen normal away from straight up (deg) at the end, 10th / 50th / 90th percentile: "
+      + " ".join(f"{q:.0f}" for q in torch.quantile(screen_tilt, torch.tensor([0.1, 0.5, 0.9], device=a.device)).tolist()))
+lying = gz_end.abs() < 0.5
+roll_end = torch.rad2deg(torch.atan2(gy.abs(), -gx))  # 0 = flat on the back, 90 = on its side (read it for robots lying down)
+print(f"resting on a side (|gravity y| > 0.7): {int((gy.abs() > 0.7).sum())}; of the {int(lying.sum())} lying down, roll away from flat "
+      f"on the back (deg): " + (" ".join(f"{q:.0f}" for q in torch.quantile(roll_end[lying], torch.tensor([0.1, 0.5, 0.9], device=a.device)).tolist())
+                                if lying.any() else "n/a") + " (10th, 50th, 90th percentile)")
 if a.video and frames:
     import mediapy as media
 

@@ -42,6 +42,12 @@ ap.add_argument("--clean", action="store_true",
                 help="tidy the model for the moved hips: the two hip-yaw servos (visual and mass) move with the leg chain, "
                      "the power_support plate is removed, and the hip brackets may sit inside the shell (the shell is taken to "
                      "have an opening there; the thighs and shanks still collide with it)")
+ap.add_argument("--tail-box", type=float, nargs=5, metavar=("HX", "HY", "HZ", "CX", "CZ"), default=None,
+                help="replace the tail placeholder (visual and collider) by a box with these half sizes and this centre, metres, "
+                     "trunk frame. The tail's 14 g stays in the trunk inertial where it was (a 10 mm move is 0.2 mm of centre of mass)")
+ap.add_argument("--move-chassis", action="store_true",
+                help="with --clean: also move Pollen's chassis plate (visual and its 50 g placeholder mass) with the leg chain; "
+                     "without it the plate and mass stay at the old low position, hanging below the body between the legs")
 ap.add_argument("--dx", type=float, default=0.0,
                 help="move the leg mounts along the body (negative = back, away from the screen); stand-up base only, the walking "
                      "home pose is not re-trimmed for it")
@@ -70,9 +76,15 @@ YAW_SERVO_MASS = 0.018  # one XL330; the two hip-yaw servos are part of the trun
 YAW_SERVO_XYZ = (-0.001, 0.018, 0.011)  # centre of the left one in the trunk frame (the right one mirrors y)
 
 
-def move_yaw_servos(text: str, dy: float, dz: float, dx: float = 0.0) -> str:
+CHASSIS_MASS = 0.050  # build_walk_model.py's placeholder for Pollen's chassis between the hip servos
+CHASSIS_XYZ = (0.004, 0.0, 0.0)  # its centre in the trunk frame
+
+
+def move_yaw_servos(text: str, dy: float, dz: float, dx: float = 0.0, chassis: bool = False) -> str:
     """The stock trunk holds the two hip-yaw servos above the leg chain; moving the chain leaves them behind. Move their
-    visuals with the chain and shift their mass in the trunk inertial (point masses, parallel-axis theorem)."""
+    visuals with the chain and shift their mass in the trunk inertial (point masses, parallel-axis theorem). With
+    ``chassis``, Pollen's chassis plate (the structure the hip servos bolt to, a 50 g placeholder mass in the inertial)
+    moves with the chain too."""
     pattern = re.compile(r'(<geom type="mesh" class="visual" pos=")0\.006 (-?0\.0175) ([-0-9.e]+)'
                          r'(" quat="[^"]*" mesh="(?:xl330|seeed_bearing__configuration__22x16x4)")')
     n = 0
@@ -85,6 +97,12 @@ def move_yaw_servos(text: str, dy: float, dz: float, dx: float = 0.0) -> str:
 
     text = pattern.sub(shift, text)
     assert n == 4, f"expected 2 yaw servos + 2 bearings in the trunk, found {n} geoms"
+    if chassis:
+        plate = re.compile(r'(<geom type="mesh" class="visual" pos=")([-0-9.e]+) ([-0-9.e]+) ([-0-9.e]+)'
+                           r'(" quat="[^"]*" mesh="trunk_base" material=)')
+        pm = plate.search(text)
+        assert pm, "chassis plate visual"
+        text = plate.sub(lambda m: f"{m[1]}{float(m[2]) + dx:.6g} {m[3]} {float(m[4]) + dz:.6g}{m[5]}", text, count=1)
 
     start = text.index('<body name="trunk_base"')  # the first inertial after it is the trunk's own
     m = re.compile(r'(<inertial pos=")([-0-9.e ]+)(" mass=")([-0-9.e]+)(" fullinertia=")([-0-9.e ]+)("/>)').search(text, start)
@@ -102,12 +120,20 @@ def move_yaw_servos(text: str, dy: float, dz: float, dx: float = 0.0) -> str:
         new = old + np.array([dx, sy * dy, dz])
         inertia_o += YAW_SERVO_MASS * (steer(new) - steer(old))
         new_c += YAW_SERVO_MASS * (new - old) / mass
+    moved = 2 * YAW_SERVO_MASS
+    if chassis:
+        old = np.array(CHASSIS_XYZ)
+        new = old + np.array([dx, 0.0, dz])
+        inertia_o += CHASSIS_MASS * (steer(new) - steer(old))
+        new_c += CHASSIS_MASS * (new - old) / mass
+        moved += CHASSIS_MASS
     inertia_new = inertia_o - mass * steer(new_c)
     full = [inertia_new[0, 0], inertia_new[1, 1], inertia_new[2, 2], inertia_new[0, 1], inertia_new[0, 2], inertia_new[1, 2]]
     text = text.replace(m[0], f"{m[1]}{' '.join(f'{v:.10g}' for v in new_c)}{m[3]}{m[4]}{m[5]}"
                               f"{' '.join(f'{v:.10g}' for v in full)}{m[7]}", 1)
-    print(f"yaw servos moved: trunk centre of mass {1000 * (new_c - c)} mm, "
-          f"whole-robot shift about {1000 * 2 * YAW_SERVO_MASS * dz / 0.650:.1f} mm in z")
+    print(f"{'yaw servos and chassis' if chassis else 'yaw servos'} moved ({1000 * moved:.0f} g): trunk centre of mass "
+          f"{np.round(1000 * (new_c - c), 2)} mm, whole-robot shift about {1000 * moved * dz / 0.650:.1f} mm in z, "
+          f"{1000 * moved * dx / 0.650:.1f} mm in x")
     return text
 
 
@@ -145,6 +171,17 @@ def thigh_colliders(text: str) -> str:
     return "".join(out)
 
 
+def tail_box(text: str, hx: float, hy: float, hz: float, cx: float, cz: float) -> str:
+    n = 0
+    for name in ("tail_visual", "tail_collision"):
+        pattern = re.compile(rf'(name="{name}" size=")[-0-9.e ]+(" pos=")[-0-9.e ]+(")')
+        if pattern.search(text):
+            text = pattern.sub(rf"\g<1>{hx:.6g} {hy:.6g} {hz:.6g}\g<2>{cx:.6g} 0 {cz:.6g}\g<3>", text, count=1)
+            n += 1
+    assert n >= 1, "no tail geom found"
+    return text
+
+
 def leg_colliders(text: str) -> str:
     """Make the shanks, their servos and the hip brackets real colliders. The stand-up model already has a collider on each
     shank mesh and each hip bracket, but unnamed, so mjlab's `.*_collision` rule switches them off; name them, and add a
@@ -171,9 +208,11 @@ def leg_colliders(text: str) -> str:
 text = shift_body(text, "yaw2roll", +a.dy, a.dz, a.dx)
 text = shift_body(text, "bearing_roll", -a.dy, a.dz, a.dx)
 if a.clean:
-    text = move_yaw_servos(text, a.dy, a.dz, a.dx)
+    text = move_yaw_servos(text, a.dy, a.dz, a.dx, chassis=a.move_chassis)
     text = drop_plate(text)
     text = hips_inside_shell(text)
+if a.tail_box:
+    text = tail_box(text, *a.tail_box)
 if a.thigh_collision or a.leg_collision:
     text = thigh_colliders(text)
 if a.leg_collision:
