@@ -21,6 +21,7 @@ from mjlab.envs import ManagerBasedRlEnv
 from mjlab.rl import MjlabOnPolicyRunner, RslRlVecEnvWrapper
 from mjlab.tasks.registry import load_env_cfg, load_rl_cfg, load_runner_cls
 from mjlab.utils.torch import configure_torch_backends
+from mjlab_microduck.tasks.microcluck_recover_env_cfg import CHAINS
 from mjlab_microduck.tasks.microcluck_stress import add_stress_args, apply_stress, stress_from_args
 
 ap = argparse.ArgumentParser()
@@ -80,7 +81,7 @@ up = held[motion_steps - last_second:motion_steps].all(0)  # as standup_search.p
 up_later = held[-last_second:].all(0)  # and still up after the pose has been held for one more second
 ever = held[term.roll_steps:].any(0)
 parts = []
-for c, (name, _, _) in enumerate(__import__("mjlab_microduck.tasks.microcluck_recover_env_cfg", fromlist=["CHAINS"]).CHAINS):
+for c, (name, _, _) in enumerate(CHAINS):
     m = chain == c
     if m.any():
         parts.append(f"{name} {int((up & m).sum())}/{int(m.sum())}")
@@ -91,5 +92,5 @@ if a.video and frames:
     import mediapy as media
 
     media.write_video(a.video, np.stack(frames), fps=round(1 / base.step_dt))
-    print("wrote", a.video)
+    print(f"recover video of robot 0 ({CHAINS[int(chain[0])][0]} start): {'up' if bool(up[0]) else 'NOT up'} for the last second; wrote {a.video}")
 env.close()

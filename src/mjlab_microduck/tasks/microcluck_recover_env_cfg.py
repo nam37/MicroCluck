@@ -44,7 +44,7 @@ ACTION = "joint_pos"
 # The widened physics of the training: friction of the floor and every part, battery with sag, servo delay (steps of 5 ms), extra trunk
 # mass in grams, and the trunk's centre of mass by +-mm along x (fore-aft), y, z. Fore-aft is the one the open-loop motions are most
 # sensitive to (about 4 mm back to 8 mm forward of the model's value), so it gets the widest range.
-TRAIN_STRESS = Stress(mu=(0.3, 1.5), vin=(6.4, 8.2), drop=(0.0, 0.2), lag=(3, 10), mass=(0.0, 60.0), com_range=(12.0, 6.0, 8.0))
+TRAIN_STRESS = Stress(mu=(0.3, 1.5), vin=(6.4, 8.2), drop=(0.0, 0.2), lag=(3, 10), mass=(0.0, 60.0), com_range=(16.0, 6.0, 8.0))
 
 
 def _keyframe_table(m: dict, step_dt: float, device) -> torch.Tensor:
@@ -214,15 +214,19 @@ def make_microcluck_recover_env_cfg(play: bool = False, stress: Stress | None = 
 
 
 def make_microcluck_recover_rl_cfg(run_name: str = "recover"):
-    """The stock stand-up PPO recipe, with a smaller action noise to start from (the reference already works) and outputs clipped to +-1."""
+    """The stock stand-up PPO recipe, with a small action noise to start from (the reference already works), no entropy bonus and outputs
+    clipped to +-1. The first run (resid_v1: noise 0.3, bonus 0.005, centre of mass +-12 mm fore-aft) was best at 250 to 500 iterations and
+    got worse after: with the bonus and a reward that barely moved, the action noise grew from 0.3 to 1.1 by iteration 700 and the
+    in-distribution score fell from 96% to 88% by 750."""
     cfg = deepcopy(_stock.MicroduckStandUpRlCfg)
     cfg.experiment_name = "microcluck_recover"
     cfg.run_name = run_name
     cfg.wandb_project = "mjlab_microcluck"
     cfg.clip_actions = 1.0
-    cfg.actor.distribution_cfg = {**cfg.actor.distribution_cfg, "init_std": 0.3}
-    cfg.algorithm.entropy_coef = 0.005
-    cfg.max_iterations = 1500
+    cfg.actor.distribution_cfg = {**cfg.actor.distribution_cfg, "init_std": 0.2}
+    cfg.algorithm.entropy_coef = 0.0
+    cfg.save_interval = 100
+    cfg.max_iterations = 800
     return cfg
 
 
