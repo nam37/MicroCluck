@@ -115,10 +115,12 @@ of 64 environments fell with the old position and 54 and 50 in two runs with the
 fell with the old and 8 and 5 with the new. That is within the run-to-run spread. The trained policy used the old position.
 
 Shell mass is the full wall volume times the PETG density, an upper bound that a thinner wall or a sparse print would
-reduce. In the sim the shell is a translucent, visual-only mesh: it adds no mass and no contact, and the sim's frame mass
-(the 60.9 g left over for the bezel and bumpers) was set when the shell was the box. The target look with its wing discs is
-about 23 g heavier than the box (52 g and 7.9 g against 37 g), and the shell's centre of mass sits 9 mm further back. Neither
-is in the sim yet, so the walking numbers so far do not include them.
+reduce. In the sim the shell is drawn as a translucent mesh and collides as the convex hull of its envelope (the wing discs
+collide as cylinders). Its mass and inertia come from the mesh at the full wall volume, as do the wing discs', and the trunk
+budget grows by what they weigh beyond the 37 g box that the original 627 g total contained (`TARGET_TOTAL_MASS` in the sim's
+`build_walk_model.py`; with the target look the robot weighs 650 g and the target look's centre of mass sits 9 mm further back
+than the box's). `MICROCLUCK_SHELL_MASS=0` leaves them out. An older version of this paragraph said the shell added no mass;
+that stopped being true when the shell parts were added to the budget, and results measured before that do not include them.
 
 ## Build
 
