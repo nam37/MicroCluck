@@ -49,6 +49,16 @@ vent_w          = 2;
 
 density_g_cm3   = 1.27;   // PETG, for the mass estimate only
 
+// BEZEL LIPS (bezel.scad): the frame's top and bottom edges curve outward into soft bumper lips that stand proud of the frame's
+// front face, with the glass recessed behind that face, so a forward fall lands on the lips and not on the glass. Each lip is a
+// bar of radius bezel_lip_r across the bezel's full width, flush with the frame's top (bottom) edge, its front edge bezel_lip_proud
+// ahead of the face. 0 is the flat frame. How far the lips must stand out comes from a drop test (PRD H3); the sim says how far they
+// CAN: the legs have to clear them and the get-up has to work with them. PLACEHOLDERS until the board is measured.
+bezel_lip_proud = 6;      // mm ahead of the frame's front face (bezel_pos x + bezel_size x / 2); the sim's get-up works up to 8, not at 12
+bezel_lip_r     = 5;      // radius of the rounded front edge; the bar is twice this tall
+bezel_window    = [54, 90];   // opening for the glass: width (y), height (z)
+bezel_glass_recess = 2.5; // how far the glass sits behind the frame's front face
+
 // SHELL STYLE. "box" is the hull of the two end caps above (straight sides). "egg" keeps the same two caps, so the
 // bezel and rear-wall interfaces do not change, but stacks slices between them so the body stays full behind the screen,
 // rounds off toward the rear and lifts its underside there, with side wing discs. Everything is convex, so the sim's

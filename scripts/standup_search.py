@@ -21,10 +21,9 @@ import torch
 
 import mjlab_microduck.tasks  # noqa: F401
 from mjlab.envs import ManagerBasedRlEnv
-from mjlab.envs.mdp import dr
-from mjlab.managers import EventTermCfg, SceneEntityCfg
 from mjlab.tasks.registry import load_env_cfg
 from mjlab.utils.torch import configure_torch_backends
+from mjlab_microduck.tasks.microcluck_stress import add_stress_args, apply_stress, stress_from_args
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--task", default="Mjlab-StandUp-FaceDown-Flat-MicroCluck")
@@ -65,24 +64,13 @@ ap.add_argument("--goal", choices=["stand", "prone"], default="stand",
 ap.add_argument("--roll-max", type=float, default=None,
                 help="face-up starts only: random partial roll toward the side, up to this many degrees (the stock task uses 90; "
                      "0 = flat on the back). Default: leave the task's setting")
-ap.add_argument("--stress-mu", type=float, nargs=2, default=None, metavar=("LO", "HI"),
-                help="--play: the floor and every robot geom get one friction coefficient per robot, drawn from [LO, HI] "
-                     "(the training randomization only moves the feet, 0.7 to 1.3 against a floor of 1.0, and MuJoCo takes the larger of the two)")
-ap.add_argument("--stress-vin", type=float, nargs="+", default=None, metavar="V",
-                help="battery voltage, V: one value for every robot, or LO HI drawn per robot (training: 6.5 to 8.2)")
-ap.add_argument("--stress-drop", type=float, nargs="+", default=None, metavar="G",
-                help="voltage sag per N*m of summed joint torque, V: one value or LO HI (training: 0 to 0.2)")
-ap.add_argument("--stress-lag", type=int, nargs="+", default=None, metavar="STEPS",
-                help="servo command delay, physics steps of 5 ms: one value or LO HI (training: 3 to 6)")
-ap.add_argument("--stress-mass", type=float, nargs="+", default=None, metavar="G",
-                help="grams added to the trunk body (density scaled up, centre of mass unchanged): one value or LO HI")
-ap.add_argument("--stress-com", type=float, nargs=3, default=None, metavar=("X", "Y", "Z"),
-                help="trunk centre of mass shifted by this many millimetres along x (forward), y (left), z (up)")
-ap.add_argument("--stress-com-range", type=float, default=None, metavar="MM",
-                help="trunk centre of mass moved by a random amount in [-MM, MM] millimetres along each axis, redrawn at every reset")
+add_stress_args(ap)  # --stress-mu, -vin, -drop, -lag, -mass, -com, -com-range
 ap.add_argument("--log-actuators", action="store_true", help="--play: print the peak torque and speed of each joint over the replay")
 ap.add_argument("--log-contacts", action="store_true",
                 help="--play: print which body parts touch which (trunk parts against leg parts, leg against leg, parts against the floor)")
+ap.add_argument("--init", default=None,
+                help="search: start the distribution at this saved search's mean motion instead of zero (a warm start, e.g. the nominal stand-up "
+                     "adapted to randomized physics); pair it with a small --sigma")
 ap.add_argument("--replicas", type=int, default=1,
                 help="search: every candidate motion is simulated in this many robots (each with its own randomized physics, "
                      "friction, mass, battery, delay) and scored on their mean; --pop counts robots, so there are pop / replicas candidates")
@@ -113,69 +101,7 @@ if a.roll_max is not None:
     cfg.events["set_ground_state"].params["face_up_roll_max"] = float(np.radians(a.roll_max))
 
 
-def _model_tensor(x):
-    """A model field as a torch tensor sharing its memory (mjlab hands out either a tensor or a warp array)."""
-    return x if isinstance(x, torch.Tensor) else x._tensor  # mjlab's TorchArray proxy keeps the torch view in _tensor
-
-
-def _stress_friction(env, env_ids, lo: float, hi: float) -> None:
-    """Startup event: the floor and every geom of the robot get one tangential friction coefficient per world, drawn from [lo, hi]."""
-    gf = _model_tensor(env.sim.model.geom_friction)
-    gf[:, :, 0] = torch.empty(gf.shape[0], 1, device=gf.device).uniform_(lo, hi)
-
-
-def _stress_trunk(env, env_ids, grams_lo: float, grams_hi: float) -> None:
-    """Startup event: more mass in the trunk body (density scaled up, so inertia follows), drawn per world from [grams_lo, grams_hi]."""
-    import mujoco
-
-    mj = env.sim.mj_model
-    bid = mujoco.mj_name2id(mj, mujoco.mjtObj.mjOBJ_BODY, "robot/trunk_base")
-    mass = float(mj.body_mass[bid])
-    lo, hi = (0.5 * float(np.log((mass + g / 1000.0) / mass)) for g in (grams_lo, grams_hi))
-    asset_cfg = SceneEntityCfg("robot", body_names=("trunk_base",))
-    asset_cfg.resolve(env.scene)
-    dr.pseudo_inertia(env, env_ids, alpha_range=(lo, hi), asset_cfg=asset_cfg)
-    print(f"stress: trunk_base {1000 * mass:.1f} g + {grams_lo:g} to {grams_hi:g} g", flush=True)
-
-
-def _stress_com(env, env_ids, com_mm=None, range_mm=None) -> None:
-    """Reset event, run after the task's own com randomization (which sets the centre of mass from the compile-time value on every
-    reset and so undoes anything done at startup): the trunk's centre of mass is moved by com_mm millimetres along x, y, z, or by a
-    random amount in [-range_mm, range_mm] along each axis."""
-    asset_cfg = SceneEntityCfg("robot", body_names=("trunk_base",))
-    asset_cfg.resolve(env.scene)
-    if range_mm is not None:
-        ranges = (-range_mm / 1000.0, range_mm / 1000.0)
-    else:
-        ranges = {i: (c / 1000.0, c / 1000.0) for i, c in enumerate(com_mm)}
-    dr.body_ipos(env, env_ids, ranges=ranges, asset_cfg=asset_cfg, operation="add")
-    import mujoco
-
-    bid = mujoco.mj_name2id(env.sim.mj_model, mujoco.mjtObj.mjOBJ_BODY, "robot/trunk_base")
-    print(f"stress: trunk_base body_ipos in world 0 after the reset events: {_model_tensor(env.sim.model.body_ipos)[0, bid].tolist()}", flush=True)
-
-
-if a.stress_vin is not None or a.stress_drop is not None or a.stress_lag is not None:
-    from copy import deepcopy
-
-    robot_cfg = deepcopy(cfg.scene.entities["robot"])
-    act_cfg = robot_cfg.articulation.actuators[0]
-    if a.stress_vin is not None:
-        act_cfg.vin_range = (a.stress_vin[0], a.stress_vin[-1])
-    if a.stress_drop is not None:
-        act_cfg.vin_drop_gain_range = (a.stress_drop[0], a.stress_drop[-1])
-    if a.stress_lag is not None:
-        act_cfg.delay_min_lag, act_cfg.delay_max_lag = a.stress_lag[0], a.stress_lag[-1]
-    cfg.scene.entities = {**cfg.scene.entities, "robot": robot_cfg}
-if a.stress_mu:
-    cfg.events["stress_friction"] = EventTermCfg(func=_stress_friction, mode="startup", params={"lo": a.stress_mu[0], "hi": a.stress_mu[1]})
-if a.stress_mass:
-    cfg.events["stress_trunk"] = EventTermCfg(func=_stress_trunk, mode="startup",
-                                              params={"grams_lo": a.stress_mass[0], "grams_hi": a.stress_mass[-1]})
-if a.stress_com:
-    cfg.events["stress_com"] = EventTermCfg(func=_stress_com, mode="reset", params={"com_mm": a.stress_com})
-elif a.stress_com_range:
-    cfg.events["stress_com"] = EventTermCfg(func=_stress_com, mode="reset", params={"range_mm": a.stress_com_range})
+apply_stress(cfg, stress_from_args(a))
 if a.video:
     cfg.viewer.width, cfg.viewer.height = 1280, 720
     cfg.viewer.distance, cfg.viewer.elevation, cfg.viewer.azimuth = a.distance, -20.0, 130.0
@@ -344,7 +270,7 @@ if saved:
         mj = env.sim.mj_model
         nm = [(mujoco.mj_id2name(mj, mujoco.mjtObj.mjOBJ_GEOM, g) or f"geom{g}").replace("robot/", "").replace("_collision", "") for g in range(n_geom)]
         trunk = {"bezel", "comb", "tail", "shell", "wing_left", "wing_right"}
-        kind = lambda g: "trunk" if nm[g] in trunk else "floor" if nm[g] == "terrain" else "leg"  # noqa: E731
+        kind = lambda g: "trunk" if nm[g] in trunk or nm[g].startswith("bezel") else "floor" if nm[g] == "terrain" else "leg"  # noqa: E731
         total = max(contact_seen["n"], 1)
         rows = []
         for p0, p1 in zip(*np.nonzero(contact_seen["steps"])):
@@ -374,6 +300,9 @@ if saved:
 
 K = a.keyframes
 mu = torch.zeros(K, n_free, device=dev)
+if a.init:  # warm start: the search distribution starts at a saved search's mean motion (same keyframes and joints), with --sigma as its spread
+    mu = torch.load(a.init, map_location=dev)["mean"].to(dev).clone()
+    assert mu.shape == (K, n_free), (tuple(mu.shape), (K, n_free))
 sigma = torch.full((K, n_free), a.sigma, device=dev)
 m_rep = a.replicas
 n_cand = n_env // m_rep

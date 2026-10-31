@@ -344,6 +344,25 @@ register_mjlab_task(
     runner_cls=MicroduckOnPolicyRunner,
 )
 
+# MicroCluck feedback recovery (tasks/microcluck_recover_env_cfg.py): a learned correction on the saved open-loop get-up motions.
+# The trained task has the widened physics; the Nominal one has the stock randomization only and is the base of scripts/recover_eval.py.
+from .microcluck_recover_env_cfg import MicroCluckRecoverRlCfg, make_microcluck_recover_env_cfg
+
+register_mjlab_task(
+    task_id="Mjlab-Recover-MicroCluck",
+    env_cfg=make_microcluck_recover_env_cfg(),
+    play_env_cfg=make_microcluck_recover_env_cfg(play=True),
+    rl_cfg=MicroCluckRecoverRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+register_mjlab_task(
+    task_id="Mjlab-Recover-Nominal-MicroCluck",
+    env_cfg=make_microcluck_recover_env_cfg(stress=None),
+    play_env_cfg=make_microcluck_recover_env_cfg(play=True, stress=None),
+    rl_cfg=MicroCluckRecoverRlCfg,
+    runner_cls=MicroduckOnPolicyRunner,
+)
+
 for _task_id, _make_cfg, _kw, _rl_cfg, _robot_cfg in _BACKLASH_TASKS:
     register_mjlab_task(
         task_id=_task_id,

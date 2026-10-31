@@ -241,3 +241,40 @@ def test_toes_variant_extends_the_contact_patch_forward_on_the_same_ground_plane
 def test_plain_model_has_no_toes(walk_model):
     for side in ("left", "right"):
         assert mujoco.mj_name2id(walk_model, mujoco.mjtObj.mjOBJ_GEOM, f"{side}_toes_visual") < 0
+
+
+# --- bezel lips: the frame's top and bottom bumper lips (hardware/bezel.scad), collision primitives ------------
+
+def test_bezel_lips_stand_proud_of_the_frame_face_and_add_no_mass():
+    from mjlab_microduck.robot.microcluck import build_standup_model as stand
+
+    base = (MODEL_DIR / "robot_standup.xml").read_text()
+    assert stand.insert_bezel_lips(base, 0.0) == base  # no lip is the flat frame, as before
+    proud = 0.008
+    path = MODEL_DIR / "_test_bezel_lips.xml"  # next to the meshes it refers to
+    try:
+        path.write_text(stand.insert_bezel_lips(base, proud))
+        model = mujoco.MjModel.from_xml_path(str(path))
+    finally:
+        path.unlink(missing_ok=True)
+    bezel = stand.part("bezel_and_bumpers")
+    face_x = bezel.pos[0] + bezel.size[0] / 2
+    assert model.body_subtreemass[1] == pytest.approx(build.TARGET_TOTAL_MASS, abs=1e-6)
+    for where, z_edge in (("top", bezel.pos[2] + bezel.size[2] / 2), ("bottom", bezel.pos[2] - bezel.size[2] / 2)):
+        gid = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"bezel_lip_{where}_capsule_collision")
+        assert gid >= 0
+        assert model.geom_contype[gid] != 0
+        assert model.geom_pos[gid][0] + model.geom_size[gid][0] == pytest.approx(face_x + proud, abs=1e-6)  # the front edge
+        assert abs(model.geom_pos[gid][2] - z_edge) == pytest.approx(model.geom_size[gid][0], abs=1e-6)  # flush with the frame's edge
+        visual = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, f"bezel_lip_{where}_capsule_visual")
+        assert visual >= 0 and model.geom_contype[visual] == 0 and model.geom_conaffinity[visual] == 0
+
+
+@pytest.mark.skipif(not TORSO_SCAD.exists(), reason="torso.scad not copied (hardware/tools/build_bezel.sh)")
+def test_bezel_lip_radius_matches_torso_scad():
+    import re
+
+    from mjlab_microduck.robot.microcluck import build_standup_model as stand
+
+    text = TORSO_SCAD.read_text()
+    assert float(re.search(r"\bbezel_lip_r\s*=\s*([\d.]+)\s*;", text).group(1)) / 1000.0 == pytest.approx(stand.BEZEL_LIP_RADIUS)

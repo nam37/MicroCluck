@@ -39,8 +39,41 @@ def fmt(values) -> str:
     return " ".join(f"{v:.6g}" for v in values)
 
 
+BEZEL_LIP_RADIUS = 0.005  # m; hardware/torso.scad bezel_lip_r (a test compares the two)
+
+
 def part(name: str) -> "walk.Part":
     return next(p for p in walk.PARTS if p.name == name)
+
+
+def bezel_lip_geoms(indent: str, proud: float, radius: float) -> list[str]:
+    """The bezel's top and bottom bumper lips (hardware/bezel.scad) as MJCF lines: for each lip a capsule across the bezel's width, flush
+    with the frame's top (bottom) edge with its front edge `proud` metres ahead of the frame's front face, and, when the lip stands out
+    further than its radius, a web box from the face to the capsule. A collision geom and a yellow visual copy of each."""
+    b = part("bezel_and_bumpers")
+    hw, x1 = b.size[1] / 2, b.pos[0] + b.size[0] / 2
+    z_top, z_bottom = b.pos[2] + b.size[2] / 2, b.pos[2] - b.size[2] / 2
+    xc = x1 + proud - radius
+    out = [f"{indent}<!-- MicroCluck bezel lips (hardware/bezel.scad): {1000 * proud:g} mm proud of the frame face, radius {1000 * radius:g} mm -->\n"]
+    for where, zc in (("top", z_top - radius), ("bottom", z_bottom + radius)):
+        shapes = [("capsule", f'fromto="{fmt([xc, -(hw - radius), zc])} {fmt([xc, hw - radius, zc])}" size="{radius:.6g}"')]
+        if xc > x1:
+            shapes.append(("web", f'type="box" size="{fmt([(xc - x1) / 2, hw - radius, radius])}" pos="{fmt([(x1 + xc) / 2, 0, zc])}"'))
+        for shape, geometry in shapes:
+            kind = "" if shape == "web" else 'type="capsule" '
+            out.append(f'{indent}<geom {kind}class="collision" name="bezel_lip_{where}_{shape}_collision" {geometry} rgba="0.95 0.72 0.02 0.0"/>\n')
+            out.append(f'{indent}<geom {kind}class="visual" name="bezel_lip_{where}_{shape}_visual" {geometry} rgba="0.95 0.72 0.02 1"/>\n')
+    return out
+
+
+def insert_bezel_lips(text: str, proud: float, radius: float = BEZEL_LIP_RADIUS) -> str:
+    """Add the bezel lips to any stand-up model's XML text, right after its bezel collision geom (the geom is in the trunk frame in all of them)."""
+    if proud <= 0:
+        return text
+    lines = text.splitlines(keepends=True)
+    i = next(k for k, l in enumerate(lines) if 'name="bezel_collision"' in l)
+    indent = lines[i][: len(lines[i]) - len(lines[i].lstrip())]
+    return "".join(lines[: i + 1] + bezel_lip_geoms(indent, proud, radius) + lines[i + 1:])
 
 
 def trunk_collision_geoms(indent: str) -> list[str]:
