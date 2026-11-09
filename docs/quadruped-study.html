@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroCluck Dog Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #ffffff;
+  --ink: #1f2328;
+  --muted: #5c6470;
+  --rule: #e2e5e9;
+  --line: #9aa3ad;
+  --panel: #ffffff;
+  --shell: #efeae1;
+  --sky: #deebf8;
+  --yolk: #f2b705;
+  --yolk-soft: #fdf1c7;
+  --beak: #f07b1f;
+  --comb: #d7362b;
+  --comb-soft: #fbe3e1;
+  --blush: #f2797b;
+  --screen: #000000;
+  --code-bg: #f4f5f7;
+  --font-head: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #16181c;
+    --ink: #e8eaed;
+    --muted: #a3aab4;
+    --rule: #2d3138;
+    --line: #6c7480;
+    --panel: #1d2025;
+    --shell: #2a2620;
+    --sky: #1c2a38;
+    --yolk-soft: #3a3115;
+    --comb-soft: #3b1e1c;
+    --code-bg: #1f2227;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #16181c;
+  --ink: #e8eaed;
+  --muted: #a3aab4;
+  --rule: #2d3138;
+  --line: #6c7480;
+  --panel: #1d2025;
+  --shell: #2a2620;
+  --sky: #1c2a38;
+  --yolk-soft: #3a3115;
+  --comb-soft: #3b1e1c;
+  --code-bg: #1f2227;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration-color: var(--beak); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--beak); outline-offset: 2px; border-radius: 4px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 56px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 32px 96px;
+}
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.45;
+}
+nav.toc .toc-title { font-family: var(--font-head); font-weight: 700; font-size: 15px; margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; }
+nav.toc li { margin: 0 0 6px; }
+nav.toc a { text-decoration: none; color: var(--muted); display: grid; grid-template-columns: 28px 1fr; }
+nav.toc a:hover { color: var(--ink); }
+nav.toc .n { font-variant-numeric: tabular-nums; }
+
+main { max-width: 760px; min-width: 0; }
+
+/* Hero */
+.hero {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 36px;
+  align-items: center;
+  padding-bottom: 36px;
+  border-bottom: 2px solid var(--yolk);
+  margin-bottom: 40px;
+}
+.hero svg { width: 100%; height: auto; display: block; cursor: pointer; }
+.hero h1 {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: clamp(48px, 7vw, 76px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.hero .lede { font-size: 20px; line-height: 1.45; margin: 0 0 18px; max-width: 30em; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 24px; margin: 0; font-size: 15px; color: var(--muted); }
+.meta div { display: flex; gap: 6px; }
+.meta dt { font-weight: 700; color: var(--ink); }
+.meta dd { margin: 0; }
+details.changes { margin-top: 14px; font-size: 15px; color: var(--muted); }
+details.changes summary { cursor: pointer; color: var(--ink); }
+details.changes ul { margin: 8px 0 0; padding-left: 20px; }
+
+/* Text */
+h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 64px 0 16px;
+  scroll-margin-top: 20px;
+}
+h2 .n, h3 .n { color: var(--muted); font-weight: 600; margin-right: 10px; font-variant-numeric: tabular-nums; }
+h3 {
+  font-family: var(--font-head);
+  font-weight: 650;
+  font-size: 21px;
+  line-height: 1.25;
+  margin: 36px 0 10px;
+  scroll-margin-top: 20px;
+}
+p, ul, ol { margin: 0 0 14px; }
+ul, ol { padding-left: 22px; }
+li { margin-bottom: 6px; }
+li > ul { margin-top: 6px; }
+strong { font-weight: 700; }
+code {
+  font-family: var(--font-code);
+  font-size: 0.84em;
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+pre {
+  font-family: var(--font-code);
+  font-size: 13.5px;
+  line-height: 1.55;
+  background: var(--code-bg);
+  padding: 16px 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0 0 18px;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* Callouts */
+.callout {
+  border-left: 4px solid var(--yolk);
+  background: var(--yolk-soft);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 18px;
+}
+.callout.verify { border-left-color: var(--comb); background: var(--comb-soft); }
+.callout p:last-child { margin-bottom: 0; }
+
+/* Tables */
+.tbl { overflow-x: auto; margin: 0 0 20px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; line-height: 1.45; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule); }
+th { font-weight: 700; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+td:first-child { font-weight: 700; }
+table.plain td:first-child { font-weight: 400; }
+tr.total td { border-bottom: none; border-top: 2px solid var(--ink); }
+
+/* Diagrams */
+figure { margin: 8px 0 28px; }
+figure.diagram { overflow-x: auto; }
+figure.diagram svg { display: block; width: 100%; height: auto; }
+figure.diagram.wide svg { min-width: 620px; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+svg text { font-family: var(--font-body); }
+.d-box { fill: var(--panel); stroke: var(--line); stroke-width: 1.25; }
+.d-strong { fill: var(--panel); stroke: var(--ink); stroke-width: 1.75; }
+.d-sim { fill: var(--sky); stroke: var(--line); stroke-width: 1.25; }
+.d-hw { fill: var(--shell); stroke: var(--line); stroke-width: 1.25; }
+.d-gate { fill: var(--yolk); }
+.d-alert { fill: var(--comb-soft); stroke: var(--comb); stroke-width: 1.5; }
+.d-dash { stroke-dasharray: 5 4; }
+.d-t { fill: var(--ink); font-size: 14px; font-weight: 700; }
+.d-tg { fill: #1f2328; font-size: 14px; font-weight: 700; }
+.d-s { fill: var(--muted); font-size: 12px; }
+.d-wire { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.d-power { stroke: var(--beak); stroke-width: 2.2; fill: none; }
+.d-dot { fill: var(--ink); }
+.m-ink { fill: var(--ink); }
+.m-beak { fill: var(--beak); }
+
+/* Faces */
+.faces {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 22px 18px;
+  margin: 10px 0 28px;
+}
+.faces figure { margin: 0; }
+.faces svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.faces figcaption { margin-top: 6px; font-size: 14px; line-height: 1.35; color: var(--muted); }
+.faces figcaption b { display: block; color: var(--ink); font-size: 15px; }
+
+.eyes-blink { transform-box: fill-box; transform-origin: center; }
+.eyes-blink.blinking { animation: blink 0.32s ease-in-out 1; }
+@keyframes blink { 0%, 100% { transform: scaleY(1); } 45%, 55% { transform: scaleY(0.08); } }
+@media (prefers-reduced-motion: reduce) { .eyes-blink.blinking { animation: none; } }
+
+.mobile-toc { display: none; margin-bottom: 28px; }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 24px 16px 72px; }
+  nav.toc { display: none; }
+  .mobile-toc { display: block; }
+  .mobile-toc summary { font-family: var(--font-head); font-weight: 700; cursor: pointer; }
+  .mobile-toc ol { padding-left: 22px; margin-top: 10px; font-size: 15px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .hero { grid-template-columns: 1fr; gap: 20px; }
+  .hero svg { max-width: 150px; }
+  h2 { font-size: 26px; }
+}
+@media print {
+  nav.toc, .mobile-toc { display: none; }
+  .layout { display: block; padding: 0; }
+  h2 { break-after: avoid; }
+  figure, table { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<nav class="toc" aria-label="Contents">
+  <p class="toc-title">Contents</p>
+  <ol>
+    <li><a href="#summary"><span class="n">1</span>Summary</a></li>
+    <li><a href="#concept"><span class="n">2</span>The concept</a></li>
+    <li><a href="#setup"><span class="n">3</span>Simulation setup</a></li>
+    <li><a href="#walking"><span class="n">4</span>Walking</a></li>
+    <li><a href="#load"><span class="n">5</span>Servo load</a></li>
+    <li><a href="#getup"><span class="n">6</span>Getting up</a></li>
+    <li><a href="#decisions"><span class="n">7</span>Decisions</a></li>
+    <li><a href="#open"><span class="n">8</span>Still open</a></li>
+    <li><a href="#files"><span class="n">9</span>Where things are</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="hero" style="grid-template-columns: 1fr;">
+  <div>
+    <h1>MicroCluck as a dog</h1>
+    <p class="lede">Simulation study of an 8-servo quadruped body under the MicroCluck face.</p>
+    <dl class="meta">
+      <div><dt>Status</dt><dd>Study, sim only</dd></div>
+      <div><dt>Owner</dt><dd>Neil</dd></div>
+      <div><dt>Updated</dt><dd>9 November 2026</dd></div>
+    </dl>
+  </div>
+</header>
+
+<details class="mobile-toc">
+  <summary>Contents</summary>
+  <ol>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#concept">The concept</a></li>
+    <li><a href="#setup">Simulation setup</a></li>
+    <li><a href="#walking">Walking</a></li>
+    <li><a href="#load">Servo load</a></li>
+    <li><a href="#getup">Getting up</a></li>
+    <li><a href="#decisions">Decisions</a></li>
+    <li><a href="#open">Still open</a></li>
+    <li><a href="#files">Where things are</a></li>
+  </ol>
+</details>
+
+<!-- 1 -->
+<h2 id="summary"><span class="n">1</span>Summary</h2>
+<p>On 8 November 2026 the project started looking at a robot dog in place of the biped chicken: the touchscreen face from DeskSprite on the same Freenove FNK0104N board, on a simplified Stanford Pupper-style body with two XL330 servos per leg (eight in all, no hip abduction) and an expressive tail. The dog is the working direction but not a final decision. <a href="PRD.html">The PRD</a> still describes the biped and has not been revised for it.</p>
+<p>Everything below is simulation, with the same tools and actuator model as the biped (PRD §7). The results:</p>
+<ul>
+  <li><strong>It walks.</strong> 0.1 to 0.3 m/s forward within about 25% of the command, backward at about −0.18 m/s for a −0.2 command, turning at 0.73 to 0.78 rad/s for a 1.0 command, and no falls, even under the frequent pushes of the play configuration.</li>
+  <li><strong>Top speed is about 0.28 m/s</strong> however it is trained, so 0.3 m/s is the realistic spec.</li>
+  <li><strong>Servo load passes the PRD's rule.</strong> Under pushes the hips run 12 to 27% below the stock Microduck's hip pitch and the knees 25 to 45% below its knee (worst joint 0.115 to 0.128 N·m RMS). The biped's thermal margin, one of its two hardest problems, mostly goes away.</li>
+  <li><strong>It gets up from its belly</strong> in 64 of 64 starts under every stress tested, with the legs along the sides.</li>
+  <li><strong>It cannot get up from its back</strong> with two servos per leg. The user deprioritized this: it should only end up on its back if kicked, and a person can right it.</li>
+  <li>Moving the knee servo up to the hip, and a lighter parts budget, were both tested and neither is worth it (§5).</li>
+</ul>
+<p>Servo heat on the real robot is left to the first live walks, read from the servos' own temperature registers as the PRD already requires (S4). No bench test comes first and no more simulation runs chase the load.</p>
+
+<!-- 2 -->
+<h2 id="concept"><span class="n">2</span>The concept</h2>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>Part</th><th>Plan</th></tr></thead>
+  <tbody>
+    <tr><td>Face</td><td>DeskSprite's animated face and voice on the Freenove FNK0104N touchscreen board, as the front of the body (the bezel).</td></tr>
+    <tr><td>Legs</td><td>Four legs, hip pitch and knee on each, eight XL330 servos. No hip abduction, so no sideways steps (the PRD's strafing goal G1 is lost) and no sideways stepping to catch a side push.</td></tr>
+    <tr><td>Leg structure</td><td>Aluminium flat bar, 1/2" × 1/8", with printed PETG cradles for the servos and TPU feet. Not stainless mending plates, which weigh about 100 g each.</td></tr>
+    <tr><td>Body shell</td><td>A rounded box: 7 mm edges, 10 mm ends, and a back that slopes 16 mm down toward the tail. Optional ears on the bezel double as bumpers.</td></tr>
+    <tr><td>Tail</td><td>A paddle tail from a reference photo: a slim J-shaped stalk leaning back out of a ribbed boot, ending in a teardrop bulb, on its own servo. It is for expression only; as a counterweight it moves the centre of mass about 1.6 mm.</td></tr>
+    <tr><td>Body controller</td><td>The face board has almost no free pins, and the PRD's servo-bus pins are all taken on the FNK0104N. Recommended: a second ESP32-S3 for the body, joined to the face over UART, with safety on the body side. A Raspberry Pi only if it turns out to be needed.</td></tr>
+    <tr><td>Sensors</td><td>A camera (XIAO ESP32S3 Sense class) and a ToF ranger (VL53L5CX class) in a chin under the bezel from v1, used for a first-person view and eye tracking.</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Autonomy.</strong> Patrolling and following people are the intended final use. A remote-controlled v1 is an acceptable step. The plan agreed in principle: vision on the relay PC for following in v2, AprilTag-style markers and a dock for patrol, and an on-board Pi only if needed. The walking training already carries payload headroom (trunk mass randomized from 0.95 to 1.15 times nominal) and tighter tracking at slow speeds, for following.</p>
+<p><strong>Why a dog.</strong> The biped's two hardest open problems were getting up (PRD v0.15 to v0.22) and the XL330's thermal margin. Four legs ease both. The cost is the chicken identity and Microduck as a reference design: the dog is trained with the same method, but nothing of Pollen's mechanical design carries over. Pupper V3 walks with the same reinforcement-learning approach; what four legs add is stability, not a simpler method. Pupper's code is GPL-3.0, so only ideas and published numbers are borrowed from it, not code.</p>
+
+<!-- 3 -->
+<h2 id="setup"><span class="n">3</span>Simulation setup</h2>
+<ul>
+  <li><strong>Tools.</strong> mjlab (MuJoCo Warp) and rsl_rl PPO on the RTX 3060 under WSL2, 4,096 robots, Pollen's velocity recipe from <code>microduck_rl</code> and the BAM XL330 actuator model, as for the biped.</li>
+  <li><strong>Model.</strong> A parametric builder, <code>build_quad_model.py</code>, writes the robot, scene and get-up models for the 8-servo body and a 12-servo variant with hip abduction. Environment variables pick the variant, and training, evaluation and video must all use the same ones: <code>QUAD_STAND_H</code> (stance height, 0.100 m for every result here), <code>QUAD_KNEE_SERVO</code> (<code>knee</code>, or <code>hip</code> with a pushrod), <code>QUAD_MASS</code> (<code>placeholder</code> or <code>lean</code>), plus the tail and shell styles.</li>
+  <li><strong>Mass.</strong> Every mass is a placeholder until parts are weighed. The default budget for the trunk parts is shell and frame 90 g, face board 60 g, bezel 20 g, 2S battery 85 g, electronics 60 g and camera with ToF 11 g, for 579 g in all with the legs. The lean budget (75, 50, 15, 45, 35 and 11 g) gives 484 g.</li>
+  <li><strong>Task.</strong> <code>Mjlab-Velocity-Flat-MicroCluck-Quad8</code>. Each run reported here is a warm start from the one before; runs 6 and 7 both start from run 5. Runs 5 to 7 raise the torque penalty during training (to −4 in run 5, to −3 in runs 6 and 7), tighten forward-speed tracking and cap the commanded forward speed at 0.5 m/s.</li>
+  <li><strong>Walking test.</strong> 16 robots per command, 20 s each, the first 3 s skipped, no pushes, at fixed forward, backward and turning commands. Repeated with the tail held up (+41.5°) and down (−115°).</li>
+  <li><strong>Load test.</strong> The same tool and conditions as the PRD's S0 baseline for the stock duck (§7.2): 64 robots for 30 s with random velocity commands and the play configuration's pushes, the play configuration's trunk-mass randomization (0.95 to 1.15) left on. Two lighter versions were also run: without pushes, and without pushes at a steady 0.3 m/s.</li>
+</ul>
+
+<!-- 4 -->
+<h2 id="walking"><span class="n">4</span>Walking</h2>
+<p>Achieved speed for each command, tail in its normal position. No robot fell in any of these tests (0 of 16 everywhere, all three tail positions).</p>
+<div class="tbl"><table>
+  <thead><tr><th>Command</th><th>Run 4</th><th>Run 5</th><th>Run 6, knee servo at hip</th><th>Run 7, lean mass</th></tr></thead>
+  <tbody>
+    <tr><td>Forward 0.1 m/s</td><td>0.118</td><td>0.118</td><td>0.108</td><td>0.116</td></tr>
+    <tr><td>Forward 0.2 m/s</td><td>0.185</td><td>0.185</td><td>0.194</td><td>0.201</td></tr>
+    <tr><td>Forward 0.3 m/s</td><td>0.246</td><td>0.238</td><td>0.245</td><td>0.254</td></tr>
+    <tr><td>Forward 0.4 m/s</td><td>0.287</td><td>0.269</td><td>0.277</td><td>0.280</td></tr>
+    <tr><td>Backward 0.2 m/s</td><td>−0.180</td><td>−0.177</td><td>−0.172</td><td>−0.179</td></tr>
+    <tr><td>Backward 0.4 m/s</td><td>−0.237</td><td>−0.207</td><td>−0.210</td><td>−0.221</td></tr>
+    <tr><td>Turn 0.5 rad/s</td><td>0.314</td><td>0.284</td><td>0.311</td><td>0.336</td></tr>
+    <tr><td>Turn 1.0 rad/s</td><td>0.749</td><td>0.727</td><td>0.778</td><td>0.761</td></tr>
+    <tr><td>0.2 m/s while turning 0.5 rad/s</td><td>0.165, 0.245</td><td>0.183, 0.205</td><td>0.160, 0.235</td><td>0.177, 0.270</td></tr>
+  </tbody>
+</table></div>
+<p>Speeds are in m/s and turn rates in rad/s. Checkpoints: run 4 at iteration 999, run 5 at 799, run 6 at 999, run 7 at 749.</p>
+<p><strong>The speed ceiling.</strong> Every run tops out near 0.28 m/s at a 0.4 m/s command, whatever the torque penalty or tracking weight. At 0.3 m/s and below the robot tracks the command to within about 25%, so 0.3 m/s is the realistic top speed to specify. Rendered clean takes at a 0.3 m/s command covered 1.7 to 1.9 m in 8 s.</p>
+<p><strong>The tail.</strong> Holding the tail up changes nothing measurable. Holding it fully down slows forward walking by about 5 to 10% and makes backward walking slightly faster. Nothing falls either way, so the tail can be used for expression while walking.</p>
+
+<!-- 5 -->
+<h2 id="load"><span class="n">5</span>Servo load</h2>
+<p>The PRD's pass line for servo load (§7.2) is relative: no joint more than 10% above the stock duck's RMS torque, measured the same way. The datasheet's ~0.10 N·m continuous rating explicitly cannot be the pass line, because Pollen's own duck runs well above it: 0.145 N·m on hip pitch and 0.16 to 0.17 on the knee, 99th percentiles of 0.53 and 0.46 to 0.49, and about 1.7 falls per robot-minute under the same pushes.</p>
+<p>Worst-joint RMS torque in N·m:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Policy and model</th><th>Steady 0.3 m/s, no pushes</th><th>Random commands, no pushes</th><th>Random commands, play pushes</th></tr></thead>
+  <tbody>
+    <tr><td>Run 4</td><td>–</td><td>–</td><td>0.128</td></tr>
+    <tr><td>Run 5</td><td>0.104</td><td>0.111</td><td>0.115</td></tr>
+    <tr><td>Run 6, knee servo at hip</td><td>0.108</td><td>0.118</td><td>0.119</td></tr>
+    <tr><td>Run 5's policy unchanged on the lean model</td><td>0.099</td><td>0.106</td><td>0.107</td></tr>
+    <tr><td>Run 7, lean mass</td><td>0.108</td><td>0.115</td><td>0.119</td></tr>
+  </tbody>
+</table></div>
+<p>Under the pushes the hips run at 0.106 to 0.128 N·m against the duck's 0.145, and the knees at 0.093 to 0.120 against its 0.16 to 0.17. The 99th percentile is at most 0.36 N·m (duck 0.53). No robot fell. Every joint still touches the 0.64 N·m ceiling at some instant, as the duck's do. By the PRD's rule the dog passes with room to spare on every joint, from run 4 on.</p>
+<p><strong>Knee servo at the hip.</strong> Mounting the knee servo beside the hip servo and driving the knee by pushrod takes its mass off the moving leg. It saved nothing: run 6's load is 0.004 to 0.007 N·m higher than run 5's, from which it was trained. It also weakened getting up with the legs folded under the body (§6). Rejected.</p>
+<p><strong>A lighter body.</strong> Taking 95 g off the trunk (the lean budget, 484 g in all) cut run 5's load by only 5 to 7% with the policy unchanged, and retraining on the lighter body (run 7) brought it back to run 5's level. The static load is small (about 0.03 N·m at the knee standing still); most of the walking load comes from the gait's own dynamics, not from carrying the weight. A lighter battery or shell is not needed for the servos' sake.</p>
+
+<!-- 6 -->
+<h2 id="getup"><span class="n">6</span>Getting up</h2>
+<p><strong>From the belly.</strong> Lying belly-down, the robot pushes itself up with a scripted motion. The test runs 64 starts per condition: nominal, 60 g extra payload with the battery at 6.4 V and sagging, a slippery floor (friction 0.3 to 0.5), slow servos (a delay of six control steps), and all of these together with the centre of mass moved up to 10 mm.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Start and condition</th><th>Run 4 model</th><th>Knee servo at hip</th><th>Lean mass</th></tr></thead>
+  <tbody>
+    <tr><td>Legs along the sides, any condition, 0.5 or 1.2 s push</td><td>64/64</td><td>64/64</td><td>64/64</td></tr>
+    <tr><td>Legs folded under, nominal</td><td>64/64</td><td>64/64</td><td>64/64</td></tr>
+    <tr><td>Legs folded under, payload and low battery</td><td>64/64</td><td>47/64</td><td>64/64</td></tr>
+    <tr><td>Legs folded under, slippery floor</td><td>64/64</td><td>63/64</td><td>64/64</td></tr>
+    <tr><td>Legs folded under, slow servos</td><td>64/64</td><td>64/64</td><td>64/64</td></tr>
+    <tr><td>Legs folded under, all stresses together</td><td>53/64</td><td>29/64</td><td>63/64</td></tr>
+  </tbody>
+</table></div>
+<p>With the legs along the sides it gets up every time. With them folded under the body it needs room to unfold, and the knee-at-hip layout loses most of its margin there. Strength is not a concern: the stand-up needs about 0.1 N·m per servo.</p>
+<p><strong>From the back or a side.</strong> With two servos per leg the legs swing only fore and aft, and no motion found got the body past lying on its side, with a box or a rounded shell. The tail does not flip it either. (An early result said it did; that was a bug in the get-up model, which declared the tail's actuator after the legs while its joint came first, so each joint's torque went to the wrong motor. Actuators must be declared in joint order; the search script now checks this.) The user deprioritized getting up from the back: it should only happen if someone kicks the robot, a person can right it, and the robot can ask for help. A third servo per leg (hip abduction, the 12-servo variant) is the likely fix if it ever matters. It has not been tested.</p>
+
+<!-- 7 -->
+<h2 id="decisions"><span class="n">7</span>Decisions</h2>
+<ul>
+  <li><strong>Top speed:</strong> specify 0.3 m/s.</li>
+  <li><strong>Knee servo:</strong> at the knee. The pushrod layout is rejected.</li>
+  <li><strong>Mass budget:</strong> keep the placeholder budget, including the 85 g battery. Saving weight does not help the servos.</li>
+  <li><strong>Servo heat:</strong> settled for the simulation stage. Checked live on the first walks of the real robot through the servos' temperature readings (PRD S4), with vent slots near the enclosed hip servos if they run hot. No bench test first.</li>
+  <li><strong>Getting up from the back:</strong> not pursued.</li>
+</ul>
+
+<!-- 8 -->
+<h2 id="open"><span class="n">8</span>Still open</h2>
+<ol>
+  <li>Whether to make the dog the project's direction, and then revise the PRD for it: goals (strafing is gone), architecture (a second MCU for the body), hardware, simulation and milestones.</li>
+  <li>The real masses and centre of mass. Every value in the model is a placeholder; weigh the parts and balance the assembled body before trusting the get-up.</li>
+  <li>Enclosed hip servos and long walks: the simulation does not model heat. The live temperature readings decide whether the shell needs vents.</li>
+  <li>The face-to-body UART protocol and where the walking policy runs (the body MCU is the assumption). The policy has not been exported or timed on an ESP32-S3 for the dog.</li>
+  <li>Hip abduction (12 servos) if strafing, side-push recovery or self-righting turn out to matter. A model exists; it has not been trained.</li>
+  <li>Sim-to-real for the dog: none of the transfer work in the PRD (§7, §8) has been repeated for it.</li>
+</ol>
+
+<!-- 9 -->
+<h2 id="files"><span class="n">9</span>Where things are</h2>
+<p>The simulation work is in the WSL sim repo, in a worktree at <code>~/microcluck_quad</code> on the local branch <code>microcluck_quad</code> (from <code>microcluck_standup</code>). It is not pushed.</p>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>What</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td>Model builder</td><td><code>src/mjlab_microduck/robot/quad/build_quad_model.py</code></td></tr>
+    <tr><td>Tasks</td><td><code>Mjlab-Velocity-Flat-MicroCluck-Quad8</code> and <code>-Quad12</code></td></tr>
+    <tr><td>Evaluation and search scripts</td><td><code>scripts/quad_walk_eval.py</code>, <code>quad_stand_check.py</code>, <code>quad_getup_search.py</code>, <code>quad_make_getup_sweep.py</code>, <code>quad_make_belly_test.py</code>, <code>quad_tail_options.py</code>, <code>quad_render_pose.py</code>, <code>quad_demo_video.py</code>, <code>quad_torque.py</code></td></tr>
+    <tr><td>Training runs</td><td><code>logs/rsl_rl/microcluck_quad8/</code>: run 4 <code>2026-11-08_14-54-25_quad8_v4_h100</code>, run 5 <code>2026-11-08_16-43-55_quad8_v5_h100</code>, run 6 <code>2026-11-08_18-03-21_quad8_v6_kneehip</code>, run 7 <code>2026-11-08_19-38-28_quad8_v7_lean</code></td></tr>
+    <tr><td>Helper scripts</td><td><code>~/quad_run4.sh</code> to <code>~/quad_run7.sh</code> (each run's exact settings), <code>~/quad_train_warm.sh</code>, <code>~/quad_belly_stress.sh</code></td></tr>
+    <tr><td>Videos and images</td><td><code>~/quad_out/</code></td></tr>
+  </tbody>
+</table></div>
+
+</main>
+</div>
+</body>
+</html>
