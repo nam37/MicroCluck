@@ -655,7 +655,8 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
     <tr><td>Freenove ESP32-S3 Display, 3.5" IPS touch (FNK0104)</td><td>1</td><td>Already owned; ships with a speaker</td><td>~$22–30</td></tr>
-    <tr><td>Dynamixel XL330-M288-T</td><td>10 + 2 spare</td><td>Leg servos; spares strongly recommended</td><td>~$24–29 each</td></tr>
+    <tr><td>Dynamixel XL330-M288-T</td><td>10 + 2 spare</td><td>Leg servos; spares strongly recommended. ROBOTIS America, SKU 902-0163-000, $27.49 each (9 November 2026, with a lead time to the end of November). Not the pricier XC330-M288-T</td><td>~$27.49 each</td></tr>
+    <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for setting IDs and updating servo firmware (Fast Sync Read needs v46 or newer, §13). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
     <tr><td>IMU breakout</td><td>1</td><td>Default ICM-42688-P, but it is supply-constrained; see §13</td><td>~$10–20</td></tr>
     <tr><td>INA226 power monitor breakout</td><td>1</td><td>Pack voltage and current over I2C, no GPIO</td><td>~$5</td></tr>
     <tr><td>74HC126 (DIP-14) with socket, perfboard, 10 kΩ pull-up, 0.1 µF cap</td><td>1</td><td>Through-hole servo bus interface (§6.3)</td><td>~$5</td></tr>
@@ -664,7 +665,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>5 V buck for logic, 2 A</td><td>1</td><td>Accepts the pack's full range, about 6–8.4 V; the servos do not use it</td><td>~$5</td></tr>
     <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables</td><td>–</td><td></td><td>~$15</td></tr>
     <tr><td>Printed frame, feet, comb, tail, bumpers (PLA/PETG and TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
-    <tr class="total"><td>Total</td><td></td><td>Including two spare servos</td><td><strong>~$395–495</strong></td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Including two spare servos and the U2D2</td><td><strong>~$475–515</strong></td></tr>
   </tbody>
 </table></div>
 
@@ -1573,7 +1574,7 @@ svg text { font-family: var(--font-body); }
   <li>Reuse Microduck's leg STLs as they are, or redesign.</li>
   <li>Firmware language: C (default), C++ or Rust (esp-rs).</li>
   <li>Final designs for the dizzy, confused, sleepy and error faces.</li>
-  <li>Servo firmware and setup tool. Fast Sync Read, which Microduck uses, needs XL330 firmware v46 or newer. Updating firmware and setting IDs is easiest with a USB-to-Dynamixel adapter such as the U2D2, which is not in the BOM yet.</li>
+  <li>Servo firmware and setup tool. Fast Sync Read, which Microduck uses, needs XL330 firmware v46 or newer. Updating firmware and setting IDs is easiest with a USB-to-Dynamixel adapter; the U2D2 is now in the BOM (§6.1).</li>
   <li>Hip position: keep Pollen's layout (cannot get up from the screen, the back or the side, but no change to the torso), or raise the hips 70 mm and move them about 29 mm back (gets up from the screen, from a side and from near flat on the back with open-loop motions, and walks, in simulation; needs the shell opened for the hip brackets, the battery, electronics and chassis repacked, a leaning home pose and a retrained walker), or find another way to recover (§7.5).</li>
   <li>Biped or dog. A quadruped body under the same face walks, carries far less servo load and gets up from its belly in simulation (<a href="quadruped-study.html">quadruped-study.html</a>), at the cost of the chicken identity, strafing and Microduck as the reference design. If it is chosen, this document needs revising throughout.</li>
   <li>The real robot's mass and centre of mass. The simulation's get-up works only within about 4 mm back to 8 mm forward of the model's centre of mass, extra mass with a low battery moves the effective balance point by about that much, and every position and mass in the model is a placeholder. With the learned correction the window is about 12 mm back to 20 mm forward, for servo delays up to 50 ms and the 6 mm lips it was trained with. Weigh the printed shell, wings and tail and the battery, and balance the assembled robot to find its centre of mass, and measure the servo and IMU delay, before relying on any recovery motion.</li>
