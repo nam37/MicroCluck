@@ -318,13 +318,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroPup</h1>
     <p class="lede">Product requirements for a small walking robot dog whose face is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.24</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.25</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>9 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.25</strong> The vision board is now a DFRobot FireBeetle 2 ESP32-P4 with a wide-angle Raspberry Pi-compatible camera, in place of the XIAO ESP32S3 Sense. Espressif's own figures put person detection on the ESP32-P4 at about 50 ms a frame (224 × 224, 400 MHz; this board runs at 360 MHz), so v2's following can run on the robot itself, at home or away, with no server in the loop; the VPS (6 vCPUs, 8 GB, no GPU) and a Raspberry Pi 4 at home, reached through the VPS over Tailscale when away, become optional off-board vision servers. The camera module sits on the forehead and the board in the front of the body, on the camera's ribbon cable. The XIAO Sense stays as the small fallback (§6, §9.9, §11, §13).</li>
         <li><strong>v0.24</strong> MicroPup replaces the MicroCluck biped as the project's target. The document is rewritten around the dog: a DeskSprite face on the Freenove FNK0104N, an 8-servo XL330 body with a paddle tail, and three boards (face, body, vision) where the biped had one. The body board is a second ESP32-S3 that owns the walking loop and safety; the vision board is a XIAO ESP32S3 Sense moved from the chin to the forehead and tilted up, so it sees people and not just the floor; the ToF sensor stays in the chin. Vision (FPV and eye tracking) is in v1; following people and patrolling are v2, with the processing off the robot. The simulation results come from the dog study (<a href="quadruped-study.html">quadruped-study.html</a>): it walks 0.1 to 0.3 m/s, its servo load is well under the stock Microduck's, and it gets up from its belly. The biped's PRD, up to v0.23, is kept unchanged in <a href="archive/PRD-MicroCluck-v0.23.html">archive/PRD-MicroCluck-v0.23.html</a>.</li>
         <li><strong>v0.1 to v0.23</strong> MicroCluck, the biped robot chicken. See the archived document for its history.</li>
       </ul>
@@ -360,7 +361,7 @@ svg text { font-family: var(--font-body); }
 <p>Walking comes from a reinforcement-learning policy trained in simulation with the same tools as Pollen Robotics' Microduck (<code>microduck_rl</code>, mjlab, the BAM XL330 actuator model) and runs on the robot at 50 Hz. MicroPup is driven from a <strong>phone browser</strong>, talks through DeskSprite's voice relay, and has a camera from v1 for a first-person view and for its eyes to follow faces. Following people and patrolling are v2 (§11).</p>
 <p>Three decisions shape everything else:</p>
 <ul>
-  <li><strong>Three boards, one job each.</strong> The face board runs the face, voice, phone controller and behaviour. A second ESP32-S3, the body board, runs the walking loop, the servos, the IMU and every safety check. A XIAO ESP32S3 Sense runs the camera. The body never depends on the other two to stay safe.</li>
+  <li><strong>Three boards, one job each.</strong> The face board runs the face, voice, phone controller and behaviour. A second ESP32-S3, the body board, runs the walking loop, the servos, the IMU and every safety check. An ESP32-P4 vision board runs the camera and, in v2, person detection. The body never depends on the other two to stay safe.</li>
   <li><strong>Simulation first.</strong> The body, the walking policy and the firmware logic are proven in simulation before most parts are ordered (§3). The dog's walking and belly stand-up already pass there (§7).</li>
   <li><strong>Heavy compute off the robot.</strong> Speech goes through DeskSprite's relay on a VPS, and v2's person detection runs off the robot too. An on-board Raspberry Pi is added only if latency forces it.</li>
 </ul>
@@ -408,7 +409,7 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>When</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
     <tr><td>Now</td><td>Nothing required. Filament for fit-check prints of the bezel and the forehead camera mount</td><td>The face board is owned; fit checks need only it.</td></tr>
-    <tr><td>Optional, early</td><td>2 XL330-M288-T, the U2D2, the body board, an IMU breakout, 74HC126 and perfboard parts, the XIAO ESP32S3 Sense</td><td>Servo-bus, IMU and camera bring-up (H1, H2, V0) can begin during Phase A. These parts are the same in every remaining design option.</td></tr>
+    <tr><td>Optional, early</td><td>2 XL330-M288-T, the U2D2, the body board, an IMU breakout, 74HC126 and perfboard parts, the FireBeetle 2 ESP32-P4 and a wide-angle CSI camera (about 5 weeks' delivery)</td><td>Servo-bus, IMU and camera bring-up (H1, H2, V0) can begin during Phase A. These parts are the same in every remaining design option.</td></tr>
     <tr><td>At design freeze</td><td>The remaining servos and spares, battery, 5 V buck, INA226, ToF sensor, aluminium bar, connectors, print material</td><td>The remaining simulation checks are done; the STLs freeze in H3.</td></tr>
   </tbody>
 </table></div>
@@ -469,10 +470,10 @@ svg text { font-family: var(--font-body); }
   <text x="226" y="228" class="d-s">eye stabilization and gaze</text>
 
   <rect x="510" y="150" width="230" height="102" rx="14" class="d-strong"/>
-  <text x="625" y="174" text-anchor="middle" class="d-t">Vision board (XIAO Sense)</text>
+  <text x="625" y="174" text-anchor="middle" class="d-t">Vision board (ESP32-P4)</text>
   <text x="526" y="198" class="d-s">forehead camera, tilted up</text>
   <text x="526" y="218" class="d-s">MJPEG to the phone; face finder</text>
-  <text x="526" y="238" class="d-s">v2: frames to the relay</text>
+  <text x="526" y="238" class="d-s">v2: person detection on board</text>
 
   <rect x="210" y="300" width="250" height="132" rx="14" class="d-strong"/>
   <text x="335" y="324" text-anchor="middle" class="d-t">Body board (ESP32-S3)</text>
@@ -525,7 +526,7 @@ svg text { font-family: var(--font-body); }
 <ul>
   <li><strong>Face board.</strong> The FNK0104N runs DeskSprite's firmware, extended for MicroPup: the face, touch, voice through the relay, the phone controller page and WebSocket, and the behaviour layer that turns phone, voice and (in v2) autonomy into velocity commands and actions. It holds no safety duty: if it crashes, the body board stops and lies down.</li>
   <li><strong>Body board.</strong> A second ESP32-S3 owns everything that moves: the 50 Hz policy loop, the servo bus, the IMU, the battery monitor, the ToF sensor and the state machine. All safety checks live here (§9.8). It has Wi-Fi only for OTA and development, off while walking. This split is what future-proofs the robot: the face and vision boards can grow (voice, autonomy, more vision) without touching the loop's timing, and a third servo per leg (12 on the same bus) or a better IMU needs no change to the face board.</li>
-  <li><strong>Vision board.</strong> A XIAO ESP32S3 Sense in the forehead runs the camera: an MJPEG stream for the phone's view, a small face finder for the eyes' gaze, and in v2 a frame stream to the relay for person detection. It does not command the legs; what it finds reaches the body only through the face board's behaviour layer, under the body's limits.</li>
+  <li><strong>Vision board.</strong> A DFRobot FireBeetle 2 ESP32-P4 in the front of the body runs the camera on the forehead: a hardware-encoded MJPEG stream for the phone's view, a face finder for the eyes' gaze, and in v2 person detection on the board itself. It does not command the legs; what it finds reaches the body only through the face board's behaviour layer, under the body's limits.</li>
 </ul>
 
 <!-- 6 -->
@@ -539,8 +540,9 @@ svg text { font-family: var(--font-body); }
     <tr><td>Freenove ESP32-S3 Display, 3.5" IPS touch (FNK0104N)</td><td>1</td><td>Already owned; runs DeskSprite. Microphone, codec, amplifier and speaker on board</td><td>owned</td></tr>
     <tr><td>Dynamixel XL330-M288-T</td><td>9 + 3 spare</td><td>Eight leg servos and the tail. ROBOTIS America, SKU 902-0163-000, $27.49 each on 9 November 2026, lead time to the end of November. Not the pricier XC330-M288-T</td><td>~$330</td></tr>
     <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for IDs and servo firmware (Fast Sync Read needs v46 or newer). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
-    <tr><td>Body board: Seeed XIAO ESP32S3 (8 MB PSRAM)</td><td>1</td><td>Default because it is small and the same family as the vision board; an ESP32-S3-DevKitC-1 N8R8 if more pins are wanted (§6.2)</td><td>~$8–15</td></tr>
-    <tr><td>Vision board: Seeed XIAO ESP32S3 Sense</td><td>1</td><td>Camera and microphone on a 21 × 17.5 mm board; plus a wide-angle (about 120°) lens module that fits its connector (§13)</td><td>~$14 + lens</td></tr>
+    <tr><td>Body board: Seeed XIAO ESP32S3 (8 MB PSRAM)</td><td>1</td><td>Default because it is small; an ESP32-S3-DevKitC-1 N8R8 if more pins are wanted (§6.2)</td><td>~$8–15</td></tr>
+    <tr><td>Vision board: DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</td><td>1</td><td>360 MHz dual-core RISC-V with AI extensions, 32 MB PSRAM, 16 MB flash, MIPI CSI (Raspberry Pi pinout), hardware JPEG and H.264, Wi-Fi 6 through an ESP32-C6, PDM microphone; 25.4 × 60 mm. $16.50, pre-order with about 5 weeks' delivery (9 November 2026)</td><td>~$17</td></tr>
+    <tr><td>Camera: Raspberry Pi-compatible CSI module, about 120° wide-angle lens</td><td>1</td><td>A sensor that ESP-IDF's camera driver supports on the P4 (OV5647 class, §13), with a ribbon long enough to reach the forehead</td><td>~$13–25</td></tr>
     <tr><td>ToF sensor: VL53L5CX breakout</td><td>1</td><td>8 × 8 zones, up to about 4 m, I2C; in the chin, on the body board's I2C</td><td>~$15–25</td></tr>
     <tr><td>IMU breakout</td><td>1</td><td>Default ICM-42688-P, supply-constrained; LSM6DSOX or LSM6DSV16X as alternatives (§13)</td><td>~$10–20</td></tr>
     <tr><td>INA226 power monitor breakout</td><td>1</td><td>Pack voltage and current over I2C</td><td>~$5</td></tr>
@@ -551,7 +553,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Aluminium flat bar, 1/2" × 1/8" (12.7 × 3.2 mm)</td><td>~1 m</td><td>Thigh and shank plates; printed PETG cradles hold the servos</td><td>~$10</td></tr>
     <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables, 4-wire link cable</td><td>–</td><td></td><td>~$15</td></tr>
     <tr><td>Printed shell, bezel, ears, tail, cradles (PETG) and feet (TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
-    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned</td><td><strong>~$505–565</strong></td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned</td><td><strong>~$510–575</strong></td></tr>
   </tbody>
 </table></div>
 
@@ -575,7 +577,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>IMU data-ready interrupt</td><td>1</td></tr>
   </tbody>
 </table></div>
-<p><strong>Vision board (XIAO ESP32S3 Sense).</strong> The camera uses its own connector and pins; it needs only 5 V and ground and talks over Wi-Fi.</p>
+<p><strong>Vision board (FireBeetle 2 ESP32-P4).</strong> The camera plugs into its MIPI CSI connector; the board needs only 5 V on VIN and ground and talks over Wi-Fi. Its 24 GPIO are free for later (a second camera, or a UART to the face board if UDP ever proves too slow). The Seeed XIAO ESP32S3 Sense (21 × 17.5 mm, camera on board) is the fallback if the P4 board disappoints; Espressif quotes over 7 fps for person detection on an ESP32-S3, with little left for streaming.</p>
 
 <h3 id="bus"><span class="n">6.3</span>Servo bus interface</h3>
 <figure class="diagram wide">
@@ -631,7 +633,7 @@ svg text { font-family: var(--font-body); }
   <li><strong>Servo rail:</strong> the 2S pack directly, from about 6.6 V near empty to 8.4 V full, with no regulator. This is what Microduck does and what the training model assumes (6.5–8.2 V with load-dependent sag). It is above ROBOTIS's rated 3.7–6.0 V, an accepted risk (§12).</li>
   <li><strong>Servo settings for the higher voltage:</strong> the XL330's Max Voltage Limit tops out at 7.0 V, so a fresh pack sets the Input Voltage Error bit and the Alert flag. As on Microduck, Shutdown is set to 52 (not 53) so torque is not cut, and the <code>dxl</code> driver ignores that bit and the Alert flag in its health checks (S4).</li>
   <li><strong>Peak current:</strong> the Current Limit register caps each servo at 1.75 A, so the theoretical worst case with all nine stalled is about 16 A. Walking draws far less; measure it in H1, then size the fuse and the BMS's peak rating from the measurement. At least 1000 µF of bulk capacitance at the servo bus entry.</li>
-  <li><strong>Logic rail:</strong> one 5 V buck, 3 A, from the pack into all three boards, grounds joined at one star point. It must accept the pack's full range and ride through the sag that servo current causes. Budget: face board with Wi-Fi and audio up to about 1 A peaks, vision board streaming about 0.3 A, body board about 0.2 A.</li>
+  <li><strong>Logic rail:</strong> one 5 V buck, 3 A, from the pack into all three boards, grounds joined at one star point. It must accept the pack's full range and ride through the sag that servo current causes. Budget: face board with Wi-Fi and audio up to about 1 A peaks, vision board streaming and detecting about 0.3–0.5 A average with Wi-Fi peaks up to about 1.3 A, body board about 0.2 A. Peaks of the face and vision boards together stay under the buck's 3 A.</li>
   <li><strong>Monitoring:</strong> the INA226 on the pack gives voltage and current to the body board; the servos' Present Input Voltage register is a second gauge, averaged over about 10 s, with about 6.6 V as the empty floor (S5).</li>
   <li><strong>Charging:</strong> the charger and BMS hold the pack at or below 8.4 V. A charging dock is v2 (§11); its contacts and mass are reserved now.</li>
 </ul>
@@ -641,7 +643,7 @@ svg text { font-family: var(--font-body); }
 <ul>
   <li><strong>Body:</strong> a rounded box 170 mm long and 68 mm wide, edges rounded 7 mm and the ends 10 mm, the top sloping 16 mm down toward the tail. The four hip servos sit inside with their shafts out through the side walls, hips 120 mm apart front to rear. The battery lies in the belly between them and the electronics on a layer above, which slides fore and aft to set the balance (§7.2). White in the renders.</li>
   <li><strong>Face and bezel:</strong> the FNK0104N in landscape at the front, leaning back 10°, in a yellow bezel with soft (TPU) bumper lips that stand proud of the glass, so forward falls and belly-down landings meet the lips, not the screen. The bezel has a 14 mm chin below the screen and room above it for the camera.</li>
-  <li><strong>Camera on the forehead:</strong> centred in the bezel's top edge, about 170 mm above the floor standing, tilted 25–30° up from the face, with a lens of about 120° diagonal. That keeps a standing adult's face in view from about 0.5 m out, and the floor from about 0.45–0.6 m ahead. The chin position of the first model (about 105 mm up, looking 10° up) saw only legs and floor closer than about 2.7 m. A camera just above the screen also lines the on-screen eyes up with where the robot is looking.</li>
+  <li><strong>Camera on the forehead:</strong> the camera module (about 25 × 24 mm, on its ribbon) centred in the bezel's top edge, with the vision board behind the bezel in the front of the body; about 170 mm above the floor standing, tilted 25–30° up from the face, with a lens of about 120° diagonal. That keeps a standing adult's face in view from about 0.5 m out, and the floor from about 0.45–0.6 m ahead. The chin position of the first model (about 105 mm up, looking 10° up) saw only legs and floor closer than about 2.7 m. A camera just above the screen also lines the on-screen eyes up with where the robot is looking.</li>
   <li><strong>ToF sensor in the chin:</strong> facing forward and slightly down, for obstacles and drops ahead. Its cable runs back to the body board.</li>
   <li><strong>Ears:</strong> two rounded lobes on the bezel's top corners. They double as bumpers and keep the forehead camera off the floor in a forward fall.</li>
   <li><strong>Legs:</strong> thigh 55 mm and shank 55 mm, hip pitch axis to knee axis and knee axis to foot. Aluminium flat bar, 1/2" × 1/8", with printed PETG cradles for the servos; the knee servo rides at the knee on the thigh. TPU ball feet, 16 mm across. Standing height is 100 mm from the hip axis to the foot centre. Not stainless mending plates, which weigh about 100 g each.</li>
@@ -660,7 +662,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Bezel with lips and ears</td><td>20 g</td></tr>
     <tr><td>2S battery</td><td>85 g</td></tr>
     <tr><td>Electronics: body board, buck, INA226, IMU, bus interface, cables</td><td>60 g</td></tr>
-    <tr><td>Vision board and ToF sensor with mounts</td><td>11 g</td></tr>
+    <tr><td>Vision board, camera and ToF sensor with mounts</td><td>about 20 g (11 g in the model)</td></tr>
     <tr><td>Legs: plates, cradles, feet; tail piece</td><td>the rest of the modelled 579 g</td></tr>
     <tr class="total"><td><strong>Target total for v1</strong></td><td><strong>≤ 600 g</strong>, with about 60 g reserved for v2</td></tr>
   </tbody>
@@ -694,7 +696,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Belly stand-up</td><td>≥ 60 of 64 under each stress: nominal, +60 g with a 6.4 V sagging battery, friction 0.3–0.5, a 6-step servo delay, all of them with the centre of mass ±10 mm</td><td><strong>Pass.</strong> 64 of 64 everywhere with the legs along the sides; 63 of 64 with the legs folded under and every stress at once</td></tr>
     <tr><td>Payload</td><td>Walks and stands up with 60 g extra</td><td><strong>Pass</strong> for the stand-up; walking trains with up to +15% trunk mass (about +85 g)</td></tr>
     <tr><td>Mass budget</td><td>≤ 600 g modelled</td><td><strong>Pass.</strong> 579 g</td></tr>
-    <tr><td>Forehead camera and XL330 tail in the model</td><td>The checks above still pass</td><td><strong>Not run.</strong> Adds about 9 g at the rear and moves 11 g up and forward</td></tr>
+    <tr><td>Forehead camera and XL330 tail in the model</td><td>The checks above still pass</td><td><strong>Not run.</strong> Adds about 9 g at the rear and about 10 g at the front, the camera module up on the forehead</td></tr>
     <tr><td>Shell clearance</td><td>No leg part enters the shell or the bezel over the recorded gait and a joint-range sweep</td><td><strong>Not run</strong> for the dog</td></tr>
     <tr><td>Backlash</td><td>A backlash-trained policy (±1° gear play) passes the walking checks</td><td><strong>Not run</strong> for the dog</td></tr>
     <tr><td>Scripted lie-down</td><td>Lies down onto the belly with the legs along the sides, the start pose of the stand-up</td><td><strong>Not run</strong></td></tr>
@@ -817,7 +819,7 @@ svg text { font-family: var(--font-body); }
   <tbody>
     <tr><td>Body</td><td>ESP-IDF v5.x, C, FreeRTOS; ESP-DSP for the matrix maths. ESP-IDF for explicit core pinning, the RS-485 half-duplex UART mode, <code>esp_timer</code> precision and OTA partitions</td><td><code>firmware/body/</code>, core and HAL split (§8.1)</td></tr>
     <tr><td>Face</td><td>DeskSprite's Arduino (ESP32 core 3.x) firmware, extended with the link, the controller page, the behaviour layer, robot expressions and the tail</td><td>DeskSprite's repository, with a MicroPup build (§13)</td></tr>
-    <tr><td>Vision</td><td>ESP-IDF or Arduino with <code>esp32-camera</code>: MJPEG server, face finder, v2 frame upload</td><td><code>firmware/vision/</code></td></tr>
+    <tr><td>Vision</td><td>ESP-IDF (the P4's MIPI camera and AI functions need it; Arduino does not support them): Espressif's MIPI camera stack, the hardware JPEG encoder for the MJPEG server, <code>esp-dl</code>'s face and pedestrian detectors, Wi-Fi through <code>esp_hosted</code> on the ESP32-C6</td><td><code>firmware/vision/</code></td></tr>
   </tbody>
 </table></div>
 <p>All three update over the air with A/B partitions and rollback. The body board joins Wi-Fi only in a maintenance mode (torque off) for OTA and log download.</p>
@@ -1006,7 +1008,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>F0 Face for MicroPup</td><td>DeskSprite's MicroPup build: the link on the UART header (loopback test), the talk switch on GPIO45 or 46, the controller page and WebSocket, the robot expressions (dizzy, help, confused), stabilized eyes from a fake gravity feed.</td></tr>
     <tr><td>H1 Servo bus and body board</td><td>74HC126 interface built; 9 servos with IDs set and firmware updated (U2D2), Return Delay Time 0, 1 then 2 Mbps. 50 Hz sync read and write for 10 minutes with zero bus errors and p99 jitter ≤ 1 ms while the link and the ToF run. Health polling that ignores the voltage bit (Shutdown 52). Bus Watchdog verified with the firmware halted mid-stand.</td></tr>
     <tr><td>H2 IMU and range</td><td>Gyro bias calibrated at boot; gravity within ±2° at known tilts at 500 Hz or more; ToF zones read at 15 Hz and the obstacle stop works on the bench.</td></tr>
-    <tr><td>V0 Camera</td><td>Vision board on the forehead mount with the wide lens: MJPEG on the phone, a standing person's face found from 0.5 to 3 m, gaze packets reaching the face board.</td></tr>
+    <tr><td>V0 Camera</td><td>ESP32-P4 vision board with the wide-angle camera on the forehead mount: MJPEG on the phone, a standing person's face found from 0.5 to 3 m, gaze packets reaching the face board. Pedestrian detection measured on the board while streaming (fps and latency), as the go or no-go for on-robot following.</td></tr>
     <tr><td>H3 Mechanical design</td><td>Final OpenSCAD for the shell, bezel with lips, ears and forehead camera mount, chin ToF window, legs and cradles, tail, battery door and cable routing, from the model's numbers. No interference across the gait's joint ranges. Fit-check prints match the real boards and servos. STLs frozen.</td></tr>
     <tr><td>H4 Assembly</td><td>Printed and assembled; every part weighed and the model updated; retrained if the measured mass properties fall outside the randomization ranges. Golden test passes on the body board.</td></tr>
     <tr><td>H5 First steps</td><td>On a stand with the feet off the floor, then lying, standing up, standing and walking on a flat floor. The scripted lie-down proven before the first free walk. Logs compared with twin runs. Servo temperatures logged on the first walks.</td></tr>
@@ -1019,11 +1021,11 @@ svg text { font-family: var(--font-body); }
 <!-- 11 -->
 <h2 id="autonomy"><span class="n">11</span>v2 autonomy</h2>
 <ul>
-  <li><strong>Following people first.</strong> The vision board streams frames (QVGA to VGA, 5–10 fps) to a vision service next to the relay, which runs person detection and sends back the target's bearing and size. The face board's behaviour layer turns that into velocity and turn commands, the same commands the phone sends, and the body board applies its limits and the obstacle stop. The robot needs no new hardware for this.</li>
+  <li><strong>Following people first, detected on the robot.</strong> The vision board runs Espressif's pedestrian detector (<code>esp-dl</code>, 224 × 224 input). Espressif's table gives about 50 ms a frame on an ESP32-P4 at 400 MHz, about 20 fps; this board runs at 360 MHz, and streaming video at the same time costs some of that, so expect 10–15 fps and measure it in V0. It sends the target's bearing and size to the face board, whose behaviour layer turns them into velocity and turn commands, the same commands the phone sends, and the body board applies its limits and the obstacle stop. Detection on the robot works the same at home and away, needs no server or network round trip, and needs no new hardware.</li>
   <li><strong>Patrolling second.</strong> Wandering with ToF obstacle avoidance, plus AprilTag-style markers on doorways and on a charging dock, so the robot knows roughly where it is and can return to charge. A dock with contacts under the chest; the charger and BMS handle the pack.</li>
   <li><strong>Conversation with sight.</strong> "What do you see?" sends a frame through the relay to a vision-capable model.</li>
-  <li><strong>Where the compute runs.</strong> The vision service runs on the VPS as its own container, next to the relay. The VPS (<code>trinsicstudios-1</code>, Ubuntu 24.04) has 6 vCPUs, 8 GB of RAM and 100 GB of disk, and no GPU, shared with the relay (limited to one CPU and 256 MiB) and the server's other services. A nano-class CPU detector (a YOLO-nano or MediaPipe person model under ONNX Runtime, at about 320 px) should manage 5–10 fps for one robot in a container limited to about 2 CPUs and 1 GiB; measure it before relying on it. The PC's GPU is the fallback if it falls short. An on-board Raspberry Pi (about 10–45 g, 2–5 W) comes back only if round-trip latency makes following unusable; the 60 g mass reserve and the training's payload range cover it.</li>
-  <li><strong>Possible future option: a home vision server on Neil's Raspberry Pi 4.</strong> Not on the robot (about 46 g bare and 3–6 W, too big for the 68 mm body and too hungry for the pack), but on the home network, always on, running the same vision container as the VPS. A Pi 4's CPU should manage roughly 3–8 fps with a nano-class detector at about 320 px; measure it. At home the frames never leave the house, so the round trip is shorter than through the VPS. Away from home the robot cannot reach a server inside the house directly: the ESP32 boards have no Tailscale client, so the robot keeps talking only to the public VPS, and the VPS forwards frames to the Pi over a Tailscale tailnet (VPS and Pi both joined). That path is longer than running detection on the VPS itself, so away from home the VPS would normally do it and the Pi is for home use or when the VPS is busy. The robot's firmware sees one endpoint, the relay, either way; the relay chooses where detection runs.</li>
+  <li><strong>Off-board vision, optional.</strong> For heavier models than the board can run (recognising family members or objects, a better person tracker) the vision board can send frames through the relay to a vision service on the VPS, in its own container next to the relay. The VPS (<code>trinsicstudios-1</code>, Ubuntu 24.04) has 6 vCPUs, 8 GB of RAM and 100 GB of disk, and no GPU, shared with the relay (limited to one CPU and 256 MiB) and the server's other services. A nano-class CPU detector (a YOLO-nano or MediaPipe person model under ONNX Runtime, at about 320 px) should manage 5–10 fps for one robot in a container limited to about 2 CPUs and 1 GiB; measure it before relying on it. The PC's GPU is the fallback if it falls short. An on-board Raspberry Pi is no longer expected: the P4 does the time-critical detection on the robot.</li>
+  <li><strong>Possible future option: a home vision server on Neil's Raspberry Pi 4</strong>, for the same off-board work. Not on the robot (about 46 g bare and 3–6 W, too big for the 68 mm body and too hungry for the pack), but on the home network, always on, running the same vision container as the VPS. A Pi 4's CPU should manage roughly 3–8 fps with a nano-class detector at about 320 px; measure it. At home the frames never leave the house, so the round trip is shorter than through the VPS. Away from home the robot cannot reach a server inside the house directly: the ESP32 boards have no Tailscale client, so the robot keeps talking only to the public VPS, and the VPS forwards frames to the Pi over a Tailscale tailnet (VPS and Pi both joined). That path is longer than running detection on the VPS itself, so away from home the VPS would normally do it and the Pi is for home use or when the VPS is busy. The robot's firmware sees one endpoint, the relay, either way; the relay chooses where detection runs.</li>
   <li><strong>Hip abduction</strong> (12 servos) if following needs sideways steps or self-righting turns out to matter; the body board's bus and the model are ready for it.</li>
 </ul>
 
@@ -1044,6 +1046,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Screen damage in falls</td><td>Bezel lips proud of the glass, ears as bumpers, the forehead camera recessed.</td></tr>
     <tr><td>Brownouts on the logic rail</td><td>A 3 A buck that accepts the pack's full range, bulk capacitance on the servo bus, a BMS sized for peaks.</td></tr>
     <tr><td>Servo lead time and cost</td><td>Order at the design freeze with three spares; ROBOTIS America quotes a lead time to the end of November 2026.</td></tr>
+    <tr><td>The ESP32-P4 board is new</td><td>Pre-order (about 5 weeks), first chip revision at 360 MHz, camera and AI only under ESP-IDF, Wi-Fi through a second chip. Buy it early for V0; the XIAO ESP32S3 Sense is the fallback, with detection off the robot.</td></tr>
     <tr><td>Three firmwares to maintain</td><td>Only the body firmware is safety-critical and it is tested on the twin; the face is DeskSprite's; the vision firmware is small. OTA for all three from one page.</td></tr>
   </tbody>
 </table></div>
@@ -1066,7 +1069,7 @@ svg text { font-family: var(--font-body); }
 <h2 id="questions"><span class="n">13</span>Open questions</h2>
 <ol>
   <li>Where the face firmware lives: a MicroPup build inside DeskSprite's repository (recommended, so the face and voice stay one codebase), or a copy in this repository.</li>
-  <li>The wide-angle lens for the XIAO ESP32S3 Sense: which module fits its connector, its field of view and distortion.</li>
+  <li>Which Raspberry Pi-compatible camera for the P4: a sensor ESP-IDF's MIPI camera driver supports (OV5647 class; check before buying, since the common IMX708 Camera Module 3 may not be), a field of view of about 120°, its distortion, and a ribbon long enough from the forehead to the board.</li>
   <li>Which person detector for v2 and its measured rate on the VPS's CPUs (6 vCPUs, 8 GB, no GPU), and how much of the server the vision container may take next to its other services.</li>
   <li>Whether v2 vision uses the home Raspberry Pi 4 at all (§11): its measured detection rate, whether the robot can find it directly on the home network or always goes through the relay, and Tailscale between the VPS and the Pi for use away from home.</li>
   <li>Which XL330 variant Pollen's actuator model targets (M288 is assumed; their constants name only <code>xl330</code> and BAM model <code>m6</code>).</li>
@@ -1132,6 +1135,8 @@ svg text { font-family: var(--font-body); }
   <li><a href="https://github.com/pollen-robotics/microduck">pollen-robotics/microduck</a>, the onboard runtime</li>
   <li><a href="https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/">ROBOTIS XL330-M288-T e-Manual</a>, <a href="https://robotis.us/dynamixel-xl330-m288-t">ROBOTIS America XL330-M288-T</a>, <a href="https://robotis.us/u2d2/">U2D2</a></li>
   <li><a href="https://store.freenove.com/products/fnk0104">Freenove FNK0104 ESP32-S3 Display</a>; DeskSprite's <code>docs/HARDWARE.md</code> for the FNK0104N's pins</li>
+  <li><a href="https://www.dfrobot.com/product-2915.html">DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</a> and its <a href="https://wiki.dfrobot.com/SKU_DFR1172_FireBeetle_2_Board_ESP32_P4">wiki</a></li>
+  <li><a href="https://components.espressif.com/components/espressif/pedestrian_detect">Espressif pedestrian_detect</a> and <a href="https://github.com/espressif/esp-detection">esp-detection</a>, with per-chip latency tables</li>
   <li><a href="https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/">Seeed XIAO ESP32S3 and XIAO ESP32S3 Sense</a></li>
   <li><a href="https://www.st.com/en/imaging-and-photonics-solutions/vl53l5cx.html">ST VL53L5CX</a></li>
   <li><a href="https://github.com/espressif/esp32-camera">esp32-camera</a> and <a href="https://github.com/espressif/esp-dl">esp-dl</a></li>

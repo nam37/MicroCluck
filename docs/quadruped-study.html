@@ -328,7 +328,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Body shell</td><td>A rounded box: 7 mm edges, 10 mm ends, and a back that slopes 16 mm down toward the tail. Optional ears on the bezel double as bumpers.</td></tr>
     <tr><td>Tail</td><td>A paddle tail from a reference photo: a slim J-shaped stalk leaning back out of a ribbed boot, ending in a teardrop bulb, on its own servo. It is for expression only; as a counterweight it moves the centre of mass about 1.6 mm.</td></tr>
     <tr><td>Body controller</td><td>The face board has almost no free pins, and the PRD's servo-bus pins are all taken on the FNK0104N. Recommended: a second ESP32-S3 for the body, joined to the face over UART, with safety on the body side. A Raspberry Pi only if it turns out to be needed.</td></tr>
-    <tr><td>Sensors</td><td>A camera (XIAO ESP32S3 Sense class) and a ToF ranger (VL53L5CX class) in a chin under the bezel from v1, used for a first-person view and eye tracking.</td></tr>
+    <tr><td>Sensors</td><td>A camera (XIAO ESP32S3 Sense class) and a ToF ranger (VL53L5CX class) in a chin under the bezel from v1, used for a first-person view and eye tracking. (Since PRD v0.25: an ESP32-P4 vision board with the camera on the forehead, tilted up; the ToF stays in the chin.)</td></tr>
   </tbody>
 </table></div>
 <p><strong>Parts chosen so far.</strong> The servos stay the XL330 the simulation was run with (a Feetech HD1910M was considered on 9 November and turned down: a different bus protocol and no actuator model for it).</p>
