@@ -318,13 +318,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroPup</h1>
     <p class="lede">Product requirements for a small walking robot dog whose face is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.26</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.27</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>9 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.27</strong> Bench boards for the body: a 2-pack of ESP32-S3 N16R8 DevKitC-1-style boards for servo-bus, IMU and link bring-up (H1, H2), with the small XIAO ESP32S3 still the default for inside the robot, chosen at H3 (§6.1, §13).</li>
         <li><strong>v0.26</strong> Camera bring-up starts on a Waveshare ESP32-P4-WIFI6 kit (Kit A, on Amazon for $34.55 on 9 November 2026, in stock with two-day delivery): the same ESP32-P4 and ESP32-C6, listed at 400 MHz, with an RPi Camera (B) known to work with it and a 200 mm Pi 5 camera cable. It is the V0 development board. Which ESP32-P4 board goes in the robot, this one or the smaller DFRobot FireBeetle 2, is decided after V0 from its size and the measured detection rate (§6.1, §6.2, §10, §13).</li>
         <li><strong>v0.25</strong> The vision board is now a DFRobot FireBeetle 2 ESP32-P4 with a wide-angle Raspberry Pi-compatible camera, in place of the XIAO ESP32S3 Sense. Espressif's own figures put person detection on the ESP32-P4 at about 50 ms a frame (224 × 224, 400 MHz; this board runs at 360 MHz), so v2's following can run on the robot itself, at home or away, with no server in the loop; the VPS (6 vCPUs, 8 GB, no GPU) and a Raspberry Pi 4 at home, reached through the VPS over Tailscale when away, become optional off-board vision servers. The camera module sits on the forehead and the board in the front of the body, on the camera's ribbon cable. The XIAO Sense stays as the small fallback (§6, §9.9, §11, §13).</li>
         <li><strong>v0.24</strong> MicroPup replaces the MicroCluck biped as the project's target. The document is rewritten around the dog: a DeskSprite face on the Freenove FNK0104N, an 8-servo XL330 body with a paddle tail, and three boards (face, body, vision) where the biped had one. The body board is a second ESP32-S3 that owns the walking loop and safety; the vision board is a XIAO ESP32S3 Sense moved from the chin to the forehead and tilted up, so it sees people and not just the floor; the ToF sensor stays in the chin. Vision (FPV and eye tracking) is in v1; following people and patrolling are v2, with the processing off the robot. The simulation results come from the dog study (<a href="quadruped-study.html">quadruped-study.html</a>): it walks 0.1 to 0.3 m/s, its servo load is well under the stock Microduck's, and it gets up from its belly. The biped's PRD, up to v0.23, is kept unchanged in <a href="archive/PRD-MicroCluck-v0.23.html">archive/PRD-MicroCluck-v0.23.html</a>.</li>
@@ -410,7 +411,7 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>When</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
     <tr><td>Now</td><td>Nothing required. Filament for fit-check prints of the bezel and the forehead camera mount</td><td>The face board is owned; fit checks need only it.</td></tr>
-    <tr><td>Optional, early</td><td>2 XL330-M288-T, the U2D2, the body board, an IMU breakout, 74HC126 and perfboard parts, and the Waveshare ESP32-P4 camera kit for V0 (in stock now)</td><td>Servo-bus, IMU and camera bring-up (H1, H2, V0) can begin during Phase A. These parts are the same in every remaining design option.</td></tr>
+    <tr><td>Optional, early</td><td>2 XL330-M288-T, the U2D2, the ESP32-S3 bench boards (2-pack, in stock now), an IMU breakout, 74HC126 and perfboard parts, and the Waveshare ESP32-P4 camera kit for V0 (in stock now)</td><td>Servo-bus, IMU and camera bring-up (H1, H2, V0) can begin during Phase A. These parts are the same in every remaining design option.</td></tr>
     <tr><td>At design freeze</td><td>The remaining servos and spares, battery, 5 V buck, INA226, ToF sensor, aluminium bar, connectors, print material</td><td>The remaining simulation checks are done; the STLs freeze in H3.</td></tr>
   </tbody>
 </table></div>
@@ -541,7 +542,8 @@ svg text { font-family: var(--font-body); }
     <tr><td>Freenove ESP32-S3 Display, 3.5" IPS touch (FNK0104N)</td><td>1</td><td>Already owned; runs DeskSprite. Microphone, codec, amplifier and speaker on board</td><td>owned</td></tr>
     <tr><td>Dynamixel XL330-M288-T</td><td>9 + 3 spare</td><td>Eight leg servos and the tail. ROBOTIS America, SKU 902-0163-000, $27.49 each on 9 November 2026, lead time to the end of November. Not the pricier XC330-M288-T</td><td>~$330</td></tr>
     <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for IDs and servo firmware (Fast Sync Read needs v46 or newer). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
-    <tr><td>Body board: Seeed XIAO ESP32S3 (8 MB PSRAM)</td><td>1</td><td>Default because it is small; an ESP32-S3-DevKitC-1 N8R8 if more pins are wanted (§6.2)</td><td>~$8–15</td></tr>
+    <tr><td>Body board bring-up: ESP32-S3 N16R8 DevKitC-1-style boards, 2-pack (QIQIAZI)</td><td>2</td><td>16 MB flash, 8 MB octal PSRAM (GPIO35–37 reserved for it), pre-soldered headers, two USB-C. For H1 and H2 on the bench: one as the body board, one as a spare or as the face end of the link. Amazon, $15.99 with a $1.60 coupon on 9 November 2026, next-day delivery. About 63 × 26 mm, so it may not fit the body; the same firmware runs on the XIAO</td><td>~$14</td></tr>
+    <tr><td>Body board for the robot: Seeed XIAO ESP32S3 (8 MB PSRAM), plain, not the Sense</td><td>1</td><td>Default for the robot because it is small (21 × 17.5 mm); bought at H3 if the DevKitC does not fit. Comes with a U.FL antenna (§6.2)</td><td>~$8–17</td></tr>
     <tr><td>Vision bring-up kit: Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>1</td><td>Amazon (seller Wonrabai), $34.55 on 9 November 2026, in stock with two-day delivery, returnable until 31 January 2027. The V0 development board: ESP32-P4 listed at 400 MHz, ESP32-C6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. Its camera is known to work with it but probably narrower than the robot's 120°</td><td>$34.55</td></tr>
     <tr><td>Vision board for the robot, candidate: DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</td><td>1</td><td>Smaller (25.4 × 60 mm) if the Waveshare board does not fit behind the bezel; decided after V0. 360 MHz dual-core RISC-V with AI extensions, 32 MB PSRAM, 16 MB flash, MIPI CSI (Raspberry Pi pinout), hardware JPEG and H.264, Wi-Fi 6 through an ESP32-C6, PDM microphone; 25.4 × 60 mm. $16.50, pre-order with about 5 weeks' delivery (9 November 2026)</td><td>~$17</td></tr>
     <tr><td>Camera: Raspberry Pi-compatible CSI module, about 120° wide-angle lens</td><td>1</td><td>For the robot, if the kit's RPi Camera (B) is too narrow: a sensor ESP-IDF's camera driver supports on the P4 (OV5647 class, §13), with a ribbon long enough to reach the forehead</td><td>~$13–25</td></tr>
@@ -555,7 +557,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Aluminium flat bar, 1/2" × 1/8" (12.7 × 3.2 mm)</td><td>~1 m</td><td>Thigh and shank plates; printed PETG cradles hold the servos</td><td>~$10</td></tr>
     <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables, 4-wire link cable</td><td>–</td><td></td><td>~$15</td></tr>
     <tr><td>Printed shell, bezel, ears, tail, cradles (PETG) and feet (TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
-    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned. The low end assumes the Waveshare board and its camera go in the robot</td><td><strong>~$515–610</strong></td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned. The low end assumes the Waveshare board and its camera go in the robot</td><td><strong>~$530–625</strong></td></tr>
   </tbody>
 </table></div>
 
@@ -1080,7 +1082,7 @@ svg text { font-family: var(--font-body); }
   <li>IMU choice: the ICM-42688-P is supply-constrained; LSM6DSOX or LSM6DSV16X with on-board fusion are the alternatives.</li>
   <li>Battery capacity and target runtime. It stays 2S because the actuator model assumes 6.5–8.2 V at the servos.</li>
   <li>The real masses and balance point: weigh the face board now, every part in H4, and balance the assembled body.</li>
-  <li>Body board: the XIAO ESP32S3 (small, 11 pins) or an ESP32-S3-DevKitC-1 (more pins, larger). The XIAO is the default.</li>
+  <li>Body board in the robot: the XIAO ESP32S3 (small, 11 pins, the default) or the ESP32-S3 N16R8 DevKitC-style board used on the bench (about 63 × 26 mm), if it fits the electronics layer. Decided at H3.</li>
   <li>Final designs for the dizzy, help and confused faces in DeskSprite's style.</li>
   <li>The dock: contact design and where it sits under the chest (v2, but its space is reserved now).</li>
 </ol>
