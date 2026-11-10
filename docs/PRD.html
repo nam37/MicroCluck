@@ -296,43 +296,38 @@ svg text { font-family: var(--font-body); }
 <main>
 
 <header class="hero">
-  <svg id="heroFace" viewBox="0 0 240 200" role="img" aria-label="MicroPup's face: a yellow-framed black landscape screen with two rounded cyan eyes, two ears on the top corners, a camera lens on the forehead and a sensor window on the chin">
-    <path d="M30 52 L18 8 Q16 0 26 4 L66 30 Z" fill="#f2b705"/>
-    <path d="M210 52 L222 8 Q224 0 214 4 L174 30 Z" fill="#f2b705"/>
-    <rect x="10" y="24" width="220" height="164" rx="30" fill="#f2b705"/>
-    <rect x="26" y="50" width="188" height="112" rx="16" fill="#000"/>
-    <circle cx="120" cy="37" r="7" fill="#2a2a2e"/>
-    <circle cx="120" cy="37" r="4" fill="#0b0b10"/>
-    <circle cx="118.5" cy="35.5" r="1.2" fill="#9fb3c8"/>
-    <rect x="104" y="170" width="32" height="8" rx="3" fill="#2a2030"/>
+  <svg id="heroFace" viewBox="0 0 240 200" role="img" aria-label="MicroPup's face: a small yellow-framed portrait screen with two rounded cyan eyes, a camera lens on the forehead strip and a sensor window in the chin">
+    <rect x="62" y="4" width="116" height="192" rx="22" fill="#f2b705"/>
+    <rect x="74" y="38" width="92" height="118" rx="12" fill="#000"/>
+    <circle cx="120" cy="21" r="8" fill="#2a2a2e"/>
+    <circle cx="120" cy="21" r="4.5" fill="#0b0b10"/>
+    <circle cx="118.5" cy="19.5" r="1.3" fill="#9fb3c8"/>
+    <rect x="104" y="168" width="32" height="12" rx="3" fill="#2a2030"/>
+    <circle cx="113" cy="174" r="2.2" fill="#6b5480"/>
+    <circle cx="127" cy="174" r="2.2" fill="#6b5480"/>
     <g class="eyes-blink" id="heroEyes">
       <g id="heroPupils">
-        <rect x="62" y="80" width="36" height="46" rx="14" fill="#38d6f0"/>
-        <rect x="142" y="80" width="36" height="46" rx="14" fill="#38d6f0"/>
-        <circle cx="72" cy="92" r="4" fill="#e9fbff"/>
-        <circle cx="152" cy="92" r="4" fill="#e9fbff"/>
+        <rect x="88" y="74" width="22" height="38" rx="11" fill="#38d6f0"/>
+        <rect x="130" y="74" width="22" height="38" rx="11" fill="#38d6f0"/>
+        <circle cx="95" cy="83" r="3" fill="#e9fbff"/>
+        <circle cx="137" cy="83" r="3" fill="#e9fbff"/>
       </g>
     </g>
   </svg>
   <div>
     <h1>MicroPup</h1>
-    <p class="lede">Product requirements for a small walking robot dog whose face is a touchscreen.</p>
+    <p class="lede">Product requirements for a small, low-cost walking robot dog with a screen for a face.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.30</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.31</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>10 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
-        <li><strong>v0.30</strong> Cheaper leg servos simulated and rejected (<a href="quadruped-study.html#cost">study §8</a>). A Feetech STS3215 dog (about $17 a servo, 996 g) walks at about 0.12 m/s, under half the XL330 dog's speed, with its typical torque near the servo's rating; an MG90S hobby-servo dog (414 g) sits at stall on every joint and barely moves. Both stand up from the belly 64 of 64. The XL330 stays. A lean v1 (no U2D2, a bench ESP32-S3 as body board, camera and ToF in v2) is about $360–390, close to a $399 Microduck, so whether to build MicroPup or buy a Microduck is now an open question (§13).</li>
-        <li><strong>v0.29</strong> The four simulation checks before the design freeze all pass, on the final model (the forehead camera on a 14 mm band above the screen, tilted 27° up, the ToF sensor in the chin, the ears on; 596 g). A walking policy trained with ±1° of gear play on every servo (run 8, warm-started from run 7) walks 0.26 m/s at a 0.3 m/s command, turns at 0.70 rad/s and never falls, with the worst joint at 0.123 N·m RMS under the play pushes; it walks as well without the play. Over 96,000 recorded gait poses no leg part comes closer than 6 mm to the shell or 19 mm to the bezel, and the legs never touch each other. The scripted lie-down works in 64 of 64 starts for all three scripts tried, under every stress and with the gear play, at no more than 0.09 N·m, and the stand-up from where it ends works every time. Run 7's policy used unchanged on the final model turned noticeably slower (0.63 rad/s), so the final model needs its own policy, which run 8 is. The model's tail servo was the 18 g XL330 of v0.24, 9 g heavier than v0.28's micro servo, and the vision board of v0.25 is not in it (§7.2).</li>
-        <li><strong>v0.28</strong> Cheaper servo plan: the tail moves from an XL330 to an SG90-class micro servo on a PWM pin of the body board, fed from the 5 V buck (the walking model already carries a 9 g micro servo there), and the XL330 order drops from 9 + 3 spares to 8 + 1, about $247 instead of $330. No cheaper leg servo was found that is as light, as strong and modelled: the Feetech STS3215 and Hiwonder LX-224 weigh 55–63 g, the SCS0009 is too weak, and the STS3032 costs more than the XL330 (§6.1, §6.3, §6.5).</li>
-        <li><strong>v0.27</strong> Bench boards for the body: a 2-pack of ESP32-S3 N16R8 DevKitC-1-style boards for servo-bus, IMU and link bring-up (H1, H2), with the small XIAO ESP32S3 still the default for inside the robot, chosen at H3 (§6.1, §13).</li>
-        <li><strong>v0.26</strong> Camera bring-up starts on a Waveshare ESP32-P4-WIFI6 kit (Kit A, on Amazon for $34.55 on 9 November 2026, in stock with two-day delivery): the same ESP32-P4 and ESP32-C6, listed at 400 MHz, with an RPi Camera (B) known to work with it and a 200 mm Pi 5 camera cable. It is the V0 development board. Which ESP32-P4 board goes in the robot, this one or the smaller DFRobot FireBeetle 2, is decided after V0 from its size and the measured detection rate (§6.1, §6.2, §10, §13).</li>
-        <li><strong>v0.25</strong> The vision board is now a DFRobot FireBeetle 2 ESP32-P4 with a wide-angle Raspberry Pi-compatible camera, in place of the XIAO ESP32S3 Sense. Espressif's own figures put person detection on the ESP32-P4 at about 50 ms a frame (224 × 224, 400 MHz; this board runs at 360 MHz), so v2's following can run on the robot itself, at home or away, with no server in the loop; the VPS (6 vCPUs, 8 GB, no GPU) and a Raspberry Pi 4 at home, reached through the VPS over Tailscale when away, become optional off-board vision servers. The camera module sits on the forehead and the board in the front of the body, on the camera's ribbon cable. The XIAO Sense stays as the small fallback (§6, §9.9, §11, §13).</li>
-        <li><strong>v0.24</strong> MicroPup replaces the MicroCluck biped as the project's target. The document is rewritten around the dog: a DeskSprite face on the Freenove FNK0104N, an 8-servo XL330 body with a paddle tail, and three boards (face, body, vision) where the biped had one. The body board is a second ESP32-S3 that owns the walking loop and safety; the vision board is a XIAO ESP32S3 Sense moved from the chin to the forehead and tilted up, so it sees people and not just the floor; the ToF sensor stays in the chin. Vision (FPV and eye tracking) is in v1; following people and patrolling are v2, with the processing off the robot. The simulation results come from the dog study (<a href="quadruped-study.html">quadruped-study.html</a>): it walks 0.1 to 0.3 m/s, its servo load is well under the stock Microduck's, and it gets up from its belly. The biped's PRD, up to v0.23, is kept unchanged in <a href="archive/PRD-MicroCluck-v0.23.html">archive/PRD-MicroCluck-v0.23.html</a>.</li>
-        <li><strong>v0.1 to v0.23</strong> MicroCluck, the biped robot chicken. See the archived document for its history.</li>
+        <li><strong>v0.31</strong> MicroPup is redesigned around cost. The XL330 dog (v0.24–v0.30) came to about $470–575, more than a $399 Microduck, and no cheaper bus servo could replace the XL330 at that size. This version is a smaller dog on hobby servos: eight MG90S micro servos driven through a PCA9685, one Waveshare ESP32-P4 board for everything (walking, safety, face, voice, camera, Wi-Fi), a Waveshare 1.69" SPI screen as the face, the camera on a forehead strip and a VL53L5CX in the chin, about 160 mm long and 318 g modelled, for about $150–195. The face and voice software is a rewrite for the P4, with DeskSprite as the reference. Walking in simulation is being trained (§7). The XL330 design is kept unchanged in <a href="archive/PRD-MicroPup-v0.30.html">archive/PRD-MicroPup-v0.30.html</a>.</li>
+        <li><strong>v0.24 to v0.30</strong> MicroPup with XL330 servos, a DeskSprite face on the Freenove FNK0104N and three boards. See the archived document.</li>
+        <li><strong>v0.1 to v0.23</strong> MicroCluck, the biped robot chicken. See <a href="archive/PRD-MicroCluck-v0.23.html">archive/PRD-MicroCluck-v0.23.html</a>.</li>
       </ul>
     </details>
   </div>
@@ -362,15 +357,16 @@ svg text { font-family: var(--font-body); }
 
 <!-- 1 -->
 <h2 id="summary"><span class="n">1</span>Summary</h2>
-<p><strong>MicroPup</strong> is a small four-legged walking robot dog, about 17 cm long. Its face is a <strong>Freenove ESP32-S3 3.5" touchscreen</strong> (FNK0104N) in a yellow bezel at the front of the body, running the animated face and voice of Neil's DeskSprite project. Behind it is a rounded white body on four aluminium legs, two Dynamixel XL330 servos per leg, with a paddle tail that wags.</p>
-<p>Walking comes from a reinforcement-learning policy trained in simulation with the same tools as Pollen Robotics' Microduck (<code>microduck_rl</code>, mjlab, the BAM XL330 actuator model) and runs on the robot at 50 Hz. MicroPup is driven from a <strong>phone browser</strong>, talks through DeskSprite's voice relay, and has a camera from v1 for a first-person view and for its eyes to follow faces. Following people and patrolling are v2 (§11).</p>
-<p>Three decisions shape everything else:</p>
+<p><strong>MicroPup</strong> is a small four-legged walking robot dog, about 16 cm long and about 320 g, built to cost well under a ready-made robot. Its face is a <strong>1.69" screen</strong> (240 × 280, portrait) in a yellow bezel at the front of the body, with a camera on a strip above it and a distance sensor in the chin. Behind it is a rounded white body on four legs, two <strong>MG90S hobby servos</strong> per leg, with a paddle tail on a micro servo.</p>
+<p>Walking comes from a reinforcement-learning policy trained in simulation with the tools of Pollen Robotics' Microduck (<code>microduck_rl</code>, mjlab), with a model of the hobby servo in place of Pollen's XL330 model, and runs on the robot at 50 Hz. MicroPup is driven from a <strong>phone browser</strong>, talks through DeskSprite's voice relay, and shows a first-person camera view. Following people and patrolling are v2 (§11).</p>
+<p>Four decisions shape everything else:</p>
 <ul>
-  <li><strong>Three boards, one job each.</strong> The face board runs the face, voice, phone controller and behaviour. A second ESP32-S3, the body board, runs the walking loop, the servos, the IMU and every safety check. An ESP32-P4 vision board runs the camera and, in v2, person detection. The body never depends on the other two to stay safe.</li>
-  <li><strong>Simulation first.</strong> The body, the walking policy and the firmware logic are proven in simulation before most parts are ordered (§3). The dog's walking and belly stand-up already pass there (§7).</li>
-  <li><strong>Heavy compute off the robot.</strong> Speech goes through DeskSprite's relay on a VPS, and v2's person detection runs off the robot too. An on-board Raspberry Pi is added only if latency forces it.</li>
+  <li><strong>Cost first.</strong> About $150–195 for everything, a third to a half of a $399 Microduck. The servos are about $25 of it. Anything that pushes the total toward the Microduck's price has to earn its place.</li>
+  <li><strong>One board.</strong> A Waveshare ESP32-P4 board runs the walking loop, the safety checks, the face, voice, camera and Wi-Fi. The walking loop and safety get one core to themselves (§9.2).</li>
+  <li><strong>Hobby servos, measured.</strong> The MG90S has no feedback and no published model. It is modelled from its datasheet for now and measured on the bench before the robot is trusted (H0, §10).</li>
+  <li><strong>Simulation first,</strong> as before: the body, the walking policy and the firmware's logic are proven in simulation before the robot walks.</li>
 </ul>
-<p>MicroPup replaced the MicroCluck biped on 9 November 2026: four legs remove the biped's two hardest problems, getting up after a fall and the XL330's thermal margin. The repository keeps the MicroCluck name. It is a personal project and is not affiliated with Pollen Robotics, Hugging Face or Stanford.</p>
+<p>MicroPup replaced the MicroCluck biped on 9 November 2026 and was redesigned for cost on 10 November 2026. The repository keeps the MicroCluck name. It is a personal project and is not affiliated with Pollen Robotics, Hugging Face, Stanford or Waveshare.</p>
 
 <!-- 2 -->
 <h2 id="goals"><span class="n">2</span>Goals and non-goals</h2>
@@ -378,378 +374,286 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>ID</th><th>Goal</th></tr></thead>
   <tbody>
-    <tr><td>G1</td><td>Stand and walk on flat indoor floors from velocity commands: forward and backward up to 0.3 m/s, turning up to 1.0 rad/s, and both at once. No sideways steps (two servos per leg cannot make them).</td></tr>
-    <tr><td>G2</td><td>Three boards with separate jobs (§5). The body board alone keeps the robot safe, whatever the face and vision boards do.</td></tr>
+    <tr><td>G1</td><td>Stand and walk on flat indoor floors from velocity commands: forward and backward, turning, and both at once. The speed targets are set from the simulation (§7.2); at least 0.15 m/s forward is the bar. No sideways steps.</td></tr>
+    <tr><td>G2</td><td>A bill of materials of about $150–195 for everything, including spares and a battery charger.</td></tr>
     <tr><td>G3</td><td>Phone control from any browser (iOS and Android), no app install, with a live camera view.</td></tr>
-    <tr><td>G4</td><td>An expressive face from DeskSprite, mapped to the robot's state, with touch interaction and a tail that adds to the expression (§9.6).</td></tr>
-    <tr><td>G5</td><td>Safe failure: dead-man stop, fall detection, servo protection, low-battery handling, E-stop, an obstacle stop from the ToF sensor.</td></tr>
-    <tr><td>G6</td><td>OTA updates for all three boards; live telemetry for sim2real debugging.</td></tr>
+    <tr><td>G4</td><td>An expressive face in DeskSprite's style on the 1.69" screen, mapped to the robot's state, with a tail that adds to the expression (§9.5).</td></tr>
+    <tr><td>G5</td><td>Safe failure: dead-man stop, fall detection, servo protection without servo feedback, low-battery handling, E-stop, an obstacle stop and a table-edge stop from the chin sensor.</td></tr>
+    <tr><td>G6</td><td>OTA updates; live telemetry for sim2real debugging.</td></tr>
     <tr><td>G7</td><td>Personality: IMU-stabilized eyes, eyes that follow a face the camera sees, a wagging tail, sounds, and voice conversation through DeskSprite's relay.</td></tr>
-    <tr><td>G8</td><td>Get up from lying on its belly, and lie down on command. The robot's rest pose is lying down.</td></tr>
-    <tr><td>G9</td><td>Prove the design, the walking policy and the body firmware's logic in simulation before buying the bulk of the parts.</td></tr>
+    <tr><td>G8</td><td>Get up from lying on its belly, and lie down on command. The rest pose is lying down.</td></tr>
+    <tr><td>G9</td><td>Prove the design, the walking policy and the firmware's logic in simulation before the robot walks.</td></tr>
   </tbody>
 </table></div>
 <h3>v2 goals</h3>
 <ul>
-  <li>Follow a person, using person detection off the robot (§11).</li>
-  <li>Patrol: wander with obstacle avoidance, recognise printed markers on doorways and a dock, and find its way back to the dock.</li>
-  <li>Voice commands that move it ("come here", "sit", "lie down") and answers about what the camera sees.</li>
+  <li>Follow a person, with person detection on the P4 (§11).</li>
+  <li>Patrol: wander with obstacle avoidance using the chin sensor's 8 × 8 zones, recognise printed markers on doorways and a dock.</li>
+  <li>Voice commands that move it ("come here", "sit", "lie down").</li>
 </ul>
 <h3>Non-goals for v1</h3>
 <ul>
   <li>Autonomous navigation of any kind (v2).</li>
-  <li>Sideways walking, and getting up from the back or a side. Both need a third servo per leg (hip abduction), which v1 does not have; a person rights a robot that has rolled over, and the robot asks for help (§7.5).</li>
-  <li>Rough terrain and stairs.</li>
-  <li>Running the walking policy on anything but the body board.</li>
+  <li>Sideways walking, and getting up from the back or a side (two servos per leg cannot do either); a person rights a robot that has rolled over.</li>
+  <li>Rough terrain, stairs, carrying a payload.</li>
+  <li>Long walks: hobby servos and a small battery give short sessions with rests (§6.4, S4).</li>
   <li>Any commercial use.</li>
 </ul>
 
 <!-- 3 -->
 <h2 id="approach"><span class="n">3</span>Development approach</h2>
-<p>Work runs in two phases. <strong>Phase A</strong> builds MicroPup in simulation: the model, the walking policy, the design checks, the C port of the policy and a virtual MicroPup that runs the real body firmware against the simulator (§8). <strong>Phase B</strong> builds the robot. Much of Phase A is done: the dog's model, its walking policy and its belly stand-up all pass in simulation (§7.2).</p>
-<p>The face board is already owned and already runs DeskSprite, so face and voice work continues in parallel. Servos ship with a lead time (§6.1), so they are ordered at the <strong>design freeze</strong>, once the simulation checks are done. They are (v0.29): the final model with the forehead camera, the shell's clearance to the legs over the gait, a backlash-trained policy and the scripted lie-down all pass (§7.2). Driver bring-up on one or two early servos, the body board and the IMU may start earlier.</p>
+<p><strong>Phase A</strong> builds MicroPup in simulation: the model, the walking policy, the design checks, the C port of the policy and the virtual MicroPup (§8). <strong>Phase B</strong> builds the robot, starting with a bench measurement of the servo (H0) that replaces the datasheet servo model. Because the parts are cheap and in stock, bench bring-up can start as soon as they arrive, alongside Phase A.</p>
 
 <h3>Purchase plan</h3>
 <div class="tbl"><table>
   <thead><tr><th>When</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
-    <tr><td>Now</td><td>Nothing required. Filament for fit-check prints of the bezel and the forehead camera mount</td><td>The face board is owned; fit checks need only it.</td></tr>
-    <tr><td>Optional, early</td><td>2 XL330-M288-T, the U2D2, the ESP32-S3 bench boards (2-pack, in stock now), an IMU breakout, 74HC126 and perfboard parts, and the Waveshare ESP32-P4 camera kit for V0 (in stock now)</td><td>Servo-bus, IMU and camera bring-up (H1, H2, V0) can begin during Phase A. These parts are the same in every remaining design option.</td></tr>
-    <tr><td>At design freeze</td><td>The remaining servos and spares, battery, 5 V buck, INA226, ToF sensor, aluminium bar, connectors, print material</td><td>The remaining simulation checks are done; the STLs freeze in H3.</td></tr>
+    <tr><td>Now, if the simulation passes (§7.2)</td><td>The Waveshare ESP32-P4 kit, the MG90S 10-pack, the PCA9685, the 6 V regulator, the IMU and the 1.69" screen (about $95)</td><td>Servo measurement (H0) and board bring-up (H1, V0, F0) need them, and they are the same in every remaining design option.</td></tr>
+    <tr><td>At design freeze</td><td>The VL53L5CX, battery and charger, INA226, buck, connectors, print material</td><td>The mechanical design is frozen in H3.</td></tr>
   </tbody>
 </table></div>
 
 <h3>Which machine does what</h3>
-<p>The Windows 11 PC with the RTX 3060 (12 GB) does all development. The VPS runs DeskSprite's relay, and later the v2 vision service in a container of its own.</p>
 <div class="tbl"><table>
   <thead><tr><th>Job</th><th>Where it runs</th></tr></thead>
   <tbody>
-    <tr><td>Policy training</td><td>mjlab on MuJoCo Warp under WSL2, about an hour per warm-started run. The sim worktree is <code>~/microcluck_quad</code>.</td></tr>
+    <tr><td>Policy training</td><td>mjlab on MuJoCo Warp under WSL2 on the PC's RTX 3060, about an hour per run. The sim worktree is <code>~/microcluck_quad</code>.</td></tr>
     <tr><td>Policy playback and the virtual MicroPup</td><td>CPU MuJoCo on the same PC.</td></tr>
-    <tr><td>Body and vision firmware</td><td>ESP-IDF on the same PC, flashing over USB.</td></tr>
-    <tr><td>Face firmware</td><td>DeskSprite's Arduino toolchain, as today.</td></tr>
-    <tr><td>Voice relay, v2 vision</td><td>The VPS, each as its own Docker container behind Caddy; the PC's GPU is the fallback for vision, and a Raspberry Pi 4 at home is a possible future vision server, reached over Tailscale from the VPS when the robot is away (§11).</td></tr>
+    <tr><td>Robot firmware</td><td>ESP-IDF on the same PC, flashing over USB.</td></tr>
+    <tr><td>Voice relay, optional v2 vision</td><td>The VPS, each in its own Docker container behind Caddy (§11).</td></tr>
   </tbody>
 </table></div>
 
 <!-- 4 -->
 <h2 id="reference"><span class="n">4</span>Reference designs and constraints</h2>
-<p>MicroPup borrows from three places: Stanford's Pupper V3 for the idea of a small learned-gait dog, Pollen's Microduck for the training stack and actuator model, and DeskSprite for the face and voice.</p>
+<p>MicroPup takes the idea of a small learned-gait dog from Stanford's Pupper V3, the training stack from Pollen's Microduck, and the face, voice and personality from Neil's DeskSprite. Small commercial robot dogs of about this size and weight walk on hobby-class servos, which is the evidence that the servo class can do it.</p>
 <div class="tbl"><table>
-  <thead><tr><th>Item</th><th>Pupper V3 (idea)</th><th>MicroPup</th></tr></thead>
+  <thead><tr><th>Item</th><th>XL330 MicroPup (v0.30, archived)</th><th>MicroPup (this document)</th></tr></thead>
   <tbody>
-    <tr><td>Size and mass</td><td>About 3 kg</td><td>About 17 cm long, 120 mm between front and rear hips, <strong>≤ 600 g</strong> (579 g modelled)</td></tr>
-    <tr><td>Joints</td><td>12: abduction, hip and knee per leg</td><td><strong>8</strong>: hip and knee per leg, plus a micro servo for the tail</td></tr>
-    <tr><td>Actuators</td><td>Brushless (GIM4305)</td><td><strong>Dynamixel XL330-M288-T</strong>, modelled with Pollen's BAM actuator model</td></tr>
-    <tr><td>Compute</td><td>Raspberry Pi 5</td><td>Three ESP32-S3 boards (§5); speech and v2 vision off the robot</td></tr>
-    <tr><td>Training</td><td>PPO in MuJoCo MJX</td><td>PPO in mjlab (MuJoCo Warp), Pollen's velocity recipe, 33 inputs to 8 outputs</td></tr>
-    <tr><td>Face and sensing</td><td>Screen face, fisheye camera, microphone, speaker, moving ears</td><td>DeskSprite face on a 3.5" screen, microphone and speaker on the face board, forehead camera, chin ToF sensor, paddle tail</td></tr>
+    <tr><td>Size and mass</td><td>About 17 cm long, 579–596 g modelled</td><td>About 16 cm long, 140 mm wide with the legs, <strong>≤ 350 g</strong> (318 g modelled)</td></tr>
+    <tr><td>Leg servos</td><td>8 Dynamixel XL330 on a TTL bus, full feedback</td><td><strong>8 MG90S</strong> on PWM from a PCA9685, no feedback</td></tr>
+    <tr><td>Boards</td><td>Three: face (FNK0104N), body (ESP32-S3), vision (ESP32-P4)</td><td><strong>One</strong>: Waveshare ESP32-P4-WIFI6</td></tr>
+    <tr><td>Face</td><td>3.5" touchscreen running DeskSprite</td><td>1.69" screen, no touch, rewritten face</td></tr>
+    <tr><td>Cost</td><td>About $470–575</td><td><strong>About $150–195</strong></td></tr>
   </tbody>
 </table></div>
 <ul>
-  <li><strong>Pupper V3's code is GPL-3.0.</strong> MicroPup takes ideas and published numbers from it, not code.</li>
-  <li><strong>Pollen's <code>microduck_rl</code> is Apache-2.0.</strong> MicroPup uses its training recipe, tasks and BAM actuator model in a fork. None of Microduck's meshes or mechanical design is used, so their non-commercial licence does not apply to MicroPup's parts.</li>
-  <li><strong>Actuator fidelity is the dominant sim2real gap</strong> at this scale. The XL330 is modelled down to its voltage control law, with randomized battery voltage, voltage sag, command delay and friction. Changing servo means identifying a new actuator model, which is why the XL330 stays (a Feetech HD1910M was considered and turned down on 9 November 2026).</li>
+  <li><strong>Pupper V3's code is GPL-3.0.</strong> Ideas and published numbers only, not code.</li>
+  <li><strong>Pollen's <code>microduck_rl</code> is Apache-2.0.</strong> MicroPup uses its training recipe and tasks in a fork. None of Microduck's meshes or mechanical design is used.</li>
+  <li><strong>Actuator fidelity is the dominant sim2real gap,</strong> and it is wider than before: the XL330 had a measured model, the MG90S has a datasheet estimate. H0 measures it (§10).</li>
+  <li><strong>The XL330 design is not lost.</strong> Its PRD, simulation runs and results are kept, and the walking stack is the same, so it can be revisited.</li>
 </ul>
 
-<h3>XL330-M288-T key specs</h3>
-<p>18 g, 20 × 34 × 26 mm. Stall torque 0.52 N·m at 5 V (1.47 A) and 0.60 N·m at 6 V; the Current Limit register defaults to 1.75 A, so about 0.60 N·m is the ceiling. Input 3.7–6.0 V, 5.0 V recommended; Microduck runs it from a 2S pack and so does MicroPup (§6.4). TTL half-duplex bus, 3.3 V logic, 9.6 kbps to 4 Mbps, Protocol 2.0. Feedback includes position, velocity, current, temperature and input voltage. 12-bit absolute encoder. The estimated continuous torque is about 0.10 N·m, 20% of stall; MicroPup's walking runs near it (§7.2), so servo temperature is monitored (S4).</p>
+<h3>MG90S key specs</h3>
+<p>About 13.4 g, 22.8 × 12.2 × 28.5 mm, metal gears. Stall torque about 1.8 kg·cm at 4.8 V and 2.2 kg·cm (0.216 N·m) at 6 V; about 0.10 s/60° at 4.8 V. Input 4.8–6.0 V. Position command by pulse width, about 1000–2000 µs over about 180°, at a 50 Hz frame. No position, speed, load or temperature feedback; the potentiometer inside can be wired out for a position reading (§6.3). Clones vary widely in torque, deadband and centring, so buy from one reputable seller and measure them (H0).</p>
 
 <!-- 5 -->
 <h2 id="architecture"><span class="n">5</span>System architecture</h2>
 <figure class="diagram wide">
-<svg viewBox="0 0 760 560" role="img" aria-label="System architecture. The phone talks to the face board over Wi-Fi and views the camera stream from the vision board. The face board talks to the VPS relay for voice and, in v2, vision, and sends commands to the body board over a UART link. The body board drives eight XL330 servos through a 74HC126 buffer and the tail's micro servo by PWM, and reads the IMU, the INA226 and the ToF sensor over I2C. The vision board streams to the phone and, in v2, to the VPS. The 2S pack feeds the servos directly and a 5 V buck feeds the three boards.">
-  <rect x="20" y="30" width="140" height="64" rx="12" class="d-box"/>
-  <text x="90" y="57" text-anchor="middle" class="d-t">Phone browser</text>
-  <text x="90" y="76" text-anchor="middle" class="d-s">joystick, video, E-stop</text>
+<svg viewBox="0 0 760 500" role="img" aria-label="System architecture. The phone talks to the ESP32-P4 board over Wi-Fi. The board talks to the VPS relay for voice and, optionally in v2, vision. Core 1 of the board runs the 50 Hz control loop, the policy, the state machine and all safety checks; core 0 runs the face, voice, web page, camera stream and face finder, with Wi-Fi through the ESP32-C6. The board drives the 1.69 inch screen over SPI and the forehead camera over MIPI CSI, and reads the IMU, VL53L5CX and INA226 over I2C. A PCA9685 on I2C drives the eight MG90S leg servos and the SG90 tail servo. The 2S pack feeds a 6 V regulator for the servo rail and a 5 V buck for the board.">
+  <rect x="20" y="30" width="140" height="60" rx="12" class="d-box"/>
+  <text x="90" y="56" text-anchor="middle" class="d-t">Phone browser</text>
+  <text x="90" y="75" text-anchor="middle" class="d-s">joystick, video, E-stop</text>
 
-  <rect x="600" y="30" width="140" height="64" rx="12" class="d-box d-dash"/>
-  <text x="670" y="57" text-anchor="middle" class="d-t">VPS relay</text>
-  <text x="670" y="76" text-anchor="middle" class="d-s">voice; v2 vision</text>
+  <rect x="600" y="30" width="140" height="60" rx="12" class="d-box d-dash"/>
+  <text x="670" y="56" text-anchor="middle" class="d-t">VPS relay</text>
+  <text x="670" y="75" text-anchor="middle" class="d-s">voice; v2 vision</text>
 
-  <rect x="210" y="120" width="250" height="132" rx="14" class="d-strong"/>
-  <text x="335" y="144" text-anchor="middle" class="d-t">Face board (FNK0104N)</text>
-  <text x="226" y="168" class="d-s">DeskSprite face, touch, voice</text>
-  <text x="226" y="188" class="d-s">controller page, WebSocket, telemetry</text>
-  <text x="226" y="208" class="d-s">behaviour: phone, voice, v2 autonomy</text>
-  <text x="226" y="228" class="d-s">eye stabilization and gaze</text>
+  <rect x="200" y="118" width="300" height="226" rx="14" class="d-strong"/>
+  <text x="350" y="142" text-anchor="middle" class="d-t">ESP32-P4 board (Waveshare)</text>
+  <text x="216" y="168" class="d-s">Core 1: control loop 50 Hz, policy</text>
+  <text x="216" y="188" class="d-s">state machine, all safety (S1–S12)</text>
+  <text x="216" y="216" class="d-s">Core 0: face, voice, web page</text>
+  <text x="216" y="236" class="d-s">camera stream, face finder</text>
+  <text x="216" y="256" class="d-s">v2: person detection</text>
+  <text x="216" y="284" class="d-s">ESP32-C6: Wi-Fi</text>
+  <text x="216" y="304" class="d-s">On board: audio codec, speaker out</text>
+  <text x="216" y="324" class="d-s">Only core 1 may enable the servos</text>
 
-  <rect x="510" y="150" width="230" height="102" rx="14" class="d-strong"/>
-  <text x="625" y="174" text-anchor="middle" class="d-t">Vision board (ESP32-P4)</text>
-  <text x="526" y="198" class="d-s">forehead camera, tilted up</text>
-  <text x="526" y="218" class="d-s">MJPEG to the phone; face finder</text>
-  <text x="526" y="238" class="d-s">v2: person detection on board</text>
+  <rect x="550" y="118" width="190" height="44" rx="8" class="d-box"/>
+  <text x="645" y="137" text-anchor="middle" class="d-t">1.69" screen</text>
+  <text x="645" y="154" text-anchor="middle" class="d-s">SPI, 240 × 280</text>
+  <rect x="550" y="170" width="190" height="44" rx="8" class="d-box"/>
+  <text x="645" y="189" text-anchor="middle" class="d-t">Camera, forehead</text>
+  <text x="645" y="206" text-anchor="middle" class="d-s">MIPI CSI, tilted up</text>
+  <rect x="550" y="222" width="190" height="44" rx="8" class="d-box"/>
+  <text x="645" y="241" text-anchor="middle" class="d-t">IMU, VL53L5CX, INA226</text>
+  <text x="645" y="258" text-anchor="middle" class="d-s">I2C; ToF in the chin</text>
+  <rect x="550" y="274" width="190" height="44" rx="8" class="d-hw"/>
+  <text x="645" y="293" text-anchor="middle" class="d-t">PCA9685 (I2C)</text>
+  <text x="645" y="310" text-anchor="middle" class="d-s">8× MG90S, tail SG90</text>
 
-  <rect x="210" y="300" width="250" height="132" rx="14" class="d-strong"/>
-  <text x="335" y="324" text-anchor="middle" class="d-t">Body board (ESP32-S3)</text>
-  <text x="226" y="348" class="d-s">control_task 50 Hz: policy, servos</text>
-  <text x="226" y="368" class="d-s">imu_task, state machine</text>
-  <text x="226" y="388" class="d-s">all safety checks (S1–S11)</text>
-  <text x="226" y="408" class="d-s">scripted stand-up and lie-down</text>
+  <line x1="162" y1="70" x2="250" y2="116" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="176" y="112" class="d-s">Wi-Fi</text>
+  <line x1="460" y1="116" x2="598" y2="76" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="500" y="88" class="d-s">WSS</text>
+  <line x1="502" y1="140" x2="546" y2="140" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="546" y1="192" x2="502" y2="192" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="502" y1="244" x2="546" y2="244" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <line x1="502" y1="296" x2="546" y2="296" class="d-wire" marker-end="url(#arr)"/>
 
-  <rect x="510" y="300" width="230" height="44" rx="8" class="d-box"/>
-  <text x="625" y="320" text-anchor="middle" class="d-t">74HC126 → 8× XL330</text>
-  <text x="625" y="336" text-anchor="middle" class="d-s">legs, 1–2 Mbps; tail on PWM</text>
-  <rect x="510" y="356" width="230" height="44" rx="8" class="d-box"/>
-  <text x="625" y="376" text-anchor="middle" class="d-t">IMU, INA226, ToF (chin)</text>
-  <text x="625" y="392" text-anchor="middle" class="d-s">I2C</text>
-
-  <line x1="162" y1="70" x2="252" y2="118" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
-  <text x="176" y="108" class="d-s">Wi-Fi</text>
-  <path d="M160 52 H560 V148" class="d-wire d-dash" marker-end="url(#arr)"/>
-  <text x="430" y="44" class="d-s">video (MJPEG)</text>
-  <line x1="462" y1="140" x2="598" y2="80" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
-  <text x="500" y="100" class="d-s">WSS</text>
-  <line x1="700" y1="148" x2="700" y2="96" class="d-wire d-dash" marker-end="url(#arr)"/>
-  <text x="708" y="128" class="d-s">v2</text>
-  <line x1="508" y1="200" x2="464" y2="200" class="d-wire d-dash" marker-end="url(#arr)"/>
-  <text x="486" y="192" text-anchor="middle" class="d-s">gaze</text>
-  <line x1="335" y1="254" x2="335" y2="296" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
-  <text x="345" y="280" class="d-s">UART link (§9.4)</text>
-  <line x1="462" y1="322" x2="506" y2="322" class="d-wire" marker-end="url(#arr)"/>
-  <line x1="462" y1="378" x2="506" y2="378" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
-
-  <rect x="20" y="470" width="150" height="62" rx="10" class="d-box"/>
-  <text x="95" y="495" text-anchor="middle" class="d-t">2S Li-ion pack</text>
-  <text x="95" y="514" text-anchor="middle" class="d-s">7.4 V, with BMS</text>
-  <rect x="200" y="486" width="60" height="30" rx="6" class="d-box"/>
-  <text x="230" y="506" text-anchor="middle" class="d-s">Fuse</text>
-  <rect x="300" y="462" width="170" height="40" rx="10" class="d-box"/>
-  <text x="385" y="487" text-anchor="middle" class="d-t">5 V buck, 3 A</text>
-  <rect x="300" y="512" width="170" height="40" rx="10" class="d-box"/>
-  <text x="385" y="537" text-anchor="middle" class="d-t">Servo rail, bulk caps</text>
-  <path d="M170 501 H200" class="d-power"/>
-  <path d="M260 501 H280 V482 H296" class="d-power" marker-end="url(#arrP)"/>
-  <path d="M280 501 V532 H296" class="d-power" marker-end="url(#arrP)"/>
-  <path d="M385 462 V436" class="d-power" marker-end="url(#arrP)"/>
-  <text x="393" y="453" class="d-s">5 V to all three boards</text>
-  <path d="M470 532 H750 V322 H744" class="d-power" marker-end="url(#arrP)"/>
-  <text x="615" y="524" text-anchor="middle" class="d-s">pack voltage, 6.6–8.4 V</text>
+  <rect x="20" y="404" width="150" height="62" rx="10" class="d-box"/>
+  <text x="95" y="430" text-anchor="middle" class="d-t">2S LiPo</text>
+  <text x="95" y="449" text-anchor="middle" class="d-s">7.4 V, about 450 mAh</text>
+  <rect x="196" y="420" width="84" height="30" rx="6" class="d-box"/>
+  <text x="238" y="440" text-anchor="middle" class="d-s">Switch, fuse</text>
+  <rect x="320" y="390" width="180" height="40" rx="10" class="d-box"/>
+  <text x="410" y="415" text-anchor="middle" class="d-t">5 V buck, 2 A</text>
+  <rect x="320" y="442" width="180" height="40" rx="10" class="d-box"/>
+  <text x="410" y="467" text-anchor="middle" class="d-t">6 V regulator, 5 A</text>
+  <path d="M170 435 H196" class="d-power"/>
+  <path d="M280 435 H300 V410 H316" class="d-power" marker-end="url(#arrP)"/>
+  <path d="M300 435 V462 H316" class="d-power" marker-end="url(#arrP)"/>
+  <path d="M410 390 V348" class="d-power" marker-end="url(#arrP)"/>
+  <text x="418" y="374" class="d-s">5 V to the board</text>
+  <path d="M500 462 H752 V296 H744" class="d-power" marker-end="url(#arrP)"/>
+  <text x="626" y="456" text-anchor="middle" class="d-s">servo rail, 6 V</text>
 </svg>
-<figcaption>Data in dark lines, power in orange, dashed lines are v2 or optional. The phone gets video straight from the vision board; everything that moves the robot goes through the face board to the body board, which applies its own limits and safety checks.</figcaption>
+<figcaption>Data in dark lines, power in orange, dashed is v2 or optional. Everything runs on one board; the walking loop and safety keep a core of their own, and only that core may switch the servo outputs on.</figcaption>
 </figure>
 <ul>
-  <li><strong>Face board.</strong> The FNK0104N runs DeskSprite's firmware, extended for MicroPup: the face, touch, voice through the relay, the phone controller page and WebSocket, and the behaviour layer that turns phone, voice and (in v2) autonomy into velocity commands and actions. It holds no safety duty: if it crashes, the body board stops and lies down.</li>
-  <li><strong>Body board.</strong> A second ESP32-S3 owns everything that moves: the 50 Hz policy loop, the servo bus, the IMU, the battery monitor, the ToF sensor and the state machine. All safety checks live here (§9.8). It has Wi-Fi only for OTA and development, off while walking. This split is what future-proofs the robot: the face and vision boards can grow (voice, autonomy, more vision) without touching the loop's timing, and a third servo per leg (12 on the same bus) or a better IMU needs no change to the face board.</li>
-  <li><strong>Vision board.</strong> An ESP32-P4 board (Waveshare ESP32-P4-WIFI6 or DFRobot FireBeetle 2, §6.2) in the front of the body runs the camera on the forehead: a hardware-encoded MJPEG stream for the phone's view, a face finder for the eyes' gaze, and in v2 person detection on the board itself. It does not command the legs; what it finds reaches the body only through the face board's behaviour layer, under the body's limits.</li>
+  <li><strong>Core 1</strong> owns everything that moves: the 50 Hz policy loop, the PCA9685, the IMU, the chin sensor, the power monitor and the state machine. All safety checks live here (§9.7).</li>
+  <li><strong>Core 0</strong> runs everything else: the face on the screen, voice through the relay, the phone page and WebSocket, the camera stream and face finder, and the behaviour layer that turns phone, voice and (in v2) autonomy into velocity commands. It can only ask: commands pass to core 1 through a queue, and core 1 clamps them.</li>
+  <li><strong>Why one board.</strong> The P4 is fast enough for all of it, and one board removes the second and third boards, the link between them and their wiring, which was much of the old design's cost and complexity. The price is that a crash anywhere resets everything; the servo outputs are wired to go limp on any reset (S9).</li>
 </ul>
 
 <!-- 6 -->
 <h2 id="hardware"><span class="n">6</span>Hardware</h2>
 
 <h3 id="bom"><span class="n">6.1</span>Bill of materials</h3>
-<p>Estimates for v1. Verify prices before ordering; timing follows the purchase plan in §3.</p>
+<p>Estimates for v1 from typical Amazon and AliExpress prices on 10 November 2026. Verify prices before ordering; timing follows the purchase plan in §3.</p>
 <div class="tbl"><table>
   <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
-    <tr><td>Freenove ESP32-S3 Display, 3.5" IPS touch (FNK0104N)</td><td>1</td><td>Already owned; runs DeskSprite. Microphone, codec, amplifier and speaker on board</td><td>owned</td></tr>
-    <tr><td>Dynamixel XL330-M288-T</td><td>8 + 1 spare</td><td>The eight leg servos; buy more spares later if one fails. ROBOTIS America, SKU 902-0163-000, $27.49 each on 9 November 2026, lead time to the end of November. Not the pricier XC330-M288-T. Cheaper servos were simulated on 9 November and rejected: the STS3215 is too slow and near its torque rating, the MG90S too weak (<a href="quadruped-study.html#cost">study §8</a>)</td><td>~$247</td></tr>
-    <tr><td>Tail servo: SG90-class 9 g micro servo (metal-gear MG90S if the plastic gears strip)</td><td>1 + 1 spare</td><td>PWM from the body board, 5 V from the buck; no feedback, which a tail does not need. Matches the 9 g micro servo already in the walking model</td><td>~$3–8</td></tr>
-    <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for IDs and servo firmware (Fast Sync Read needs v46 or newer). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
-    <tr><td>ROBOTIS U2D2 Power Hub Board Set</td><td>1</td><td>Bench only: powers the servos while the U2D2 talks to them (the U2D2 carries data, not power). Barrel jack or screw terminal; feed it 5 V, inside the XL330's 3.7–6.0 V rating. ROBOTIS America, SKU 902-0145-001</td><td>~$22</td></tr>
-    <tr><td>Body board bring-up: ESP32-S3 N16R8 DevKitC-1-style boards, 2-pack (QIQIAZI)</td><td>2</td><td>16 MB flash, 8 MB octal PSRAM (GPIO35–37 reserved for it), pre-soldered headers, two USB-C. For H1 and H2 on the bench: one as the body board, one as a spare or as the face end of the link. Amazon, $15.99 with a $1.60 coupon on 9 November 2026, next-day delivery. About 63 × 26 mm, so it may not fit the body; the same firmware runs on the XIAO</td><td>~$14</td></tr>
-    <tr><td>Body board for the robot: Seeed XIAO ESP32S3 (8 MB PSRAM), plain, not the Sense</td><td>1</td><td>Default for the robot because it is small (21 × 17.5 mm); bought at H3 if the DevKitC does not fit. Comes with a U.FL antenna (§6.2)</td><td>~$8–17</td></tr>
-    <tr><td>Vision bring-up kit: Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>1</td><td>Amazon (seller Wonrabai), $34.55 on 9 November 2026, in stock with two-day delivery, returnable until 31 January 2027. The V0 development board: ESP32-P4 listed at 400 MHz, ESP32-C6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. Its camera is known to work with it but probably narrower than the robot's 120°</td><td>$34.55</td></tr>
-    <tr><td>Vision board for the robot, candidate: DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</td><td>1</td><td>Smaller (25.4 × 60 mm) if the Waveshare board does not fit behind the bezel; decided after V0. 360 MHz dual-core RISC-V with AI extensions, 32 MB PSRAM, 16 MB flash, MIPI CSI (Raspberry Pi pinout), hardware JPEG and H.264, Wi-Fi 6 through an ESP32-C6, PDM microphone; 25.4 × 60 mm. $16.50, pre-order with about 5 weeks' delivery (9 November 2026)</td><td>~$17</td></tr>
-    <tr><td>Camera: Raspberry Pi-compatible CSI module, about 120° wide-angle lens</td><td>1</td><td>For the robot, if the kit's RPi Camera (B) is too narrow: a sensor ESP-IDF's camera driver supports on the P4 (OV5647 class, §13), with a ribbon long enough to reach the forehead</td><td>~$13–25</td></tr>
-    <tr><td>ToF sensor: VL53L5CX breakout</td><td>1</td><td>8 × 8 zones, up to about 4 m, I2C; in the chin, on the body board's I2C</td><td>~$15–25</td></tr>
-    <tr><td>IMU breakout</td><td>1</td><td>Default ICM-42688-P, supply-constrained; LSM6DSOX or LSM6DSV16X as alternatives (§13)</td><td>~$10–20</td></tr>
-    <tr><td>INA226 power monitor breakout</td><td>1</td><td>Pack voltage and current over I2C</td><td>~$5</td></tr>
-    <tr><td>74HC126 (DIP-14) with socket, perfboard, 10 kΩ pull-up, 0.1 µF cap</td><td>1</td><td>Through-hole servo bus interface (§6.3)</td><td>~$5</td></tr>
-    <tr><td>2S Li-ion or LiPo pack, ~1000–1500 mAh, with BMS</td><td>1</td><td>About 85 g in the model; plus charger</td><td>~$20–35</td></tr>
-    <tr><td>Bulk capacitor, ≥ 1000 µF, for the servo bus entry</td><td>1</td><td>Low ESR, rated 16 V or more</td><td>~$3</td></tr>
-    <tr><td>5 V buck, 3 A</td><td>1</td><td>Accepts the pack's full range, about 6–8.4 V; feeds the three boards, not the servos</td><td>~$5</td></tr>
-    <tr><td>Aluminium flat bar, 1/2" × 1/8" (12.7 × 3.2 mm)</td><td>~1 m</td><td>Thigh and shank plates; printed PETG cradles hold the servos</td><td>~$10</td></tr>
-    <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables, 4-wire link cable</td><td>–</td><td></td><td>~$15</td></tr>
-    <tr><td>Printed shell, bezel, ears, tail, cradles (PETG) and feet (TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
-    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned. The low end assumes the Waveshare board and its camera go in the robot</td><td><strong>~$470–575</strong></td></tr>
+    <tr><td>Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>1</td><td>The robot's only board. ESP32-P4 listed at 400 MHz, ESP32-C6 for Wi-Fi 6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. Amazon, $34.55 on 9 November 2026, in stock</td><td>$34.55</td></tr>
+    <tr><td>Waveshare 1.69" LCD module, 240 × 280, ST7789V2, SPI</td><td>1</td><td>The face. A touch version exists if touch is wanted later (§13)</td><td>~$12–15</td></tr>
+    <tr><td>MG90S metal-gear micro servo</td><td>10-pack</td><td>Eight legs and two spares. One reputable seller, so the batch is consistent</td><td>~$20–28</td></tr>
+    <tr><td>SG90 micro servo</td><td>1–2</td><td>Tail</td><td>~$3–5</td></tr>
+    <tr><td>PCA9685 16-channel PWM board</td><td>1</td><td>I2C, 12-bit; its OE pin pulled high so the outputs are off until the firmware enables them (S9)</td><td>~$5–8</td></tr>
+    <tr><td>IMU breakout</td><td>1</td><td>LSM6DSOX or similar, with tap detection for petting (§9.5); with no servo feedback it is the robot's main sense</td><td>~$10–15</td></tr>
+    <tr><td>VL53L5CX ToF breakout</td><td>1</td><td>8 × 8 zones, about 63° field of view; in the chin for the obstacle and table-edge stops</td><td>~$20–25</td></tr>
+    <tr><td>INA226 power monitor breakout</td><td>1</td><td>On the servo rail: pack voltage and servo current, which stands in for servo load feedback (S4, S5)</td><td>~$5</td></tr>
+    <tr><td>6 V, 5 A regulator (UBEC or buck)</td><td>1</td><td>Servo rail; must accept the pack's full range</td><td>~$8–10</td></tr>
+    <tr><td>5 V buck, 2 A</td><td>1</td><td>The board</td><td>~$4–6</td></tr>
+    <tr><td>2S LiPo, 450–500 mAh</td><td>2</td><td>One in the robot, one charging; about 30 g</td><td>~$15–20</td></tr>
+    <tr><td>2S balance charger</td><td>1</td><td>Skip if one is owned</td><td>~$15–25</td></tr>
+    <tr><td>Bulk capacitor, ≥ 470 µF, on the servo rail</td><td>1</td><td>Low ESR</td><td>~$2</td></tr>
+    <tr><td>Switch, XT30, inline fuse, servo extension leads, wire</td><td>–</td><td></td><td>~$8–12</td></tr>
+    <tr><td>M2 screw assortment</td><td>1</td><td></td><td>~$6–8</td></tr>
+    <tr><td>PETG and TPU filament</td><td>–</td><td>Shell, bezel, legs, tail; TPU feet</td><td>~$5–10</td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Everything, including the kit and a charger. About $115–160 if the kit and a charger are already owned</td><td><strong>~$150–195</strong></td></tr>
   </tbody>
 </table></div>
+<p><strong>Optional:</strong> potentiometer read-back on the leg servos (§6.3) adds only wire and an ADC (about $5) if the simulation shows it is worth having. Ready-made feedback servos cost about $12 each and are not planned.</p>
 
-<h3 id="pins"><span class="n">6.2</span>Boards and pins</h3>
-<p><strong>Face board (FNK0104N).</strong> From DeskSprite's bring-up (<code>desk-sprite/docs/HARDWARE.md</code>): the display, touch, audio and PSRAM use almost every pin. The free ones are the UART header's TX and RX (GPIO43, 44) and the 4-pin header's GPIO45 and 46, both strapping pins.</p>
-<div class="tbl"><table>
-  <thead><tr><th>Function</th><th>GPIO</th><th>Header</th><th>Notes</th></tr></thead>
-  <tbody>
-    <tr><td>Link to the body board, TX and RX</td><td>43, 44</td><td>UART</td><td>The header's 5 V pin is not used; both boards are fed by the buck. DeskSprite's wired talk switch moves off RXD</td></tr>
-    <tr><td>Talk switch</td><td>45 or 46</td><td>4-pin</td><td>A switch to GND only pulls the strapping pin to its default low level, so boot is unaffected. BOOT (GPIO0) and touch also start a turn</td></tr>
-    <tr><td>On board</td><td>–</td><td>–</td><td>Display, touch (0x55), ES8311 codec (0x18), SD, PSRAM, BOOT. Do not repurpose. An unidentified device answers at 0x28 on the shared I2C, so nothing is added to that bus</td></tr>
-  </tbody>
-</table></div>
-<p><strong>Body board (XIAO ESP32S3).</strong> Eleven usable pins, nine assigned; the two spare ones cover a buzzer, a status LED or a later sensor. Pin numbers are assigned in H1.</p>
+<h3 id="pins"><span class="n">6.2</span>Board and pins</h3>
+<p>The Waveshare board's header pinout is checked against this list in H1, before anything is soldered.</p>
 <div class="tbl"><table class="plain">
   <thead><tr><th>Function</th><th>Pins</th></tr></thead>
   <tbody>
-    <tr><td>Servo bus TX, RX, direction (UART1, <code>UART_MODE_RS485_HALF_DUPLEX</code> drives the 74HC126 enable)</td><td>3</td></tr>
-    <tr><td>Link to the face board, TX and RX (UART2)</td><td>2</td></tr>
-    <tr><td>I2C for the IMU, INA226 and ToF sensor</td><td>2</td></tr>
-    <tr><td>IMU data-ready interrupt</td><td>1</td></tr>
-    <tr><td>Tail servo PWM (LEDC, 50 Hz)</td><td>1</td></tr>
+    <tr><td>I2C for the PCA9685, IMU, VL53L5CX and INA226 (addresses about 0x40, 0x6A, 0x29 and 0x45: no clashes)</td><td>2</td></tr>
+    <tr><td>PCA9685 output enable (OE), pulled high on the board</td><td>1</td></tr>
+    <tr><td>IMU data-ready interrupt; VL53L5CX interrupt</td><td>2</td></tr>
+    <tr><td>Screen: SPI clock, data, chip select, data/command, reset, backlight</td><td>6</td></tr>
+    <tr><td>Push button on the back: talk and E-stop (§9.5)</td><td>1</td></tr>
+    <tr><td>On board, not repurposed: MIPI CSI camera, audio codec, ESP32-C6 link, flash, PSRAM, USB</td><td>–</td></tr>
   </tbody>
 </table></div>
-<p><strong>Vision board (ESP32-P4).</strong> Development starts on the Waveshare ESP32-P4-WIFI6 from the kit; the robot gets it or the smaller DFRobot FireBeetle 2 ESP32-P4, decided after V0 by whether the Waveshare board fits behind the bezel. Either way, the camera plugs into the MIPI CSI connector; the board needs only 5 V on VIN and ground and talks over Wi-Fi. Its spare GPIO (24 on the FireBeetle, 27 on the Waveshare) are free for later (a second camera, or a UART to the face board if UDP ever proves too slow). The Seeed XIAO ESP32S3 Sense (21 × 17.5 mm, camera on board) is the fallback if the P4 board disappoints; Espressif quotes over 7 fps for person detection on an ESP32-S3, with little left for streaming.</p>
+<p>Twelve pins. If the potentiometer read-back is fitted, the eight angles come from an I2C ADC (two 4-channel ADS1115-class boards) or the P4's own ADC pins, decided in H1.</p>
 
-<h3 id="bus"><span class="n">6.3</span>Servo bus interface</h3>
-<figure class="diagram wide">
-<svg viewBox="0 0 760 300" role="img" aria-label="Wiring: The body board's TX feeds one 74HC126 gate enabled by the direction pin; the gate output is the servo data line, which also connects straight to RX and has a 10 kilohm pull-up to 3.3 volts">
-  <rect x="20" y="40" width="150" height="220" rx="10" class="d-strong"/>
-  <text x="95" y="68" text-anchor="middle" class="d-t">Body board</text>
-  <text x="36" y="115" class="d-s">TX</text>
-  <text x="36" y="155" class="d-s">DIR</text>
-  <text x="36" y="195" class="d-s">RX</text>
-  <text x="36" y="235" class="d-s">GND</text>
-  <circle cx="170" cy="110" r="3.5" class="d-dot"/>
-  <circle cx="170" cy="150" r="3.5" class="d-dot"/>
-  <circle cx="170" cy="190" r="3.5" class="d-dot"/>
-  <circle cx="170" cy="230" r="3.5" class="d-dot"/>
-
-  <text x="320" y="62" text-anchor="middle" class="d-t">74HC126, one gate</text>
-  <text x="320" y="80" text-anchor="middle" class="d-s">VCC 3.3 V, 0.1 µF to GND</text>
-  <path d="M300 90 L300 130 L340 110 Z" class="d-box" style="stroke:var(--ink);stroke-width:1.75"/>
-  <path d="M170 110 H300" class="d-wire"/>
-  <path d="M170 150 H320 V120" class="d-wire"/>
-  <text x="328" y="142" class="d-s">EN</text>
-  <path d="M340 110 H540" class="d-wire"/>
-  <circle cx="460" cy="110" r="4" class="d-dot"/>
-  <path d="M460 110 V190 H170" class="d-wire"/>
-  <path d="M460 110 V84" class="d-wire"/>
-  <rect x="452" y="50" width="16" height="34" rx="3" class="d-box" style="stroke:var(--ink);stroke-width:1.5"/>
-  <path d="M460 50 V36" class="d-wire"/>
-  <text x="460" y="28" text-anchor="middle" class="d-s">3.3 V</text>
-  <text x="476" y="60" class="d-s">10 kΩ pull-up</text>
-
-  <rect x="540" y="70" width="200" height="150" rx="10" class="d-hw"/>
-  <text x="640" y="94" text-anchor="middle" class="d-t">XL330 bus, 3-pin</text>
-  <text x="556" y="114" class="d-s">DATA</text>
-  <text x="556" y="154" class="d-s">GND</text>
-  <text x="556" y="194" class="d-s">VDD, pack voltage</text>
-  <text x="640" y="212" text-anchor="middle" class="d-s">to 8 servos, daisy chained</text>
-  <path d="M540 150 H500 V230 H170" class="d-wire"/>
-  <path d="M540 190 H520 V276" class="d-power"/>
-  <text x="520" y="292" text-anchor="middle" class="d-s">Pack voltage straight from the battery, never to the buffer</text>
-</svg>
-<figcaption>Transmit goes through one tri-state gate; receive is wired straight to the data line.</figcaption>
-</figure>
+<h3 id="servos"><span class="n">6.3</span>Servo drive</h3>
 <ul>
-  <li>The gate drives the bus only while DIR is high, then releases the line so servos can reply.</li>
-  <li>RX also hears the board's own transmissions. The <code>dxl</code> driver discards that echo, or the UART's RS-485 mode ignores RX during TX.</li>
-  <li>3.3 V logic matches the XL330's TTL level. Unused gates: inputs and enables tied to GND.</li>
-  <li>Built on perfboard with DIP parts and a socket. No surface-mount soldering anywhere in the build.</li>
-  <li>Eight servos on one chain, the legs. The tail's micro servo is not on the bus: it takes a PWM pin and 5 V from the buck, so its stalls and current spikes stay off the servo rail and the 3.3 V logic.</li>
+  <li><strong>PCA9685 at 50 Hz</strong>, one frame per control cycle, written in one I2C burst at 400 kHz or 1 MHz (well under 1 ms). Its 12-bit counter gives about 4.9 µs steps, about 0.45° on an MG90S.</li>
+  <li><strong>Channels:</strong> 0–7 the leg servos in joint order (FL hip, FL knee, FR hip, FR knee, RL hip, RL knee, RR hip, RR knee), 8 the tail. The pulse width for each joint's zero and its direction are calibrated per servo in H0 and stored on the board.</li>
+  <li><strong>Limp on reset:</strong> OE is pulled high, so from power-on and after any reset the outputs are off and the servos go limp until core 1 enables them (S9). Some digital servos hold their last position without pulses; the MG90S is checked for this in H0.</li>
+  <li><strong>Potentiometer read-back (optional):</strong> a wire soldered to each servo's potentiometer wiper gives its true angle, through a divider if needed. It needs the servo opened; it is fitted only if the simulation's "pot" policy clearly beats the "blind" one (§7.2) or the measured servos turn out to need it.</li>
 </ul>
 
 <h3 id="power"><span class="n">6.4</span>Power</h3>
 <ul>
-  <li><strong>Servo rail:</strong> the 2S pack directly, from about 6.6 V near empty to 8.4 V full, with no regulator. This is what Microduck does and what the training model assumes (6.5–8.2 V with load-dependent sag). It is above ROBOTIS's rated 3.7–6.0 V, an accepted risk (§12).</li>
-  <li><strong>Servo settings for the higher voltage:</strong> the XL330's Max Voltage Limit tops out at 7.0 V, so a fresh pack sets the Input Voltage Error bit and the Alert flag. As on Microduck, Shutdown is set to 52 (not 53) so torque is not cut, and the <code>dxl</code> driver ignores that bit and the Alert flag in its health checks (S4).</li>
-  <li><strong>Peak current:</strong> the Current Limit register caps each servo at 1.75 A, so the theoretical worst case with all eight stalled is about 14 A. Walking draws far less; measure it in H1, then size the fuse and the BMS's peak rating from the measurement. At least 1000 µF of bulk capacitance at the servo bus entry.</li>
-  <li><strong>Logic rail:</strong> one 5 V buck, 3 A, from the pack into all three boards, grounds joined at one star point. It must accept the pack's full range and ride through the sag that servo current causes. Budget: face board with Wi-Fi and audio up to about 1 A peaks, vision board streaming and detecting about 0.3–0.5 A average with Wi-Fi peaks up to about 1.3 A, body board about 0.2 A. Peaks of the face and vision boards together stay under the buck's 3 A.</li>
-  <li><strong>Monitoring:</strong> the INA226 on the pack gives voltage and current to the body board; the servos' Present Input Voltage register is a second gauge, averaged over about 10 s, with about 6.6 V as the empty floor (S5).</li>
-  <li><strong>Charging:</strong> the charger and BMS hold the pack at or below 8.4 V. A charging dock is v2 (§11); its contacts and mass are reserved now.</li>
+  <li><strong>Servo rail:</strong> 6 V from a 5 A regulator off the 2S pack. Eight servos near stall could draw several amps; measure walking current in H1 and size the fuse from it. At least 470 µF of bulk capacitance at the PCA9685's V+.</li>
+  <li><strong>Logic rail:</strong> a 5 V, 2 A buck into the board. The P4 streaming video with Wi-Fi peaks at about 1.3 A.</li>
+  <li><strong>Monitoring:</strong> the INA226 measures the pack voltage and the servo rail's current (S4, S5).</li>
+  <li><strong>Runtime:</strong> a 450 mAh pack at an assumed 1–2 A average while walking gives roughly 15–25 minutes of walking, longer idling. Measure it in H5; a bigger pack fits if the mass budget allows (§13).</li>
+  <li><strong>Charging:</strong> off the robot with a balance charger. A charging dock is v2.</li>
 </ul>
 
 <h3 id="mechanical"><span class="n">6.5</span>Mechanical</h3>
-<p>The simulation model (<code>build_quad_model.py</code>, §7.1) is the current design. OpenSCAD in <code>hardware/</code> takes its numbers from it in H3; until then, the model is the source of truth for dimensions.</p>
+<p>The simulation model (<code>build_quad_model.py</code> with <code>QUAD_SERVO=mg90s QUAD_DESIGN=micro</code>, §7.1) is the current design. OpenSCAD in <code>hardware/</code> takes its numbers from it in H3.</p>
 <ul>
-  <li><strong>Body:</strong> a rounded box 170 mm long and 68 mm wide, edges rounded 7 mm and the ends 10 mm, the top sloping 16 mm down toward the tail. The four hip servos sit inside with their shafts out through the side walls, hips 120 mm apart front to rear. The battery lies in the belly between them and the electronics on a layer above, which slides fore and aft to set the balance (§7.2). White in the renders.</li>
-  <li><strong>Face and bezel:</strong> the FNK0104N in landscape at the front, leaning back 10°, in a yellow bezel with soft (TPU) bumper lips that stand proud of the glass, so forward falls and belly-down landings meet the lips, not the screen. The bezel has a 14 mm chin below the screen and room above it for the camera.</li>
-  <li><strong>Camera on the forehead:</strong> the camera module (about 25 × 24 mm, on its ribbon) centred in the bezel's top edge, with the vision board behind the bezel in the front of the body; about 170 mm above the floor standing, tilted 25–30° up from the face, with a lens of about 120° diagonal. That keeps a standing adult's face in view from about 0.5 m out, and the floor from about 0.45–0.6 m ahead. The chin position of the first model (about 105 mm up, looking 10° up) saw only legs and floor closer than about 2.7 m. A camera just above the screen also lines the on-screen eyes up with where the robot is looking.</li>
-  <li><strong>ToF sensor in the chin:</strong> facing forward and slightly down, for obstacles and drops ahead. Its cable runs back to the body board.</li>
-  <li><strong>Ears:</strong> two rounded lobes on the bezel's top corners. They double as bumpers and keep the forehead camera off the floor in a forward fall.</li>
-  <li><strong>Legs:</strong> thigh 55 mm and shank 55 mm, hip pitch axis to knee axis and knee axis to foot. Aluminium flat bar, 1/2" × 1/8", with printed PETG cradles for the servos; the knee servo rides at the knee on the thigh. TPU ball feet, 16 mm across. Standing height is 100 mm from the hip axis to the foot centre. Not stainless mending plates, which weigh about 100 g each.</li>
-  <li><strong>Tail:</strong> a paddle tail from the reference photo: a slim J-shaped stalk leaning back out of a ribbed boot, ending in a teardrop bulb, matte charcoal. It is driven by an SG90-class 9 g micro servo in the rear of the body, on PWM from the body board. Expression only: as a counterweight it moves the centre of mass by about 1.6 mm. Down by the floor it slows forward walking 5 to 10%, so the face layer keeps it up or wagging while walking.</li>
-  <li><strong>IMU:</strong> rigidly mounted to the body frame near the hip midpoint. Its exact pose goes into the model.</li>
-  <li><strong>Cabling:</strong> the servo chain runs along each side with strain relief across the hip; the knee servo's cable runs along the thigh. A dock contact pair under the chest is reserved for v2.</li>
+  <li><strong>Body:</strong> a rounded box 160 mm long and 70 mm wide, the top sloping toward the tail. Hip servos inside, shafts out through the side walls, hips 110 mm apart front to rear. The battery lies in the belly; the board sits on a layer above, slid fore and aft to set the balance.</li>
+  <li><strong>Face:</strong> the 1.69" module (about 33 × 40 mm) in portrait at the front, leaning back 10°, in a yellow bezel with soft lips proud of the glass.</li>
+  <li><strong>Camera on the forehead:</strong> on a strip of the bezel above the screen, tilted about 25° up, so it sees people's faces rather than their feet; a wide lens if the kit's camera is too narrow (§13). The camera ribbon runs back to the board.</li>
+  <li><strong>VL53L5CX in the chin:</strong> looking ahead and slightly down, so its upper zones see obstacles and its lower zones see the floor ahead (S11, S12). A plain opening or ST's recommended cover glass, to avoid reflections.</li>
+  <li><strong>Legs:</strong> thigh 45 mm and shank 45 mm, axis to axis and knee to foot; standing height 75 mm from the hip axis to the foot centre (82 mm trunk height). Printed PETG links (aluminium bar at 3/8" × 3/32" if printed links flex), TPU ball feet 14 mm across. The knee servo rides on the thigh.</li>
+  <li><strong>Tail:</strong> the paddle tail of the earlier design, scaled down, on an SG90 at the rear of the body. Expression only.</li>
+  <li><strong>IMU:</strong> rigidly mounted near the hip midpoint; its pose goes into the model.</li>
 </ul>
-
-<p><strong>Mass budget.</strong> Estimates until each part is weighed (H4). The walking policy trains with the trunk's mass randomized from 0.95 to 1.15 times nominal, and the belly stand-up passes with 60 g extra, so v2 hardware up to about 60 g needs no retraining.</p>
+<p><strong>Mass budget.</strong> Estimates until each part is weighed (H4). Training randomizes the trunk's mass from 0.95 to 1.15 times nominal.</p>
 <div class="tbl"><table class="plain">
   <thead><tr><th>Part</th><th>Estimate</th></tr></thead>
   <tbody>
-    <tr><td>8× XL330 (legs) and the tail's micro servo</td><td>153 g</td></tr>
-    <tr><td>Shell and frame</td><td>90 g</td></tr>
-    <tr><td>Face board</td><td>60 g (weigh it)</td></tr>
-    <tr><td>Bezel with lips and ears</td><td>20 g</td></tr>
-    <tr><td>2S battery</td><td>85 g</td></tr>
-    <tr><td>Electronics: body board, buck, INA226, IMU, bus interface, cables</td><td>60 g</td></tr>
-    <tr><td>Vision board, camera and ToF sensor with mounts</td><td>about 20 g (11 g in the model)</td></tr>
-    <tr><td>Legs: plates, cradles, feet; tail piece</td><td>the rest of the modelled 579 g</td></tr>
-    <tr class="total"><td><strong>Target total for v1</strong></td><td><strong>≤ 600 g</strong>, with about 60 g reserved for v2</td></tr>
+    <tr><td>8× MG90S</td><td>107 g</td></tr>
+    <tr><td>Shell and frame</td><td>45 g</td></tr>
+    <tr><td>Board, PCA9685, IMU, INA226, regulators, wiring</td><td>45 g</td></tr>
+    <tr><td>2S battery</td><td>30 g</td></tr>
+    <tr><td>Screen 8 g, bezel 6 g, camera and chin sensor 6 g</td><td>20 g</td></tr>
+    <tr><td>Tail servo and tail</td><td>19 g</td></tr>
+    <tr><td>Legs: links, horns, feet</td><td>the rest of the modelled 318 g</td></tr>
+    <tr class="total"><td><strong>Target total for v1</strong></td><td><strong>≤ 350 g</strong></td></tr>
   </tbody>
 </table></div>
-<p>The final model (<code>QUAD_DESIGN=prd</code>, §7.1) has the camera on the forehead and the ToF sensor in the chin, and is 596 g; its tail servo is an 18 g XL330, so with v0.28's 9 g micro servo the robot is about 587 g, and the v0.25 vision board in the front of the body is not modelled yet (it falls inside the training's mass and centre-of-mass randomization if it weighs under about 60 g). A 95 g lighter budget was tested and is not needed: it cut servo load by only 5 to 7%.</p>
+<p>Weight matters more than it did with the XL330: the MG90S's torque margin is what decides whether it walks, and an earlier 414 g hobby-servo body (with the old face board) sat at the servos' stall torque (§7.2). Every gram over budget comes off that margin.</p>
 
 <!-- 7 -->
 <h2 id="sim"><span class="n">7</span>Simulation and training</h2>
-<p>The full study, with every run's numbers, is <a href="quadruped-study.html">quadruped-study.html</a>. This section keeps what the rest of the document depends on.</p>
+<p>Every run's numbers are in the study, <a href="quadruped-study.html">quadruped-study.html</a>. This section keeps what the rest of the document depends on.</p>
 
 <h3 id="model"><span class="n">7.1</span>Model and task</h3>
 <ol>
-  <li><strong>Fork.</strong> <code>pollen-robotics/microduck_rl</code> is forked; the dog lives on the branch <code>microcluck_quad</code> in the worktree <code>~/microcluck_quad</code>, not yet pushed. It becomes the <code>sim/</code> submodule.</li>
-  <li><strong>Model.</strong> <code>src/mjlab_microduck/robot/quad/build_quad_model.py</code> writes the robot, scene and get-up models from parameters: the 8-servo body and a 12-servo variant with hip abduction, tail and shell styles, ears, stance height (<code>QUAD_STAND_H</code>, 0.100 m), knee servo position and mass budget. Every process of a run (training, evaluation, video) must see the same environment variables. <code>QUAD_DESIGN=prd</code> builds the final design (forehead camera, chin ToF, ears; files <code>robot_quad8_prd*.xml</code>); the default rebuilds the study's models for runs 4 to 7.</li>
-  <li><strong>Backlash.</strong> <code>Mjlab-Velocity-Flat-MicroCluck-Quad8-Backlash</code> puts Pollen's ±1° passive hinge after every servo joint; the servo's position loop and the policy read the encoder through it, as on the real XL330. Run 8 is trained on it.</li>
-  <li><strong>Collision naming.</strong> Only geoms named <code>*_collision</code> collide in the GPU simulator; anything else is switched off. Every leg part, the shell, the bezel and the tail are named for collision.</li>
-  <li><strong>Actuator order.</strong> Actuators are declared in joint order. The BAM actuator applies each joint's torque by index, so a mismatch drives the wrong motor (it once made the tail look able to flip the robot). <code>quad_getup_search.py</code> asserts it.</li>
-  <li><strong>Task.</strong> <code>Mjlab-Velocity-Flat-MicroCluck-Quad8</code>, Pollen's velocity recipe with: no head or body command slots, a sideways command kept alive at ±0.001 m/s and never tracked, a bucket of pure backward commands, tighter tracking at slow speeds, forward commands capped at 0.5 m/s, a staged torque penalty and the full Pollen randomization plus trunk mass 0.95–1.15 and centre of mass ±15 mm.</li>
-  <li><strong>Observation contract v1 (33 values):</strong> gyro (3), projected gravity (3), joint positions (8), joint velocities (8), last action (8), twist command (3). Actions are 8 joint targets. The tail is not in the policy; the face layer drives it, and the body board limits it while walking.</li>
-  <li><strong>Actor network:</strong> 512-256-128 with ELU, about 182,000 parameters or 0.73 MB as float32. A 256-128-64 actor (about 50,000) is the ablation if inference on the body board is too slow (§9.3).</li>
+  <li><strong>Fork.</strong> <code>pollen-robotics/microduck_rl</code> is forked; the dog lives on the branch <code>microcluck_quad</code> in the worktree <code>~/microcluck_quad</code>, not pushed. It becomes the <code>sim/</code> submodule.</li>
+  <li><strong>Model.</strong> <code>src/mjlab_microduck/robot/quad/build_quad_model.py</code>. <code>QUAD_SERVO=mg90s</code> picks the servo and scales the body around it; <code>QUAD_DESIGN=micro</code> adds the 1.69" face, the one-board electronics and the small battery (files <code>robot_quad8_mg90s_micro*.xml</code>). Every process of a run (training, evaluation, video) must see the same environment variables. The first micro runs have the camera in the chin; it moves to the forehead in the next model (a few grams, not expected to change the results).</li>
+  <li><strong>Servo model.</strong> <code>HobbyServoActuator</code> (<code>src/mjlab_microduck/actuator/servo_models.py</code>, parameters in <code>robot/quad/params/mg90s_m1.json</code>): a DC-motor model from the datasheet (stall 0.216 N·m at 6 V, no-load about 13 rad/s), a ±0.5° deadband and a proportional position loop. It is an estimate, replaced by a fitted model after H0. Supply 5.6–6.0 V with sag, command delay 2–5 steps.</li>
+  <li><strong>Feedback.</strong> <code>QUAD_FEEDBACK=pot</code> gives the policy potentiometer-grade joint angles (±0.02 rad noise, ±0.05 rad bias per joint, no joint velocities); <code>blind</code> gives it no joint feedback at all.</li>
+  <li><strong>Collision naming and actuator order</strong> as before: only <code>*_collision</code> geoms collide in the GPU simulator, and actuators are declared in joint order.</li>
+  <li><strong>Task.</strong> <code>Mjlab-Velocity-Flat-MicroCluck-Quad8</code>, Pollen's velocity recipe adapted for the dog: no sideways tracking, a bucket of backward commands, tighter tracking at slow speeds, a staged torque penalty, Pollen's randomization plus trunk mass 0.95–1.15 and centre of mass ±15 mm.</li>
+  <li><strong>Observation contract v2:</strong> gyro (3), projected gravity (3), joint positions (8, pot only), last action (8), twist command (3): 25 values with pot read-back, 17 blind. Actions are 8 joint targets. The tail is not in the policy.</li>
 </ol>
 
-<h3 id="validation"><span class="n">7.2</span>Design validation (S3)</h3>
-<p>The pass line for servo load is relative to Pollen's stock duck measured with the same tool, because the datasheet's ~0.10 N·m continuous rating cannot be one: the stock duck runs at 0.145 N·m on hip pitch and 0.16–0.17 on the knee (99th percentile 0.53 and 0.46–0.49), about 1.7 falls per robot-minute, under the play configuration's frequent pushes.</p>
+<h3 id="validation"><span class="n">7.2</span>Design validation</h3>
+<p>Two policies are being trained on the micro model (10 November 2026): with potentiometer read-back and blind, each 1,500 iterations. This table is filled in when they finish.</p>
 <div class="tbl"><table>
-  <thead><tr><th>Check</th><th>Pass condition</th><th>Result (run 8 on the final model with gear play, unless marked)</th></tr></thead>
+  <thead><tr><th>Check</th><th>Pass condition</th><th>Result</th></tr></thead>
   <tbody>
-    <tr><td>Walking</td><td>0.1–0.3 m/s forward within 25%, backward, turning, no falls without pushes</td><td><strong>Pass.</strong> 0.107 / 0.193 / 0.259 m/s at 0.1 / 0.2 / 0.3; −0.176 at −0.2; 0.699 rad/s at 1.0; 0 falls. Without the gear play 0.244 m/s at 0.3 and 0.677 rad/s. Top speed about 0.28 m/s whatever the training</td></tr>
-    <tr><td>Thermal margin</td><td>RMS torque per joint no more than 10% above the stock duck's, same test</td><td><strong>Pass.</strong> Under the play pushes the worst joint is 0.123 N·m with the gear play and 0.120 without, 15% under the duck's hip pitch; runs 4 to 7 put the hips at 0.106–0.128 and the knees at 0.093–0.120, 12–45% below the duck</td></tr>
-    <tr><td>Peak torque</td><td>99th percentile no higher than the stock duck's</td><td><strong>Pass</strong> (runs 4 to 7). At most 0.36 N·m against 0.53. Every joint touches the 0.64 ceiling at some instant, as the duck's do</td></tr>
-    <tr><td>Pushes</td><td>No more falls than the stock duck under the play pushes</td><td><strong>Pass.</strong> 0 falls in 64 robots over 30 s, with and without the gear play</td></tr>
-    <tr><td>Belly stand-up</td><td>≥ 60 of 64 under each stress: nominal, +60 g with a 6.4 V sagging battery, friction 0.3–0.5, a 6-step servo delay, all of them with the centre of mass ±10 mm</td><td><strong>Pass</strong> (final model). 64 of 64 everywhere with the legs along the sides, the pose the lie-down ends in. With the legs folded under, 63–64 of 64 under each stress alone and 53 of 64 under every stress at once (63 on the lighter study model); the robot never lies that way on its own</td></tr>
-    <tr><td>Payload</td><td>Walks and stands up with 60 g extra</td><td><strong>Pass</strong> for the stand-up; walking trains with up to +15% trunk mass (about +85 g)</td></tr>
-    <tr><td>Mass budget</td><td>≤ 600 g modelled</td><td><strong>Pass.</strong> 596 g (about 587 g with v0.28's micro-servo tail)</td></tr>
-    <tr><td>Forehead camera in the model</td><td>The checks above still pass</td><td><strong>Pass.</strong> Camera 7 g on a 14 mm forehead band, lens 172 mm off the floor, tilted 27° up; ToF 4 g in the chin at 105 mm; ears on. Run 7's policy unchanged on it walks 0.230 m/s at 0.3 but turns at only 0.627 rad/s, so the final model gets its own policy (run 8, rows above). The model's tail servo is v0.24's 18 g XL330 (v0.28 uses a 9 g micro servo, so the results are slightly conservative); v0.25's vision board is not modelled</td></tr>
-    <tr><td>Shell clearance</td><td>No leg part enters the shell or the bezel over the recorded gait and a joint-range sweep</td><td><strong>Pass.</strong> Over 96,000 recorded poses of run 8's gait (and of run 7's, alike): knee servos 6 mm from the shell at the closest (rear 8 mm), shanks and feet 32 mm or more; front thighs 19 mm and feet 35 mm from the bezel; front and rear legs 5.3 mm apart at the closest, never touching; no overlaps. MuJoCo never collides a thigh with the body it hangs from, so this is the only check on thigh against bezel. The joint-range sweep reaches the bezel only with a leg swung fully forward and the knee fully folded (hip −57°, knee −149°, up to 2.7 mm), a pose no motion uses</td></tr>
-    <tr><td>Backlash</td><td>A backlash-trained policy (±1° gear play) passes the walking checks</td><td><strong>Pass.</strong> Run 8: 750 iterations on the gear-play model, warm-started from run 7 (results in the rows above)</td></tr>
-    <tr><td>Scripted lie-down</td><td>From standing, ends in the stand-up's start pose (legs folded back along the sides) without tipping, and the stand-up works from there</td><td><strong>Pass.</strong> Three scripts (straight to the pose in 1.0 or 2.0 s, or a crouch with the feet under the hips then the legs back): 64 of 64 lying and 64 of 64 back up each, nominal, under every stress at once and with the gear play; tilt at most 3°, torque at most 0.09 N·m. It ends resting on the folded legs, the trunk origin about 51 mm up and the belly about 35 mm off the floor. The 2 s straight script is the default (lowest torque). Going limp after it (torque off) is not simulated</td></tr>
+    <tr><td>Standing</td><td>Holds the home pose from noisy starts</td><td><strong>Pass.</strong> 81 mm trunk height, tilt under 1.3°, 0 falls; holding torque about 0.02 N·m at the knees, 10% of stall</td></tr>
+    <tr><td>Walking</td><td>At least 0.15 m/s forward at a 0.2–0.3 m/s command, backward and turning, no falls without pushes</td><td>Training</td></tr>
+    <tr><td>Servo load</td><td>RMS torque on every joint at most half the 0.216 N·m stall; the 99th percentile below stall</td><td>Training</td></tr>
+    <tr><td>Pushes</td><td>No falls under the play configuration's pushes</td><td>Training</td></tr>
+    <tr><td>Belly stand-up</td><td>≥ 60 of 64 under each stress: nominal, +60 g with a 5.4 V sagging supply, friction 0.3–0.5, a 6-step servo delay, all of them with the centre of mass ±10 mm</td><td>Training</td></tr>
+    <tr><td>Mass budget</td><td>≤ 350 g modelled</td><td><strong>Pass.</strong> 318 g</td></tr>
+    <tr><td>Pot or blind</td><td>Whether the potentiometer read-back is worth fitting</td><td>Training</td></tr>
   </tbody>
 </table></div>
-<p><strong>Rejected options.</strong> Moving the knee servo up to the hip with a pushrod saved no load (0.004–0.007 N·m more) and dropped the folded-legs stand-up to 29 of 64 under all stresses. A 95 g lighter trunk cut load 5–7% with the policy unchanged and nothing after retraining: the load comes from the gait's dynamics, not the weight it carries (standing still, the knee holds about 0.03 N·m).</p>
-<p><strong>Servo heat on the real robot</strong> is settled for the simulation stage. It is checked on the first real walks through the servos' temperature readings (S4), with vent slots near the enclosed hip servos if they run hot. No bench test comes first.</p>
+<p><strong>Background.</strong> On 9 November an MG90S dog built around the old design (414 g, with the 60 g FNK0104N face board) stood and got up from its belly every time but barely walked (at most 0.06 m/s), with every joint at its stall torque. The micro design takes about 100 g out of the body to give the servos that margin back. A Feetech STS3215 dog was also tried and rejected (study §8).</p>
+<p><strong>If the policy falls short</strong> of the walking bar, the fallback is a scripted gait: a hand-tuned walk cycle played as joint targets, with the IMU used only for balance corrections and the falls check. Hobby-servo robot dogs commonly walk this way.</p>
 
 <h3 id="export"><span class="n">7.3</span>Policy export pipeline</h3>
-<p>Lives in <code>tools/policy_export/</code>.</p>
-<ol>
-  <li>Input is the ONNX file from the fork's export script, with the normalizer baked in. Never convert a checkpoint by hand.</li>
-  <li>Extract weights, biases, activations and the normalizer; fold the normalizer into the first layer: <code>W' = W / σ</code> and <code>b' = b − W·(μ/σ)</code>.</li>
-  <li>Emit <code>policy_&lt;name&gt;.h</code> with C arrays and metadata: input and output sizes, action scale, default pose and the contract hash.</li>
-  <li>Generate golden vectors: at least 1000 plausible observations and their ONNX outputs.</li>
-  <li><strong>Device test:</strong> C inference on the body board against the golden vectors, maximum absolute error ≤ 1e-4.</li>
-  <li><strong>Closed-loop test:</strong> the same C inference, built for the host, drives MuJoCo with the same gait as the ONNX policy.</li>
-</ol>
+<p>Lives in <code>tools/policy_export/</code>, unchanged from the earlier design: ONNX with the normalizer baked in, folded into the first layer, emitted as a C header with metadata and the contract hash, golden vectors checked on the board (maximum error ≤ 1e-4), and a closed-loop host test driving MuJoCo.</p>
 
 <h3 id="contract"><span class="n">7.4</span>Sim2real contract</h3>
-<p><code>docs/sim2real-contract.md</code> is the single, versioned, hashed source of truth for the body board and the simulation:</p>
-<ul>
-  <li>Observation order, units and scaling (the 33 values of §7.1)</li>
-  <li>Where joint velocity comes from: the servo's velocity register, read in the same fast sync read as position (Pollen's choice)</li>
-  <li>Action post-processing: action scale, default pose offset, clipping, and whether a low-pass is applied (Pollen's runtime filters, their training does not; settle it before H5)</li>
-  <li>Servo control mode and firmware P gain (Pollen: position P 200, I and D zero), since the simulation emulates the servo's own loop</li>
-  <li>Command ranges the face board's commands are clamped to: forward −0.3 to +0.3 m/s, turning ±1.0 rad/s, sideways zero</li>
-  <li>Loop rate (50 Hz) and expected command delay</li>
-</ul>
-<p>The body board refuses to enable torque if the policy's contract hash does not match its build (S7).</p>
+<p><code>docs/sim2real-contract.md</code> is the single, versioned, hashed source of truth for the firmware and the simulation: observation order, units and scaling (§7.1); where joint angles come from (pot read-back or none); action post-processing and how a joint target becomes a pulse width (per-servo zero, direction and scale from H0); command ranges; loop rate and expected delay. The firmware refuses to enable the servos if the policy's contract hash does not match its build (S7).</p>
 
 <h3 id="getup"><span class="n">7.5</span>Getting up</h3>
 <ul>
-  <li><strong>From the belly:</strong> a scripted push-up, 0.5–1.2 s, from lying belly-down with the legs along the sides. It passes every stress tested (§7.2) and needs about 0.1 N·m per servo, so strength is not a concern. It is v1's normal way to stand: the robot rests lying down.</li>
-  <li><strong>From the back or a side:</strong> not possible with two servos per leg. The legs swing only fore and aft and no motion found got the body past lying on its side, with a box or a rounded shell, and the tail cannot flip it. It should only happen if the robot is kicked; it detects it (S3), goes limp, shows a help face and asks for help. A third servo per leg is the likely fix if it ever matters; the 12-servo model exists and is untrained.</li>
+  <li><strong>From the belly:</strong> a scripted push-up from lying belly-down with the legs along the sides, as in the earlier design. It is the normal way to stand; the robot rests lying down.</li>
+  <li><strong>From the back or a side:</strong> not possible with two servos per leg. The robot detects it (S3), goes limp, shows a help face and asks for help.</li>
 </ul>
 
 <!-- 8 -->
 <h2 id="twin"><span class="n">8</span>Virtual MicroPup</h2>
-<p>The virtual MicroPup runs the real body firmware's core against the simulator on the PC. A link emulator stands in for the face board, so the phone page, the face board's behaviour layer or a test script can drive it exactly as they would the robot. It is the regression harness for every safety requirement.</p>
+<p>The virtual MicroPup runs the real firmware's control core against the simulator on the PC, so the phone page or a test script drives the simulated dog exactly as it would the robot. It is the regression harness for every safety requirement.</p>
 <figure class="diagram wide">
-<svg viewBox="0 0 760 400" role="img" aria-label="Virtual MicroPup: the phone, through a bridge, talks to a link emulator on the host; the body firmware core runs as a shared library over a host hardware layer backed by MuJoCo and the BAM actuator model, and DeskSprite's web face shows the face. On the robot the same core runs over the body board's hardware layer.">
+<svg viewBox="0 0 760 400" role="img" aria-label="Virtual MicroPup: the phone, through a bridge, sends commands to a command emulator on the host; the firmware's control core runs as a shared library over a host hardware layer backed by MuJoCo and the MG90S servo model. On the robot the same core runs over the ESP32-P4's hardware layer.">
   <rect x="20" y="62" width="130" height="56" rx="12" class="d-box"/>
   <text x="85" y="86" text-anchor="middle" class="d-t">Phone browser</text>
   <text x="85" y="104" text-anchor="middle" class="d-s">same controller page</text>
@@ -758,24 +662,24 @@ svg text { font-family: var(--font-body); }
   <text x="470" y="44" text-anchor="middle" class="d-t">Host twin on the PC</text>
 
   <rect x="216" y="62" width="140" height="56" rx="8" class="d-box"/>
-  <text x="286" y="86" text-anchor="middle" class="d-t">Link emulator</text>
-  <text x="286" y="104" text-anchor="middle" class="d-s">§9.4 frames</text>
+  <text x="286" y="86" text-anchor="middle" class="d-t">Command queue</text>
+  <text x="286" y="104" text-anchor="middle" class="d-s">as from core 0</text>
 
   <rect x="400" y="62" width="150" height="56" rx="8" class="d-hw" style="stroke:var(--ink);stroke-width:1.75"/>
-  <text x="475" y="86" text-anchor="middle" class="d-t">Firmware core</text>
+  <text x="475" y="86" text-anchor="middle" class="d-t">Control core</text>
   <text x="475" y="104" text-anchor="middle" class="d-s">control, safety, policy</text>
 
   <rect x="570" y="62" width="150" height="56" rx="8" class="d-sim"/>
-  <text x="645" y="86" text-anchor="middle" class="d-t">MuJoCo + BAM</text>
-  <text x="645" y="104" text-anchor="middle" class="d-s">XL330 actuator model</text>
+  <text x="645" y="86" text-anchor="middle" class="d-t">MuJoCo</text>
+  <text x="645" y="104" text-anchor="middle" class="d-s">MG90S servo model</text>
 
   <rect x="216" y="150" width="140" height="56" rx="8" class="d-box"/>
   <text x="286" y="174" text-anchor="middle" class="d-t">Browser face</text>
-  <text x="286" y="192" text-anchor="middle" class="d-s">DeskSprite web face</text>
+  <text x="286" y="192" text-anchor="middle" class="d-s">from telemetry</text>
 
   <rect x="400" y="150" width="150" height="56" rx="8" class="d-box"/>
   <text x="475" y="174" text-anchor="middle" class="d-t">hal_host</text>
-  <text x="475" y="192" text-anchor="middle" class="d-s">simulated bus, IMU, ToF</text>
+  <text x="475" y="192" text-anchor="middle" class="d-s">simulated PWM, IMU, ToF</text>
 
   <line x1="152" y1="90" x2="212" y2="90" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
   <line x1="360" y1="90" x2="396" y2="90" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
@@ -786,142 +690,81 @@ svg text { font-family: var(--font-body); }
   <rect x="200" y="272" width="540" height="110" rx="14" class="d-box d-dash"/>
   <text x="470" y="296" text-anchor="middle" class="d-t">On the robot: the same core, a different hardware layer</text>
   <rect x="230" y="312" width="150" height="50" rx="8" class="d-hw" style="stroke:var(--ink);stroke-width:1.75"/>
-  <text x="305" y="334" text-anchor="middle" class="d-t">Firmware core</text>
+  <text x="305" y="334" text-anchor="middle" class="d-t">Control core</text>
   <text x="305" y="352" text-anchor="middle" class="d-s">identical source</text>
   <rect x="410" y="312" width="130" height="50" rx="8" class="d-box"/>
-  <text x="475" y="342" text-anchor="middle" class="d-t">hal_esp32</text>
+  <text x="475" y="342" text-anchor="middle" class="d-t">hal_esp32p4</text>
   <rect x="570" y="312" width="150" height="50" rx="8" class="d-hw"/>
   <text x="645" y="334" text-anchor="middle" class="d-t">Real hardware</text>
-  <text x="645" y="352" text-anchor="middle" class="d-s">servos, IMU, ToF</text>
+  <text x="645" y="352" text-anchor="middle" class="d-s">PCA9685, IMU, ToF</text>
   <line x1="380" y1="337" x2="406" y2="337" class="d-wire" marker-end="url(#arr)"/>
   <line x1="540" y1="337" x2="566" y2="337" class="d-wire" marker-end="url(#arr)"/>
 </svg>
 <figcaption>Only the hardware layer changes between the twin and the robot.</figcaption>
 </figure>
-
-<h3 id="hal"><span class="n">8.1</span>Hardware abstraction layer</h3>
-<p>The body firmware's core (control loop, state machine, safety, policy inference, link protocol) is plain C with no ESP-IDF includes. It reaches the world only through this interface, with one implementation for the body board and one for the host.</p>
-<div class="tbl"><table>
-  <thead><tr><th>Interface</th><th>Calls</th></tr></thead>
-  <tbody>
-    <tr><td>Servo bus</td><td>sync read of positions and velocities, sync write of goal positions, torque enable, round-robin health read</td></tr>
-    <tr><td>IMU</td><td>latest gyro and gravity vector</td></tr>
-    <tr><td>Clock</td><td>monotonic microseconds, 50 Hz tick (sim time on the host)</td></tr>
-    <tr><td>Link</td><td>frames to and from the face board (§9.4)</td></tr>
-    <tr><td>Range</td><td>latest ToF zone distances</td></tr>
-    <tr><td>Power</td><td>pack voltage and current</td></tr>
-  </tbody>
-</table></div>
-
-<h3 id="host"><span class="n">8.2</span>Host twin and fidelity</h3>
-<ul>
-  <li>A Python harness runs MuJoCo with the MicroPup model and the same BAM actuator model as training, loads the body core as a shared library and steps it at 50 Hz of simulated time.</li>
-  <li>The link emulator speaks the §9.4 protocol over a local socket. A thin bridge serves the phone page from the PC, so the phone drives the simulated dog; DeskSprite's browser face can show the face from the same telemetry.</li>
-  <li>Servo positions are quantized like the 12-bit encoder; bus latency, command delay, IMU noise and bias, and ToF readings from ray casts are modelled. Battery voltage, link drops, pushes, obstacles and a stalled control task can be injected.</li>
-  <li>The twin writes the same log format as the robot, has a deterministic mode with fixed seeds, and runs headless for automated tests.</li>
-</ul>
+<p><strong>Hardware abstraction layer.</strong> The control core (control loop, state machine, safety, policy inference, command handling) is plain C with no ESP-IDF includes. It reaches the world through: servo outputs (pulse widths, enable and disable), joint angles (pot read-back, if fitted), IMU (gyro and gravity), clock (50 Hz tick, sim time on the host), range (the chin sensor's zones), power (pack voltage and servo current) and the command queue. The host twin runs MuJoCo with the same servo model as training, quantizes the pulse widths like the PCA9685, models command delay, IMU noise and ToF ray casts, and can inject low battery, pushes, obstacles, table edges and a stalled control task. It writes the robot's log format and runs headless for automated tests.</p>
 
 <!-- 9 -->
 <h2 id="firmware"><span class="n">9</span>Firmware</h2>
 
-<h3 id="stack"><span class="n">9.1</span>Three firmwares</h3>
-<div class="tbl"><table>
-  <thead><tr><th>Board</th><th>Stack</th><th>Source</th></tr></thead>
-  <tbody>
-    <tr><td>Body</td><td>ESP-IDF v5.x, C, FreeRTOS; ESP-DSP for the matrix maths. ESP-IDF for explicit core pinning, the RS-485 half-duplex UART mode, <code>esp_timer</code> precision and OTA partitions</td><td><code>firmware/body/</code>, core and HAL split (§8.1)</td></tr>
-    <tr><td>Face</td><td>DeskSprite's Arduino (ESP32 core 3.x) firmware, extended with the link, the controller page, the behaviour layer, robot expressions and the tail</td><td>DeskSprite's repository, with a MicroPup build (§13)</td></tr>
-    <tr><td>Vision</td><td>ESP-IDF (the P4's MIPI camera and AI functions need it; Arduino does not support them): Espressif's MIPI camera stack, the hardware JPEG encoder for the MJPEG server, <code>esp-dl</code>'s face and pedestrian detectors, Wi-Fi through <code>esp_hosted</code> on the ESP32-C6</td><td><code>firmware/vision/</code></td></tr>
-  </tbody>
-</table></div>
-<p>All three update over the air with A/B partitions and rollback. The body board joins Wi-Fi only in a maintenance mode (torque off) for OTA and log download.</p>
+<h3 id="stack"><span class="n">9.1</span>One firmware, rewritten</h3>
+<p>ESP-IDF v5.x in C, FreeRTOS, on the ESP32-P4 (the P4's camera, hardware JPEG and AI functions need ESP-IDF). LVGL for the face, Espressif's MIPI camera stack and hardware JPEG encoder for the stream, <code>esp-dl</code>'s face and pedestrian detectors, Wi-Fi through <code>esp_hosted</code> on the ESP32-C6. Updates over the air with A/B partitions and rollback.</p>
+<p>The face, voice and phone page are a <strong>rewrite</strong>, not a port: DeskSprite (Arduino, on the FNK0104N's 3.5" screen) is the reference for the face's look, expressions and behaviour and for the relay's protocol, but the code is new, sized for a 240 × 280 portrait screen and the P4's ESP-IDF stack. It lives in this repository (§14).</p>
 
-<h3 id="tasks"><span class="n">9.2</span>Body board tasks</h3>
+<h3 id="tasks"><span class="n">9.2</span>Tasks</h3>
 <div class="tbl"><table>
   <thead><tr><th>Task</th><th>Core</th><th>Priority</th><th>Rate</th><th>Responsibility</th></tr></thead>
   <tbody>
-    <tr><td><code>control_task</code></td><td>1</td><td>Highest</td><td>50 Hz</td><td>Snapshot the IMU, sync read servos, build the observation, run inference, post-process, sync write. Safety checks. One round-robin health read per cycle.</td></tr>
-    <tr><td><code>imu_task</code></td><td>1</td><td>High</td><td>500 Hz–1 kHz</td><td>Read the IMU on its data-ready interrupt, remove gyro bias, Mahony filter, publish gyro and gravity (double-buffered).</td></tr>
-    <tr><td><code>link_task</code></td><td>0</td><td>Medium</td><td>On frames</td><td>Receive commands from the face board, send status at 25 Hz.</td></tr>
-    <tr><td><code>range_task</code></td><td>0</td><td>Medium</td><td>15 Hz</td><td>Read the ToF zones, publish the nearest obstacle ahead.</td></tr>
-    <tr><td><code>log_task</code></td><td>0</td><td>Low</td><td>Buffered</td><td>Observations, actions and timing to a PSRAM ring, downloaded in maintenance mode.</td></tr>
+    <tr><td><code>control_task</code></td><td>1</td><td>Highest</td><td>50 Hz</td><td>Snapshot the IMU (and pot angles), build the observation, run inference, post-process, write the PCA9685. Safety checks.</td></tr>
+    <tr><td><code>imu_task</code></td><td>1</td><td>High</td><td>500 Hz–1 kHz</td><td>IMU on its data-ready interrupt, gyro bias removal, Mahony filter, tap detection.</td></tr>
+    <tr><td><code>range_task</code></td><td>1</td><td>Medium</td><td>15 Hz</td><td>Chin sensor zones: nearest obstacle ahead, floor present ahead.</td></tr>
+    <tr><td><code>face_task</code></td><td>0</td><td>Medium</td><td>≤ 30 fps</td><td>LVGL face on the SPI screen, eye stabilization and gaze.</td></tr>
+    <tr><td><code>net_tasks</code></td><td>0</td><td>Medium</td><td>On events</td><td>Phone page and WebSocket, relay client for voice, OTA, telemetry.</td></tr>
+    <tr><td><code>camera_task</code></td><td>0</td><td>Low</td><td>10–15 fps</td><td>MJPEG stream, face finder; v2 person detection.</td></tr>
+    <tr><td><code>log_task</code></td><td>0</td><td>Low</td><td>Buffered</td><td>Observations, actions and timing to a PSRAM ring.</td></tr>
   </tbody>
 </table></div>
-<p>Nothing in <code>control_task</code> blocks or allocates. A task watchdog covers <code>control_task</code> and <code>imu_task</code> (S9).</p>
+<p>Nothing in <code>control_task</code> blocks or allocates. Core 0 talks to core 1 only through a command queue and a status structure. A task watchdog covers <code>control_task</code> and <code>imu_task</code> (S9). The I2C bus is core 1's alone.</p>
 
 <h3 id="timing"><span class="n">9.3</span>Timing budget</h3>
 <div class="tbl"><table class="plain">
   <thead><tr><th>Step in each 20 ms cycle</th><th>Budget</th></tr></thead>
   <tbody>
-    <tr><td>Sync read of 8 servos, Return Delay Time 0</td><td>~1–2 ms</td></tr>
+    <tr><td>Pot angles, if fitted (ADC)</td><td>~1–2 ms</td></tr>
     <tr><td>Build the observation</td><td>&lt; 0.2 ms</td></tr>
-    <tr><td>Policy inference (182k parameters)</td><td><strong>≤ 5 ms target</strong></td></tr>
-    <tr><td>Sync write of 8 goal positions</td><td>&lt; 0.5 ms</td></tr>
+    <tr><td>Policy inference</td><td><strong>≤ 5 ms target</strong></td></tr>
+    <tr><td>PCA9685 write, 9 channels</td><td>&lt; 1 ms</td></tr>
     <tr><td>Slack</td><td>≥ 10 ms</td></tr>
   </tbody>
 </table></div>
-<p>Loop period p99 jitter stays ≤ 1 ms. On a body board with Wi-Fi off and no display or audio this should be easy; measure it in H1 anyway, with the link and the ToF sensor running. Weights go in PSRAM first; move them to internal SRAM, use the small actor or quantize to int8 only if inference exceeds 5 ms.</p>
+<p>Loop period p99 jitter stays ≤ 1 ms with the camera, Wi-Fi and face all running on core 0; measured in H1. This is the one board's main technical risk (§12).</p>
 
-<h3 id="link"><span class="n">9.4</span>Face–body link</h3>
-<p>A 3.3 V UART between the face board's UART header and the body board, plus ground, at 921,600 baud. Binary frames, COBS-framed with a CRC-16 and a sequence number; a bad frame is dropped and counted.</p>
-<div class="tbl"><table class="plain">
-  <thead><tr><th>Direction</th><th>Frame</th><th>Rate</th></tr></thead>
-  <tbody>
-    <tr><td>Face to body</td><td><code>cmd</code>: vx, wz, tail target or wag pattern</td><td>50 Hz while active</td></tr>
-    <tr><td>Face to body</td><td><code>act</code>: enable, stand, lie_down, estop, clear_estop, maintenance</td><td>On events</td></tr>
-    <tr><td>Body to face</td><td><code>status</code>: mode, gravity vector and gyro (for the eyes), battery, highest servo temperature, nearest obstacle, faults, loop p99 and overruns</td><td>25 Hz</td></tr>
-    <tr><td>Body to face</td><td><code>nak</code>: refused action and reason (not upright, low battery, fault, estop latched)</td><td>On events</td></tr>
-  </tbody>
-</table></div>
-<p>The body clamps every command to the contract's ranges (S6). It treats the link like a dead-man: no valid <code>cmd</code> for 300 ms sets velocity to zero, and no frame at all for 2 s lies the robot down (S2). The face board does the same for the phone (§9.5), so either break stops the robot.</p>
-
-<h3 id="phone"><span class="n">9.5</span>Phone controller and network</h3>
-<p><strong>Network.</strong> The face and vision boards join the home Wi-Fi, as DeskSprite does today (with its phone-based Wi-Fi setup), because voice needs the relay. The controller is at <code>micropup.local</code> (mDNS). With no known network the face board falls back to its own access point, <code>micropup-XXXX</code>, with phone control and video but no voice.</p>
+<h3 id="phone"><span class="n">9.4</span>Phone controller and network</h3>
+<p>The board joins the home Wi-Fi (voice needs the relay); the controller is at <code>micropup.local</code>. With no known network it falls back to its own access point, <code>micropup-XXXX</code>, with phone control and video but no voice.</p>
 <ul>
-  <li><code>/</code> is the controller, served by the face board: the camera view (the vision board's MJPEG stream) behind a joystick for forward and turning, action and expression buttons, a tail control and an E-stop. It reads the browser's Gamepad API, so a controller paired to the phone works.</li>
-  <li><code>/status</code>, <code>/settings</code> and <code>/ota</code> for telemetry, configuration and updates of all three boards.</li>
+  <li><code>/</code> is the controller: the camera view behind a joystick for forward and turning, action and expression buttons, a tail control, a talk button and an E-stop. It reads the browser's Gamepad API.</li>
+  <li><code>/status</code>, <code>/settings</code> and <code>/ota</code> for telemetry, configuration and updates.</li>
+  <li><strong>WebSocket on <code>/ws</code></strong>, compact JSON as in the earlier design: <code>cmd</code> (vx, wz) at 20–30 Hz, <code>act</code> (stand, lie_down, estop, face, tail) on events, <code>tel</code> at 10 Hz, <code>nak</code> with the reason for a refused action.</li>
+  <li><strong>Dead-man:</strong> no <code>cmd</code> for 300 ms sends zero velocity; no connection for 5 s lies the robot down (S2).</li>
 </ul>
-<p><strong>WebSocket messages on <code>/ws</code></strong> (compact JSON):</p>
-<div class="tbl"><table class="plain">
-  <thead><tr><th>Direction</th><th>Message</th><th>Rate</th></tr></thead>
-  <tbody>
-    <tr><td>Phone to robot</td><td><code>{"t":"cmd","seq":123,"vx":0.10,"wz":0.30}</code></td><td>20–30 Hz</td></tr>
-    <tr><td>Phone to robot</td><td><code>{"t":"act","name":"stand"}</code>, <code>lie_down</code>, <code>{"t":"estop"}</code>, <code>{"t":"face","expr":"love"}</code>, <code>{"t":"tail","mode":"wag"}</code></td><td>On events</td></tr>
-    <tr><td>Robot to phone</td><td><code>{"t":"tel","mode":"WALK","expr":"happy","vbat":7.6,"loop_p99_ms":0.4,"tilt_deg":3.1,"servo_tmax_c":46,"obstacle_m":0.82,"rssi":-52}</code></td><td>10 Hz</td></tr>
-    <tr><td>Robot to phone</td><td><code>{"t":"nak","act":"stand","why":"not_upright"}</code></td><td>On events</td></tr>
-  </tbody>
-</table></div>
-<p><strong>Dead-man.</strong> No <code>cmd</code> from the phone for 300 ms sends zero velocity; no connection for 5 s lies the robot down.</p>
 
-<h3 id="face"><span class="n">9.6</span>Face, voice, sound, touch and tail</h3>
-<p><strong>Face.</strong> DeskSprite's SVG-derived face families and palettes on the landscape screen; the default is cyan, rounded eyes on black, as in the renders. DeskSprite already has listening, thinking, speaking, idle, happy, sad, surprise, love, sleepy and warning, with blinks and glances. MicroPup maps robot state onto them and adds a few:</p>
-<div class="tbl"><table class="plain">
-  <thead><tr><th>State or event</th><th>Expression</th></tr></thead>
-  <tbody>
-    <tr><td>Lying idle, standing with no command</td><td>Idle, with blinks and glances; gaze follows a face the camera finds</td></tr>
-    <tr><td>Walking</td><td>Happy, gaze leading into the turn</td></tr>
-    <tr><td>A bump or near-fall below the fall threshold</td><td>Surprise</td></tr>
-    <tr><td>Tapped or petted</td><td>Love, tail wag</td></tr>
-    <tr><td>Fallen on a side or the back</td><td>Dizzy (new), then a help face with a spoken or played "help" (new)</td></tr>
-    <tr><td>Dead-man or link lost</td><td>Confused (new)</td></tr>
-    <tr><td>Low battery, long idle</td><td>Sleepy</td></tr>
-    <tr><td>Fault or E-stop</td><td>Warning, with a FAULT strip. Must never read as a mood</td></tr>
-    <tr><td>Talking</td><td>DeskSprite's listening, thinking, speaking</td></tr>
-  </tbody>
-</table></div>
-<p><strong>Stabilized eyes and gaze.</strong> The face shifts opposite to the body's roll and pitch from the body board's gravity vector, low-pass filtered and clamped to about ±20 px; off when fallen or E-stopped. On top of that, the eyes look toward the face the vision board reports. Only the face's bounding box redraws, at no more than 30 fps.</p>
-<p><strong>Voice.</strong> DeskSprite's push-to-talk conversation through the VPS relay, unchanged. In v1 the robot talks but voice does not move it; v1.1 adds relay tools that map phrases ("lie down", "come here") to the same actions the phone sends, under the same body limits.</p>
-<p><strong>Sound.</strong> Short clips through the face board's codec: a happy yip when it starts walking, a startled one on a bump, a whine when it needs help, a sleepy sigh on low battery. Rate-limited; volume and mute in <code>/settings</code>.</p>
-<p><strong>Touch.</strong> A tap is a pet (love, wag). A long press is an E-stop.</p>
-<p><strong>Tail.</strong> The face board picks the tail's pose or wag (wag on happy and love, low on sleepy, still when fallen); the body board drives its micro servo by PWM, limits it while walking (kept up, small amplitude) and stops the PWM in E-stop. It has no position or temperature feedback.</p>
+<h3 id="face"><span class="n">9.5</span>Face, voice, sound, petting and tail</h3>
+<p><strong>Face.</strong> DeskSprite's look on the small portrait screen: cyan rounded eyes on black, blinks and glances, and its expressions (listening, thinking, speaking, idle, happy, sad, surprise, love, sleepy, warning), plus the robot's own: dizzy and help when fallen, confused when the phone is lost. The state mapping is the earlier design's: idle when lying or standing still, happy while walking, surprise on a bump, love when petted, sleepy on low battery, warning with a FAULT strip on a fault or E-stop (never read as a mood).</p>
+<p><strong>Stabilized eyes and gaze.</strong> The eyes shift opposite to the body's roll and pitch, clamped to a few pixels, and look toward the face the camera finds.</p>
+<p><strong>Voice.</strong> DeskSprite's relay protocol, reimplemented on the P4: push-to-talk from the button on the back or the phone. The robot talks but voice does not move it in v1; v1.1 maps phrases to actions under the same limits. Whether the kit has a usable microphone is checked in V0 (§13).</p>
+<p><strong>Sound.</strong> Short clips through the board's codec and the kit's speaker: a yip on starting to walk, a startled one on a bump, a whine for help, a sigh on low battery. Rate-limited, with volume and mute.</p>
+<p><strong>Petting.</strong> The screen has no touch, so a tap on the head is read by the IMU's tap detection: love and a tail wag. Taps while walking are ignored.</p>
+<p><strong>Button on the back.</strong> A short press talks; a long press is an E-stop (S1).</p>
+<p><strong>Tail.</strong> Core 0 picks the pose or wag; core 1 drives it, limits it while walking and switches it off in E-stop.</p>
 
-<h3 id="states"><span class="n">9.7</span>Mode state machine (body board)</h3>
+<h3 id="states"><span class="n">9.6</span>Mode state machine</h3>
 <figure class="diagram wide">
-<svg viewBox="0 0 760 330" role="img" aria-label="State machine on the body board: BOOT to IDLE, lying with torque off; stand, allowed only when upright, goes to STAND_UP, a scripted push-up from the belly, then STAND and WALK. STAND can lie down through LIE_DOWN back to IDLE. A large tilt from STAND or WALK goes to FALLEN, limp, which needs a person to right the robot and returns to IDLE. E-stop and low battery apply from any state.">
+<svg viewBox="0 0 760 330" role="img" aria-label="State machine on core 1: BOOT to IDLE, lying with the servos off; stand, allowed only when upright, goes to STAND_UP, a scripted push-up from the belly, then STAND and WALK. STAND can lie down through LIE_DOWN back to IDLE. A large tilt from STAND or WALK goes to FALLEN, limp, which needs a person to right the robot and returns to IDLE. E-stop, low battery and servo overload apply from any state.">
   <rect x="20" y="40" width="90" height="54" rx="10" class="d-box"/>
   <text x="65" y="72" text-anchor="middle" class="d-t">BOOT</text>
   <rect x="150" y="40" width="110" height="54" rx="10" class="d-box"/>
   <text x="205" y="63" text-anchor="middle" class="d-t">IDLE</text>
-  <text x="205" y="81" text-anchor="middle" class="d-s">lying, torque off</text>
+  <text x="205" y="81" text-anchor="middle" class="d-s">lying, servos off</text>
   <rect x="300" y="40" width="130" height="54" rx="10" class="d-box"/>
   <text x="365" y="63" text-anchor="middle" class="d-t">STAND_UP</text>
   <text x="365" y="81" text-anchor="middle" class="d-s">scripted push-up</text>
@@ -946,7 +789,7 @@ svg text { font-family: var(--font-body); }
   <line x1="485" y1="94" x2="424" y2="157" class="d-wire" marker-end="url(#arr)"/>
   <text x="440" y="124" text-anchor="end" class="d-s">lie_down</text>
   <path d="M300 187 H205 V98" class="d-wire" marker-end="url(#arr)"/>
-  <text x="213" y="150" class="d-s">torque off</text>
+  <text x="213" y="150" class="d-s">servos off</text>
 
   <rect x="610" y="160" width="130" height="54" rx="10" class="d-alert"/>
   <text x="675" y="183" text-anchor="middle" class="d-t">FALLEN</text>
@@ -960,55 +803,57 @@ svg text { font-family: var(--font-body); }
 
   <rect x="20" y="270" width="340" height="48" rx="10" class="d-alert"/>
   <text x="36" y="290" class="d-t">ESTOP, from any state</text>
-  <text x="36" y="308" class="d-s">Torque off; needs an explicit clear</text>
+  <text x="36" y="308" class="d-s">Servo outputs off; needs an explicit clear</text>
   <rect x="390" y="270" width="350" height="48" rx="10" class="d-box"/>
-  <text x="406" y="290" class="d-t">Low battery or over-temperature</text>
-  <text x="406" y="308" class="d-s">Stop, lie down, torque off, IDLE</text>
+  <text x="406" y="290" class="d-t">Low battery, overload or rest timer</text>
+  <text x="406" y="308" class="d-s">Stop, lie down, servos off, IDLE</text>
 </svg>
-<figcaption>Lying down is the rest pose, so IDLE is lying with torque off. STAND_UP and LIE_DOWN are scripts, not policies.</figcaption>
+<figcaption>Lying down is the rest pose, so IDLE is lying with the servo outputs off. STAND_UP and LIE_DOWN are scripts, not policies.</figcaption>
 </figure>
-<p><strong>STAND_UP</strong> eases the legs to the lying pose (along the sides) at low gains, then runs the scripted push-up of §7.5 and hands over to the policy. <strong>LIE_DOWN</strong> is its reverse: in 2 s straight to the lying pose, resting low on the folded legs with the belly about 35 mm off the floor (§7.2), then torque off. Both are joint-target trajectories, so v1 needs no extra training for them. <strong>Stand only when upright:</strong> belly-down or standing within 20° of level by the gravity vector; anything else is refused with a reason (S10).</p>
+<p><strong>Stand only when upright:</strong> belly-down or standing within 20° of level by the gravity vector; anything else is refused with a reason (S10). Without servo feedback, STAND_UP starts by commanding the lying pose slowly, since the firmware cannot read where the legs actually are (unless the pot read-back is fitted).</p>
 
-<h3 id="safety"><span class="n">9.8</span>Safety requirements</h3>
-<p>All of them are enforced on the body board.</p>
+<h3 id="safety"><span class="n">9.7</span>Safety requirements</h3>
+<p>All of them are enforced on core 1.</p>
 <div class="tbl"><table>
   <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
   <tbody>
-    <tr><td>S1</td><td>E-stop from the phone, a long press on the screen or an <code>estop</code> frame turns torque off within one control cycle and latches until cleared.</td></tr>
-    <tr><td>S2</td><td>Dead-man: 300 ms without a valid command sets velocity to zero; 2 s without any link frame lies the robot down.</td></tr>
-    <tr><td>S3</td><td>Fall detection per §9.7, going limp to protect the gears and the screen.</td></tr>
-    <tr><td>S4</td><td>Servo health: round-robin reads of temperature and hardware error status on all eight leg servos. Over the temperature threshold, stop and lie down to rest; on a hardware error, including a Bus Watchdog error (S9), torque off and report. The Input Voltage Error bit and its Alert flag are ignored (§6.4).</td></tr>
-    <tr><td>S5</td><td>Low battery: warn, then lie down and turn torque off before the BMS cuts out; floor about 6.6 V, smoothed over about 10 s.</td></tr>
-    <tr><td>S6</td><td>Commands are clamped to the policy's training ranges, whatever the face board sends.</td></tr>
-    <tr><td>S7</td><td>A policy whose contract hash does not match the build cannot enable torque.</td></tr>
-    <tr><td>S8</td><td>S1–S7, S10, S11 and the software side of S9 are covered by automated tests on the host twin.</td></tr>
-    <tr><td>S9</td><td>Hang protection: a task watchdog on <code>control_task</code> and <code>imu_task</code> resets the board. With torque on, every servo's Bus Watchdog (register 98, 20 ms units) is about 100 ms, so a hung body board leaves the servos stopped; H1 measures what torque does afterwards. After any reset, the first bus action clears the Bus Watchdog and broadcasts torque off. The power switch stays reachable.</td></tr>
+    <tr><td>S1</td><td>E-stop from the phone or a long press of the back button switches the servo outputs off (PCA9685 OE high) within one control cycle and latches until cleared.</td></tr>
+    <tr><td>S2</td><td>Dead-man: 300 ms without a valid command sets velocity to zero; 5 s without the phone lies the robot down.</td></tr>
+    <tr><td>S3</td><td>Fall detection per §9.6, going limp to protect the gears and the screen.</td></tr>
+    <tr><td>S4</td><td>Servo protection without servo feedback: the servo rail's current from the INA226 (sustained high current means servos straining or stalled: lie down and rest); a rest timer that lies the robot down after a set walking time, tuned in H5 from servo case temperatures measured by hand or thermocouple; with pot read-back, a stall check on the gap between command and angle.</td></tr>
+    <tr><td>S5</td><td>Low battery: warn, then lie down and switch the servos off before the pack is over-discharged; floor about 6.6 V, smoothed over about 10 s.</td></tr>
+    <tr><td>S6</td><td>Commands are clamped to the policy's training ranges, whatever core 0 sends.</td></tr>
+    <tr><td>S7</td><td>A policy whose contract hash does not match the build cannot enable the servos.</td></tr>
+    <tr><td>S8</td><td>S1–S7 and S9–S12 are covered by automated tests on the host twin where they can be.</td></tr>
+    <tr><td>S9</td><td>Hang protection: a task watchdog on <code>control_task</code> and <code>imu_task</code> resets the board; OE's pull-up keeps the outputs off from reset until core 1 enables them, so the servos go limp. The power switch stays reachable.</td></tr>
     <tr><td>S10</td><td>Stand only when upright (belly-down or standing, within 20° of level). The refusal and its reason reach the face and the phone.</td></tr>
-    <tr><td>S11</td><td>Obstacle stop: with an obstacle closer than about 15 cm ahead in the ToF zones, forward velocity is clamped to zero; backing away and turning stay allowed. The face shows it.</td></tr>
+    <tr><td>S11</td><td>Obstacle stop: with an obstacle closer than about 15 cm in the chin sensor's forward zones, forward velocity is clamped to zero; backing away and turning stay allowed.</td></tr>
+    <tr><td>S12</td><td>Edge stop: when the chin sensor's lower zones stop seeing the floor ahead (a table edge or the top of a stair), forward velocity is clamped to zero and the robot backs off a step.</td></tr>
   </tbody>
 </table></div>
 
-<h3 id="vision"><span class="n">9.9</span>Vision in v1</h3>
+<h3 id="vision"><span class="n">9.8</span>Vision in v1</h3>
 <ul>
-  <li><strong>Camera view:</strong> the vision board serves an MJPEG stream (QVGA to VGA, 10–15 fps) that the controller page shows behind the joystick.</li>
-  <li><strong>Eye contact:</strong> the vision board runs a small face finder (<code>esp-dl</code>'s human-face detector or similar, a few frames per second) and sends the largest face's position to the face board as small UDP packets on the home network (ESP-NOW if that adds lag). The face board turns it into gaze.</li>
+  <li><strong>Camera view:</strong> an MJPEG stream (QVGA to VGA, 10–15 fps) from the P4's hardware encoder, behind the joystick on the controller page.</li>
+  <li><strong>Eye contact:</strong> a small face finder (<code>esp-dl</code>'s human-face detector or similar, a few frames per second) moves the on-screen eyes toward the largest face.</li>
   <li><strong>Nothing from vision moves the legs in v1.</strong></li>
 </ul>
 
 <!-- 10 -->
 <h2 id="milestones"><span class="n">10</span>Milestones</h2>
-<p>Each milestone meets its exit criteria before the next one in its track starts. Face work (F) continues alongside Phase A on the board already owned. H1, H2, H3 and V0 can overlap; H4 needs all of them, and H5 also waits for S5.</p>
+<p>Each milestone meets its exit criteria before the next one in its track starts. H0, H1, V0 and F0 can overlap with Phase A once the parts arrive.</p>
 
 <h3>Phase A: simulation</h3>
 <div class="tbl"><table>
   <thead><tr><th>Milestone</th><th>Exit criteria</th><th>Status</th></tr></thead>
   <tbody>
-    <tr><td>S0 Toolchain</td><td>The fork trains Pollen's stock walker on the RTX 3060; the stock duck's per-joint torque baseline is logged.</td><td>Done (biped era)</td></tr>
-    <tr><td>S1 MicroPup model</td><td>Parametric 8-servo model with shell, bezel, ears, tail, camera and ToF; stands from noisy starts; collision naming and actuator order checked.</td><td>Done: final design (<code>QUAD_DESIGN=prd</code>)</td></tr>
-    <tr><td>S2 Walking policy</td><td>Tracks 0.1–0.3 m/s forward, backward and turning; no falls under the play pushes; trained on the final model, with a backlash variant.</td><td>Done: run 8, final model with gear play</td></tr>
-    <tr><td>S3 Design validation</td><td>Every §7.2 check passes or has a recorded decision; scripted stand-up and lie-down pass; design report and ADRs written; BOM frozen and parts ordered.</td><td>Every §7.2 check passes; design report, ADRs and the parts order to do</td></tr>
-    <tr><td>S4 Policy port</td><td>Export pipeline; C inference matches the golden vectors within 1e-4 and drives MuJoCo with the ONNX gait.</td><td>Not started</td></tr>
-    <tr><td>S5 Virtual MicroPup</td><td>The phone drives the simulated dog through the link emulator; S1–S7, S10, S11 and the software side of S9 pass as automated tests.</td><td>Not started</td></tr>
+    <tr><td>S0 Toolchain</td><td>The fork trains on the RTX 3060.</td><td>Done</td></tr>
+    <tr><td>S1 Micro model</td><td>Parametric model of the micro design with the MG90S servo model; stands from noisy starts.</td><td>Done (camera to move to the forehead)</td></tr>
+    <tr><td>S2 Walking policy</td><td>Passes the walking, load and push checks of §7.2; pot or blind decided.</td><td>Training</td></tr>
+    <tr><td>S3 Design validation</td><td>Every §7.2 check passes or has a recorded decision; scripted stand-up and lie-down pass; BOM frozen.</td><td>Not started</td></tr>
+    <tr><td>S4 Policy port</td><td>Export pipeline; C inference matches the golden vectors within 1e-4 on the P4 and drives MuJoCo with the ONNX gait.</td><td>Not started</td></tr>
+    <tr><td>S5 Virtual MicroPup</td><td>The phone drives the simulated dog; the safety requirements pass as automated tests.</td><td>Not started</td></tr>
+    <tr><td>S6 Fitted servo model</td><td>The servo model refitted from H0's measurements; S2 and S3 re-run on it.</td><td>Waits for H0</td></tr>
   </tbody>
 </table></div>
 
@@ -1016,28 +861,25 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
   <tbody>
-    <tr><td>F0 Face for MicroPup</td><td>DeskSprite's MicroPup build: the link on the UART header (loopback test), the talk switch on GPIO45 or 46, the controller page and WebSocket, the robot expressions (dizzy, help, confused), stabilized eyes from a fake gravity feed.</td></tr>
-    <tr><td>H1 Servo bus and body board</td><td>74HC126 interface built; 8 servos with IDs set and firmware updated (U2D2), Return Delay Time 0, 1 then 2 Mbps. 50 Hz sync read and write for 10 minutes with zero bus errors and p99 jitter ≤ 1 ms while the link and the ToF run. Health polling that ignores the voltage bit (Shutdown 52). The tail's micro servo driven by PWM without disturbing the loop's timing. Bus Watchdog verified with the firmware halted mid-stand.</td></tr>
-    <tr><td>H2 IMU and range</td><td>Gyro bias calibrated at boot; gravity within ±2° at known tilts at 500 Hz or more; ToF zones read at 15 Hz and the obstacle stop works on the bench.</td></tr>
-    <tr><td>V0 Camera</td><td>On the Waveshare kit first, then with the robot's camera on the forehead mount: MJPEG on the phone, a standing person's face found from 0.5 to 3 m, gaze packets reaching the face board. Pedestrian detection measured on the board while streaming (fps and latency), as the go or no-go for on-robot following. The Waveshare board's size and mounting checked against the space behind the bezel, to choose the robot's vision board.</td></tr>
-    <tr><td>H3 Mechanical design</td><td>Final OpenSCAD for the shell, bezel with lips, ears and forehead camera mount, chin ToF window, legs and cradles, tail, battery door and cable routing, from the model's numbers. No interference across the gait's joint ranges. Fit-check prints match the real boards and servos. STLs frozen.</td></tr>
-    <tr><td>H4 Assembly</td><td>Printed and assembled; every part weighed and the model updated; retrained if the measured mass properties fall outside the randomization ranges. Golden test passes on the body board.</td></tr>
-    <tr><td>H5 First steps</td><td>On a stand with the feet off the floor, then lying, standing up, standing and walking on a flat floor. The scripted lie-down proven before the first free walk. Logs compared with twin runs. Servo temperatures logged on the first walks.</td></tr>
-    <tr><td>H6 v1 complete</td><td>Phone control with video; expressions mapped to states; stabilized eyes and gaze; tail; sounds; voice conversation; S1–S11 verified on the robot.</td></tr>
-    <tr><td>H7 v1.1</td><td>Voice commands that move it; a learned stand and lie-down if the scripts fall short.</td></tr>
+    <tr><td>H0 Servo measurement</td><td>Two or three MG90S on a bench rig with a pendulum arm and the potentiometer wired out: step responses, speed and torque at 5.6–6.0 V, deadband, pulse-to-angle calibration, behaviour without pulses (limp or holding), and spread across the batch. Results fitted into the servo model (S6).</td></tr>
+    <tr><td>H1 Board bring-up</td><td>On the Waveshare board: PCA9685 driving 9 servos at 50 Hz with OE enable and disable; IMU at 500 Hz or more; VL53L5CX at 15 Hz; INA226; the 1.69" screen running LVGL; all at once with the camera streaming and Wi-Fi up, and <code>control_task</code> p99 jitter ≤ 1 ms. Header pinout confirmed. Walking current measured.</td></tr>
+    <tr><td>V0 Camera</td><td>MJPEG on the phone; a standing person's face found from 0.5 to 3 m with the camera tilted up; pedestrian detection measured while streaming (fps and latency) as the go or no-go for v2 following; the kit camera's field of view judged.</td></tr>
+    <tr><td>F0 Face and voice</td><td>The rewritten face on the 1.69" screen with the core expressions and stabilized eyes; the relay's voice conversation working on the P4; the phone page and WebSocket.</td></tr>
+    <tr><td>H3 Mechanical design</td><td>Final OpenSCAD for the shell, bezel and forehead camera strip, chin sensor window, legs, tail, battery door and cable routing, from the model's numbers. Fit-check prints match the real board, screen and servos. STLs frozen.</td></tr>
+    <tr><td>H4 Assembly</td><td>Printed and assembled; every part weighed and the model updated; retrained if outside the randomization. Golden test passes on the board.</td></tr>
+    <tr><td>H5 First steps</td><td>On a stand, then lying, standing up, standing and walking on a flat floor. The scripted lie-down proven before the first free walk. Logs compared with twin runs. Servo case temperatures and rail current logged; the rest timer (S4) set.</td></tr>
+    <tr><td>H6 v1 complete</td><td>Phone control with video; expressions mapped to states; stabilized eyes and gaze; tail; sounds; voice; S1–S12 verified on the robot.</td></tr>
+    <tr><td>H7 v1.1</td><td>Voice commands that move it.</td></tr>
   </tbody>
 </table></div>
-<p>v2 adds autonomy (§11).</p>
 
 <!-- 11 -->
 <h2 id="autonomy"><span class="n">11</span>v2 autonomy</h2>
 <ul>
-  <li><strong>Following people first, detected on the robot.</strong> The vision board runs Espressif's pedestrian detector (<code>esp-dl</code>, 224 × 224 input). Espressif's table gives about 50 ms a frame on an ESP32-P4 at 400 MHz, about 20 fps; this board runs at 360 MHz, and streaming video at the same time costs some of that, so expect 10–15 fps and measure it in V0. It sends the target's bearing and size to the face board, whose behaviour layer turns them into velocity and turn commands, the same commands the phone sends, and the body board applies its limits and the obstacle stop. Detection on the robot works the same at home and away, needs no server or network round trip, and needs no new hardware.</li>
-  <li><strong>Patrolling second.</strong> Wandering with ToF obstacle avoidance, plus AprilTag-style markers on doorways and on a charging dock, so the robot knows roughly where it is and can return to charge. A dock with contacts under the chest; the charger and BMS handle the pack.</li>
+  <li><strong>Following people, detected on the robot.</strong> Espressif's pedestrian detector (<code>esp-dl</code>, 224 × 224) runs at about 50 ms a frame on an ESP32-P4 by Espressif's own table; sharing the chip with streaming and the face, expect 5–15 fps, measured in V0. Its target's bearing and size become velocity commands, under core 1's limits and the obstacle and edge stops.</li>
+  <li><strong>Patrolling.</strong> Wandering with the chin sensor's 8 × 8 zones for avoidance (it can tell which side is clear), printed markers on doorways and a dock.</li>
   <li><strong>Conversation with sight.</strong> "What do you see?" sends a frame through the relay to a vision-capable model.</li>
-  <li><strong>Off-board vision, optional.</strong> For heavier models than the board can run (recognising family members or objects, a better person tracker) the vision board can send frames through the relay to a vision service on the VPS, in its own container next to the relay. The VPS (<code>trinsicstudios-1</code>, Ubuntu 24.04) has 6 vCPUs, 8 GB of RAM and 100 GB of disk, and no GPU, shared with the relay (limited to one CPU and 256 MiB) and the server's other services. A nano-class CPU detector (a YOLO-nano or MediaPipe person model under ONNX Runtime, at about 320 px) should manage 5–10 fps for one robot in a container limited to about 2 CPUs and 1 GiB; measure it before relying on it. The PC's GPU is the fallback if it falls short. An on-board Raspberry Pi is no longer expected: the P4 does the time-critical detection on the robot.</li>
-  <li><strong>Possible future option: a home vision server on Neil's Raspberry Pi 4</strong>, for the same off-board work. Not on the robot (about 46 g bare and 3–6 W, too big for the 68 mm body and too hungry for the pack), but on the home network, always on, running the same vision container as the VPS. A Pi 4's CPU should manage roughly 3–8 fps with a nano-class detector at about 320 px; measure it. At home the frames never leave the house, so the round trip is shorter than through the VPS. Away from home the robot cannot reach a server inside the house directly: the ESP32 boards have no Tailscale client, so the robot keeps talking only to the public VPS, and the VPS forwards frames to the Pi over a Tailscale tailnet (VPS and Pi both joined). That path is longer than running detection on the VPS itself, so away from home the VPS would normally do it and the Pi is for home use or when the VPS is busy. The robot's firmware sees one endpoint, the relay, either way; the relay chooses where detection runs.</li>
-  <li><strong>Hip abduction</strong> (12 servos) if following needs sideways steps or self-righting turns out to matter; the body board's bus and the model are ready for it.</li>
+  <li><strong>Off-board vision, optional.</strong> Heavier models (recognising family members or objects) can run in a container on the VPS (<code>trinsicstudios-1</code>: 6 vCPUs, 8 GB, no GPU), or on Neil's Raspberry Pi 4 at home, reached through the VPS over Tailscale when the robot is away, as described in the archived PRD (v0.30, §11).</li>
 </ul>
 
 <!-- 12 -->
@@ -1045,54 +887,34 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
   <tbody>
-    <tr><td>Sim2real gap</td><td>The servos of Pollen's actuator model; backlash training; measured mass properties; the sim2real contract; identical logs from twin and robot.</td></tr>
-    <tr><td>Mass and balance estimates are wrong</td><td>Mass and centre-of-mass randomization in training; weigh the face board now and every part in H4; the electronics layer slides to set the balance; retrain if outside the ranges.</td></tr>
-    <tr><td>Servo overheating, especially the enclosed hips</td><td>Load is 12–45% below the stock duck's (§7.2); temperature monitoring and rest (S4); vent slots by the hip servos if the first walks show heat.</td></tr>
-    <tr><td>Servos run above their rated voltage</td><td>Same supply as Microduck and the training model; Shutdown 52; temperature monitoring; one spare, more bought if one fails. Fallback: a regulated rail and retraining.</td></tr>
-    <tr><td>Face board crash, voice or Wi-Fi stall</td><td>The body board owns the loop and safety; the link dead-man stops and lies the robot down.</td></tr>
-    <tr><td>Body board hang leaves the servos driven</td><td>Task watchdog, Bus Watchdog on every servo, torque off after any reset, a reachable power switch (S9).</td></tr>
-    <tr><td>Rolls onto a side or the back</td><td>Detected and limp (S3); the robot asks for help; a person rights it. Hip abduction in v2 if needed.</td></tr>
-    <tr><td>Camera sees the wrong things</td><td>Forehead mount tilted up with a wide lens (§6.5), checked with a real person in V0 before the mount is frozen in H3.</td></tr>
-    <tr><td>Off-robot vision is too slow for following</td><td>Measure the round trip in v2 before tuning behaviour; the PC's GPU as a nearer server; an on-board Pi as the last step.</td></tr>
-    <tr><td>Screen damage in falls</td><td>Bezel lips proud of the glass, ears as bumpers, the forehead camera recessed.</td></tr>
-    <tr><td>Brownouts on the logic rail</td><td>A 3 A buck that accepts the pack's full range, bulk capacitance on the servo bus, a BMS sized for peaks.</td></tr>
-    <tr><td>Servo lead time and cost</td><td>The leg servos are most of the budget: 8 + 1 spare, the tail on a $3 micro servo. Order at the design freeze; ROBOTIS America quotes a lead time to the end of November 2026, so a failed servo can mean weeks without walking. Buy a second spare once the first walks show which joints work hardest. No cheaper servo works as a substitute (v0.30); the lean v1 in §13 trims the rest of the bill instead.</td></tr>
-    <tr><td>The ESP32-P4 boards are new</td><td>Camera and AI only under ESP-IDF, Wi-Fi through a second chip; the DFRobot board is a pre-order (about 5 weeks) with the first chip revision at 360 MHz. The Waveshare kit, in stock with two-day delivery, de-risks V0; the XIAO ESP32S3 Sense is the fallback, with detection off the robot.</td></tr>
-    <tr><td>Three firmwares to maintain</td><td>Only the body firmware is safety-critical and it is tested on the twin; the face is DeskSprite's; the vision firmware is small. OTA for all three from one page.</td></tr>
-  </tbody>
-</table></div>
-
-<h3 id="watchlist">Possible issue watchlist</h3>
-<div class="tbl"><table>
-  <thead><tr><th>Item</th><th>Current setting</th><th>What could go wrong</th><th>Check at</th></tr></thead>
-  <tbody>
-    <tr><td>Return Delay Time and bus speed</td><td>0, starting at 1 Mbps</td><td>At 2 Mbps a servo can reply before the 74HC126's enable releases. Microduck runs 1 Mbps with 0, the proven combination; eight servos at 1 Mbps still fit the budget.</td><td>H1 bus error counts</td></tr>
-    <tr><td>Bus Watchdog time (S9)</td><td>About 100 ms</td><td>Too short and a flash stall trips it; too long and a hung board drives longer. The torque state after expiry is unconfirmed.</td><td>H1</td></tr>
-    <tr><td>Link dead-man times (S2)</td><td>300 ms to zero velocity, 2 s to lie down</td><td>A face board busy with TLS or a screen redraw may miss frames. The face sends <code>cmd</code> from its own task at 50 Hz, independent of drawing and audio.</td><td>F0 and H1 with the link under load</td></tr>
-    <tr><td>Obstacle stop distance (S11)</td><td>About 15 cm</td><td>Too short at 0.3 m/s with the loop's delay; too long and it will not walk up to a person or a dock.</td><td>H2 bench, H5 floor</td></tr>
-    <tr><td>Top speed</td><td>0.3 m/s commanded</td><td>The policy reaches about 0.28 m/s at most; asking for more only wastes tracking.</td><td>S2, H5</td></tr>
-    <tr><td>Tail while walking</td><td>Kept up, small wag</td><td>Down by the floor it slows walking 5–10%; a big wag may disturb the gait, which was trained with the tail still.</td><td>H5</td></tr>
-    <tr><td>Camera tilt and lens</td><td>25–30° up, about 120°</td><td>Too much tilt and it loses the floor ahead; a wide lens distorts and lowers detection range.</td><td>V0 with a person at 0.5–3 m</td></tr>
+    <tr><td>The policy does not walk well enough on hobby servos</td><td>Simulation first (§7.2); a lighter body; pot read-back; a scripted gait as the fallback (§7.2).</td></tr>
+    <tr><td>The servo model is wrong (datasheet estimate)</td><td>Measure the servos in H0 and refit the model before trusting the policy (S6); randomize delay, supply and friction in training.</td></tr>
+    <tr><td>Servos vary, strip or overheat</td><td>One reputable seller; per-servo calibration (H0); two spares in the pack and more cheaply; rail-current overload check and a rest timer (S4); short sessions.</td></tr>
+    <tr><td>No feedback: the robot does not know where its legs are</td><td>Slow, scripted starts from a known pose; the IMU for falls; pot read-back if the simulation or H0 says it is needed.</td></tr>
+    <tr><td>One board does everything; camera, Wi-Fi or the face disturb the walking loop</td><td>Core 1 for control only, the I2C bus owned by core 1, measured jitter with everything running (H1); the camera's rate and resolution cut first if needed.</td></tr>
+    <tr><td>A crash anywhere stops everything</td><td>Watchdog reset; servo outputs off from reset (S9); the robot lies limp rather than thrashing. Core 0 code kept out of the control path.</td></tr>
+    <tr><td>Weight creeps up</td><td>A 350 g budget with parts weighed in H4; retrain if outside the randomization; the servo margin is the limit (§6.5).</td></tr>
+    <tr><td>The Waveshare board does not fit the 70 mm body</td><td>Checked against the board's real outline in H3; the DFRobot FireBeetle 2 ESP32-P4 (25.4 × 60 mm) as the smaller alternative, which lacks the audio codec (§13).</td></tr>
+    <tr><td>Software rewrite is bigger than expected</td><td>Face, voice and phone page come after the walking robot; a plain face and the phone page are enough for H5.</td></tr>
+    <tr><td>Short runtime</td><td>Two packs; measure in H5; a larger pack if the mass budget allows.</td></tr>
+    <tr><td>Falls off a table</td><td>The edge stop (S12), tested on the bench and in the twin.</td></tr>
   </tbody>
 </table></div>
 
 <!-- 13 -->
 <h2 id="questions"><span class="n">13</span>Open questions</h2>
 <ol>
-  <li>Build MicroPup or buy a Microduck ($399 pre-order with battery and gamepad, delivery targeted before Christmas 2026). With XL330s a lean v1 is about $360–390: skip the U2D2 at first (set servo IDs from the ESP32, if the servos ship with recent enough firmware; check one on arrival), use a bench ESP32-S3 as the body board, and move the camera and ToF to v2. The full build in §6.1 costs more. MicroPup's case is the design (face, voice, a dog of its own), not the price. The servo order waits on this.</li>
-  <li>Where the face firmware lives: a MicroPup build inside DeskSprite's repository (recommended, so the face and voice stay one codebase), or a copy in this repository.</li>
-  <li>Which ESP32-P4 board goes in the robot: the Waveshare ESP32-P4-WIFI6 (bring-up board, audio on board, larger) or the DFRobot FireBeetle 2 (25.4 × 60 mm, 360 MHz), after V0.</li>
-  <li>Which Raspberry Pi-compatible camera for the robot: the kit's RPi Camera (B) if its field of view is enough, otherwise a sensor ESP-IDF's MIPI camera driver supports (OV5647 class; check before buying, since the common IMX708 Camera Module 3 may not be), a field of view of about 120°, its distortion, and a ribbon long enough from the forehead to the board.</li>
-  <li>Which person detector for v2 and its measured rate on the VPS's CPUs (6 vCPUs, 8 GB, no GPU), and how much of the server the vision container may take next to its other services.</li>
-  <li>Whether v2 vision uses the home Raspberry Pi 4 at all (§11): its measured detection rate, whether the robot can find it directly on the home network or always goes through the relay, and Tailscale between the VPS and the Pi for use away from home.</li>
-  <li>Which XL330 variant Pollen's actuator model targets (M288 is assumed; their constants name only <code>xl330</code> and BAM model <code>m6</code>).</li>
-  <li>Pollen's action low-pass: their runtime filters the leg targets, their training says it does not. Settle in the contract before H5.</li>
-  <li>IMU choice: the ICM-42688-P is supply-constrained; LSM6DSOX or LSM6DSV16X with on-board fusion are the alternatives.</li>
-  <li>Battery capacity and target runtime. It stays 2S because the actuator model assumes 6.5–8.2 V at the servos.</li>
-  <li>The real masses and balance point: weigh the face board now, every part in H4, and balance the assembled body.</li>
-  <li>Body board in the robot: the XIAO ESP32S3 (small, 11 pins, the default) or the ESP32-S3 N16R8 DevKitC-style board used on the bench (about 63 × 26 mm), if it fits the electronics layer. Decided at H3.</li>
-  <li>Final designs for the dizzy, help and confused faces in DeskSprite's style.</li>
-  <li>The dock: contact design and where it sits under the chest (v2, but its space is reserved now).</li>
+  <li>Does the micro dog walk well enough in simulation (§7.2), and is the potentiometer read-back worth fitting?</li>
+  <li>How the real MG90S compares with the datasheet model (H0), and which seller's servos are consistent.</li>
+  <li>Does the Waveshare board fit in a 70 mm-wide body, or does the robot need the smaller FireBeetle 2 (no audio codec, a PDM microphone only)?</li>
+  <li>Does the Waveshare kit have a usable microphone for voice, or does one need adding (an I2S MEMS microphone, about $5)?</li>
+  <li>The camera for the robot: the kit's RPi Camera (B) if its field of view is enough, otherwise a wide-angle module ESP-IDF's MIPI driver supports (OV5647 class).</li>
+  <li>Touch: the 1.69" screen's touch version, or IMU taps only.</li>
+  <li>IMU choice: LSM6DSOX (tap detection on chip) or another breakout.</li>
+  <li>Battery capacity and runtime: 450 mAh against the mass budget.</li>
+  <li>Printed PETG legs or thin aluminium bar.</li>
+  <li>The face's design at 240 × 280 portrait, and which DeskSprite expressions carry over.</li>
+  <li>Pollen's action low-pass (their runtime filters the targets, their training does not): settle in the contract before H5.</li>
 </ol>
 
 <!-- 14 -->
@@ -1101,59 +923,59 @@ svg text { font-family: var(--font-body); }
 ├── docs/
 │   ├── PRD.html                This document
 │   ├── quadruped-study.html    The dog study: every simulation run
-│   ├── archive/                The MicroCluck biped PRD (v0.23) and older
+│   ├── archive/                The XL330 MicroPup PRD (v0.30) and the MicroCluck biped PRD (v0.23)
 │   ├── sim2real-contract.md    Observation and action contract (versioned, hashed)
-│   ├── link-protocol.md        Face–body frames (§9.4)
 │   ├── design-report.md        S3 results
 │   ├── wiring.md               Pins, power, schematics
 │   └── decisions/              One ADR per decision
 ├── firmware/
-│   ├── body/                   ESP-IDF project for the body board
-│   │   └── components/
-│   │       ├── core/           Hardware-independent C: control, state machine,
-│   │       │                   safety, policy, link
-│   │       └── hal_esp32/      dxl, imu, range, power, link, log
-│   └── vision/                 Camera stream, face finder, v2 frame upload
+│   └── micropup/               ESP-IDF project for the ESP32-P4
+│       └── components/
+│           ├── core/           Hardware-independent C: control, state machine,
+│           │                   safety, policy, commands
+│           ├── hal_esp32p4/    pwm (PCA9685), imu, range, power, log
+│           ├── face/           LVGL face, eyes, expressions
+│           ├── voice/          Relay client, audio
+│           ├── vision/         Camera stream, face finder
+│           └── web/            Controller page and WebSocket
 ├── twin/                       Virtual MicroPup
-│   ├── hal_host/               Simulated bus, IMU, ToF, clock, power
-│   └── harness/                Python: MuJoCo + BAM, link emulator, fault injection
-├── web/                        Controller page, bundled into the face firmware and the twin
+│   ├── hal_host/               Simulated PWM, IMU, ToF, clock, power
+│   └── harness/                Python: MuJoCo + servo model, fault injection
 ├── tools/
-│   └── policy_export/          ONNX to C header, golden vectors, host tests
+│   ├── policy_export/          ONNX to C header, golden vectors, host tests
+│   └── servo_bench/            H0 rig scripts and the servo model fit
 ├── sim/                        Submodule: fork of microduck_rl (branch microcluck_quad)
 └── hardware/                   OpenSCAD parts and parameter tables, STLs</code></pre>
-<p>The face firmware is in DeskSprite's repository (§13). The biped's OpenSCAD parts in <code>hardware/</code> stay for reference until H3 replaces them.</p>
 
 <!-- 15 -->
 <h2 id="claude-code"><span class="n">15</span>Notes for Claude Code</h2>
 <ul>
-  <li>MicroPup is the target; the biped is archived. Don't revive biped work unless Neil asks.</li>
-  <li>Work milestone by milestone and don't start the next until the exit criteria are met (§10).</li>
-  <li>Code in <code>firmware/body/components/core</code> never includes ESP-IDF headers; it reaches hardware only through the HAL (§8.1), and every core change must build and pass tests on the twin.</li>
-  <li>All safety lives on the body board. The face and vision boards may only ask; the body clamps and decides.</li>
-  <li><code>docs/sim2real-contract.md</code> and <code>docs/link-protocol.md</code> are the sources of truth for their interfaces; firmware, twin and simulation reference the same hashes.</li>
+  <li>The micro MicroPup in this document is the target. The XL330 design and the biped are archived; don't revive them unless Neil asks.</li>
+  <li>Cost is a requirement (G2). Flag anything that pushes the BOM toward $200 or more.</li>
+  <li>Work milestone by milestone (§10).</li>
+  <li>Code in <code>firmware/micropup/components/core</code> never includes ESP-IDF headers; it reaches hardware only through the HAL, and every core change must build and pass tests on the twin.</li>
+  <li>All safety lives on core 1. Core 0 may only ask; core 1 clamps and decides, and only core 1 touches the I2C bus and the servo outputs.</li>
+  <li>The face and voice are new code. DeskSprite is the reference for look and behaviour, not a code base to copy wholesale.</li>
   <li>Never hand-edit generated policy headers; regenerate them with <code>tools/policy_export</code>.</li>
-  <li>In the simulation: every process of a run uses the same <code>QUAD_*</code> environment variables; only <code>*_collision</code> geoms collide; actuators are declared in joint order; an N-iteration rsl_rl run ends with <code>model_(N-1).pt</code>.</li>
+  <li>In the simulation: every process of a run uses the same <code>QUAD_*</code> environment variables (<code>QUAD_SERVO=mg90s QUAD_DESIGN=micro QUAD_FEEDBACK=…</code>); only <code>*_collision</code> geoms collide; actuators are declared in joint order; an N-iteration rsl_rl run ends with <code>model_(N-1).pt</code>.</li>
   <li>The sim repository's <code>origin</code> is Pollen's; never push to it.</li>
-  <li>Hardware-in-the-loop steps (wiring, soldering, flashing, stand tests, weighing parts) are manual. Flag them for Neil rather than assuming results.</li>
+  <li>Hardware steps (wiring, soldering, opening servos, flashing, stand tests, weighing parts) are manual. Flag them for Neil rather than assuming results.</li>
   <li>Record significant decisions as ADRs in <code>docs/decisions/</code>.</li>
 </ul>
 
 <!-- 16 -->
 <h2 id="references"><span class="n">16</span>References</h2>
 <ul>
-  <li><a href="quadruped-study.html">MicroPup simulation study</a> and the <a href="archive/PRD-MicroCluck-v0.23.html">archived MicroCluck PRD</a></li>
-  <li><a href="https://pupper-v3-documentation.readthedocs.io/en/latest/">Stanford Pupper V3 documentation</a> and <a href="https://github.com/Nate711/pupperv3-mjx">pupperv3-mjx</a> (GPL-3.0: ideas only)</li>
-  <li><a href="https://github.com/pollen-robotics/microduck_rl">pollen-robotics/microduck_rl</a>, training, actuator model and export</li>
-  <li><a href="https://github.com/pollen-robotics/microduck">pollen-robotics/microduck</a>, the onboard runtime</li>
-  <li><a href="https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/">ROBOTIS XL330-M288-T e-Manual</a>, <a href="https://robotis.us/dynamixel-xl330-m288-t">ROBOTIS America XL330-M288-T</a>, <a href="https://robotis.us/u2d2/">U2D2</a></li>
-  <li><a href="https://store.freenove.com/products/fnk0104">Freenove FNK0104 ESP32-S3 Display</a>; DeskSprite's <code>docs/HARDWARE.md</code> for the FNK0104N's pins</li>
+  <li><a href="quadruped-study.html">MicroPup simulation study</a>, the <a href="archive/PRD-MicroPup-v0.30.html">archived XL330 MicroPup PRD (v0.30)</a> and the <a href="archive/PRD-MicroCluck-v0.23.html">archived MicroCluck PRD</a></li>
+  <li><a href="https://pupper-v3-documentation.readthedocs.io/en/latest/">Stanford Pupper V3 documentation</a> (GPL-3.0 code: ideas only)</li>
+  <li><a href="https://github.com/pollen-robotics/microduck_rl">pollen-robotics/microduck_rl</a>, training and export</li>
   <li><a href="https://www.waveshare.com/wiki/ESP32-P4-WIFI6">Waveshare ESP32-P4-WIFI6 wiki</a></li>
-  <li><a href="https://www.dfrobot.com/product-2915.html">DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</a> and its <a href="https://wiki.dfrobot.com/SKU_DFR1172_FireBeetle_2_Board_ESP32_P4">wiki</a></li>
-  <li><a href="https://components.espressif.com/components/espressif/pedestrian_detect">Espressif pedestrian_detect</a> and <a href="https://github.com/espressif/esp-detection">esp-detection</a>, with per-chip latency tables</li>
-  <li><a href="https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/">Seeed XIAO ESP32S3 and XIAO ESP32S3 Sense</a></li>
+  <li><a href="https://www.waveshare.com/wiki/1.69inch_LCD_Module">Waveshare 1.69" LCD module wiki</a></li>
+  <li><a href="https://www.dfrobot.com/product-2915.html">DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</a></li>
+  <li><a href="https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf">NXP PCA9685 datasheet</a></li>
   <li><a href="https://www.st.com/en/imaging-and-photonics-solutions/vl53l5cx.html">ST VL53L5CX</a></li>
-  <li><a href="https://github.com/espressif/esp32-camera">esp32-camera</a> and <a href="https://github.com/espressif/esp-dl">esp-dl</a></li>
+  <li><a href="https://components.espressif.com/components/espressif/pedestrian_detect">Espressif pedestrian_detect</a> and <a href="https://github.com/espressif/esp-dl">esp-dl</a></li>
+  <li><a href="https://lvgl.io/">LVGL</a></li>
 </ul>
 
 </main>

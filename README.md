@@ -4,7 +4,7 @@ A ~25 cm bipedal walking robot chicken whose body is a touchscreen. It follows P
 
 **Status:** planning, with the body design and the simulation under way. The product requirements document is the main record.
 
-- [Product requirements](docs/PRD.html), draft v0.14. It is a single HTML file: download it and open it in a browser, because GitHub shows the source rather than the rendered page.
+- [Product requirements](docs/PRD.html), draft v0.31 (MicroPup, the low-cost hobby-servo dog). It is a single HTML file: download it and open it in a browser, because GitHub shows the source rather than the rendered page.
 - [Earlier Markdown draft (v0.3)](docs/archive/PRD-v0.3.md), superseded and kept for history.
 - [Hardware design files](hardware/README.md): the body shell, wings, tail and the tools that build them.
 
