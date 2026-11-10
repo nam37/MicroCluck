@@ -318,13 +318,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroPup</h1>
     <p class="lede">Product requirements for a small walking robot dog whose face is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.25</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.26</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>9 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.26</strong> Camera bring-up starts on a Waveshare ESP32-P4-WIFI6 kit (Kit A, on Amazon for $34.55 on 9 November 2026, in stock with two-day delivery): the same ESP32-P4 and ESP32-C6, listed at 400 MHz, with an RPi Camera (B) known to work with it and a 200 mm Pi 5 camera cable. It is the V0 development board. Which ESP32-P4 board goes in the robot, this one or the smaller DFRobot FireBeetle 2, is decided after V0 from its size and the measured detection rate (§6.1, §6.2, §10, §13).</li>
         <li><strong>v0.25</strong> The vision board is now a DFRobot FireBeetle 2 ESP32-P4 with a wide-angle Raspberry Pi-compatible camera, in place of the XIAO ESP32S3 Sense. Espressif's own figures put person detection on the ESP32-P4 at about 50 ms a frame (224 × 224, 400 MHz; this board runs at 360 MHz), so v2's following can run on the robot itself, at home or away, with no server in the loop; the VPS (6 vCPUs, 8 GB, no GPU) and a Raspberry Pi 4 at home, reached through the VPS over Tailscale when away, become optional off-board vision servers. The camera module sits on the forehead and the board in the front of the body, on the camera's ribbon cable. The XIAO Sense stays as the small fallback (§6, §9.9, §11, §13).</li>
         <li><strong>v0.24</strong> MicroPup replaces the MicroCluck biped as the project's target. The document is rewritten around the dog: a DeskSprite face on the Freenove FNK0104N, an 8-servo XL330 body with a paddle tail, and three boards (face, body, vision) where the biped had one. The body board is a second ESP32-S3 that owns the walking loop and safety; the vision board is a XIAO ESP32S3 Sense moved from the chin to the forehead and tilted up, so it sees people and not just the floor; the ToF sensor stays in the chin. Vision (FPV and eye tracking) is in v1; following people and patrolling are v2, with the processing off the robot. The simulation results come from the dog study (<a href="quadruped-study.html">quadruped-study.html</a>): it walks 0.1 to 0.3 m/s, its servo load is well under the stock Microduck's, and it gets up from its belly. The biped's PRD, up to v0.23, is kept unchanged in <a href="archive/PRD-MicroCluck-v0.23.html">archive/PRD-MicroCluck-v0.23.html</a>.</li>
         <li><strong>v0.1 to v0.23</strong> MicroCluck, the biped robot chicken. See the archived document for its history.</li>
@@ -409,7 +410,7 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>When</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
     <tr><td>Now</td><td>Nothing required. Filament for fit-check prints of the bezel and the forehead camera mount</td><td>The face board is owned; fit checks need only it.</td></tr>
-    <tr><td>Optional, early</td><td>2 XL330-M288-T, the U2D2, the body board, an IMU breakout, 74HC126 and perfboard parts, the FireBeetle 2 ESP32-P4 and a wide-angle CSI camera (about 5 weeks' delivery)</td><td>Servo-bus, IMU and camera bring-up (H1, H2, V0) can begin during Phase A. These parts are the same in every remaining design option.</td></tr>
+    <tr><td>Optional, early</td><td>2 XL330-M288-T, the U2D2, the body board, an IMU breakout, 74HC126 and perfboard parts, and the Waveshare ESP32-P4 camera kit for V0 (in stock now)</td><td>Servo-bus, IMU and camera bring-up (H1, H2, V0) can begin during Phase A. These parts are the same in every remaining design option.</td></tr>
     <tr><td>At design freeze</td><td>The remaining servos and spares, battery, 5 V buck, INA226, ToF sensor, aluminium bar, connectors, print material</td><td>The remaining simulation checks are done; the STLs freeze in H3.</td></tr>
   </tbody>
 </table></div>
@@ -526,7 +527,7 @@ svg text { font-family: var(--font-body); }
 <ul>
   <li><strong>Face board.</strong> The FNK0104N runs DeskSprite's firmware, extended for MicroPup: the face, touch, voice through the relay, the phone controller page and WebSocket, and the behaviour layer that turns phone, voice and (in v2) autonomy into velocity commands and actions. It holds no safety duty: if it crashes, the body board stops and lies down.</li>
   <li><strong>Body board.</strong> A second ESP32-S3 owns everything that moves: the 50 Hz policy loop, the servo bus, the IMU, the battery monitor, the ToF sensor and the state machine. All safety checks live here (§9.8). It has Wi-Fi only for OTA and development, off while walking. This split is what future-proofs the robot: the face and vision boards can grow (voice, autonomy, more vision) without touching the loop's timing, and a third servo per leg (12 on the same bus) or a better IMU needs no change to the face board.</li>
-  <li><strong>Vision board.</strong> A DFRobot FireBeetle 2 ESP32-P4 in the front of the body runs the camera on the forehead: a hardware-encoded MJPEG stream for the phone's view, a face finder for the eyes' gaze, and in v2 person detection on the board itself. It does not command the legs; what it finds reaches the body only through the face board's behaviour layer, under the body's limits.</li>
+  <li><strong>Vision board.</strong> An ESP32-P4 board (Waveshare ESP32-P4-WIFI6 or DFRobot FireBeetle 2, §6.2) in the front of the body runs the camera on the forehead: a hardware-encoded MJPEG stream for the phone's view, a face finder for the eyes' gaze, and in v2 person detection on the board itself. It does not command the legs; what it finds reaches the body only through the face board's behaviour layer, under the body's limits.</li>
 </ul>
 
 <!-- 6 -->
@@ -541,8 +542,9 @@ svg text { font-family: var(--font-body); }
     <tr><td>Dynamixel XL330-M288-T</td><td>9 + 3 spare</td><td>Eight leg servos and the tail. ROBOTIS America, SKU 902-0163-000, $27.49 each on 9 November 2026, lead time to the end of November. Not the pricier XC330-M288-T</td><td>~$330</td></tr>
     <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for IDs and servo firmware (Fast Sync Read needs v46 or newer). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
     <tr><td>Body board: Seeed XIAO ESP32S3 (8 MB PSRAM)</td><td>1</td><td>Default because it is small; an ESP32-S3-DevKitC-1 N8R8 if more pins are wanted (§6.2)</td><td>~$8–15</td></tr>
-    <tr><td>Vision board: DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</td><td>1</td><td>360 MHz dual-core RISC-V with AI extensions, 32 MB PSRAM, 16 MB flash, MIPI CSI (Raspberry Pi pinout), hardware JPEG and H.264, Wi-Fi 6 through an ESP32-C6, PDM microphone; 25.4 × 60 mm. $16.50, pre-order with about 5 weeks' delivery (9 November 2026)</td><td>~$17</td></tr>
-    <tr><td>Camera: Raspberry Pi-compatible CSI module, about 120° wide-angle lens</td><td>1</td><td>A sensor that ESP-IDF's camera driver supports on the P4 (OV5647 class, §13), with a ribbon long enough to reach the forehead</td><td>~$13–25</td></tr>
+    <tr><td>Vision bring-up kit: Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>1</td><td>Amazon (seller Wonrabai), $34.55 on 9 November 2026, in stock with two-day delivery, returnable until 31 January 2027. The V0 development board: ESP32-P4 listed at 400 MHz, ESP32-C6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. Its camera is known to work with it but probably narrower than the robot's 120°</td><td>$34.55</td></tr>
+    <tr><td>Vision board for the robot, candidate: DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</td><td>1</td><td>Smaller (25.4 × 60 mm) if the Waveshare board does not fit behind the bezel; decided after V0. 360 MHz dual-core RISC-V with AI extensions, 32 MB PSRAM, 16 MB flash, MIPI CSI (Raspberry Pi pinout), hardware JPEG and H.264, Wi-Fi 6 through an ESP32-C6, PDM microphone; 25.4 × 60 mm. $16.50, pre-order with about 5 weeks' delivery (9 November 2026)</td><td>~$17</td></tr>
+    <tr><td>Camera: Raspberry Pi-compatible CSI module, about 120° wide-angle lens</td><td>1</td><td>For the robot, if the kit's RPi Camera (B) is too narrow: a sensor ESP-IDF's camera driver supports on the P4 (OV5647 class, §13), with a ribbon long enough to reach the forehead</td><td>~$13–25</td></tr>
     <tr><td>ToF sensor: VL53L5CX breakout</td><td>1</td><td>8 × 8 zones, up to about 4 m, I2C; in the chin, on the body board's I2C</td><td>~$15–25</td></tr>
     <tr><td>IMU breakout</td><td>1</td><td>Default ICM-42688-P, supply-constrained; LSM6DSOX or LSM6DSV16X as alternatives (§13)</td><td>~$10–20</td></tr>
     <tr><td>INA226 power monitor breakout</td><td>1</td><td>Pack voltage and current over I2C</td><td>~$5</td></tr>
@@ -553,7 +555,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Aluminium flat bar, 1/2" × 1/8" (12.7 × 3.2 mm)</td><td>~1 m</td><td>Thigh and shank plates; printed PETG cradles hold the servos</td><td>~$10</td></tr>
     <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables, 4-wire link cable</td><td>–</td><td></td><td>~$15</td></tr>
     <tr><td>Printed shell, bezel, ears, tail, cradles (PETG) and feet (TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
-    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned</td><td><strong>~$510–575</strong></td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned. The low end assumes the Waveshare board and its camera go in the robot</td><td><strong>~$515–610</strong></td></tr>
   </tbody>
 </table></div>
 
@@ -577,7 +579,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>IMU data-ready interrupt</td><td>1</td></tr>
   </tbody>
 </table></div>
-<p><strong>Vision board (FireBeetle 2 ESP32-P4).</strong> The camera plugs into its MIPI CSI connector; the board needs only 5 V on VIN and ground and talks over Wi-Fi. Its 24 GPIO are free for later (a second camera, or a UART to the face board if UDP ever proves too slow). The Seeed XIAO ESP32S3 Sense (21 × 17.5 mm, camera on board) is the fallback if the P4 board disappoints; Espressif quotes over 7 fps for person detection on an ESP32-S3, with little left for streaming.</p>
+<p><strong>Vision board (ESP32-P4).</strong> Development starts on the Waveshare ESP32-P4-WIFI6 from the kit; the robot gets it or the smaller DFRobot FireBeetle 2 ESP32-P4, decided after V0 by whether the Waveshare board fits behind the bezel. Either way, the camera plugs into the MIPI CSI connector; the board needs only 5 V on VIN and ground and talks over Wi-Fi. Its spare GPIO (24 on the FireBeetle, 27 on the Waveshare) are free for later (a second camera, or a UART to the face board if UDP ever proves too slow). The Seeed XIAO ESP32S3 Sense (21 × 17.5 mm, camera on board) is the fallback if the P4 board disappoints; Espressif quotes over 7 fps for person detection on an ESP32-S3, with little left for streaming.</p>
 
 <h3 id="bus"><span class="n">6.3</span>Servo bus interface</h3>
 <figure class="diagram wide">
@@ -1008,7 +1010,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>F0 Face for MicroPup</td><td>DeskSprite's MicroPup build: the link on the UART header (loopback test), the talk switch on GPIO45 or 46, the controller page and WebSocket, the robot expressions (dizzy, help, confused), stabilized eyes from a fake gravity feed.</td></tr>
     <tr><td>H1 Servo bus and body board</td><td>74HC126 interface built; 9 servos with IDs set and firmware updated (U2D2), Return Delay Time 0, 1 then 2 Mbps. 50 Hz sync read and write for 10 minutes with zero bus errors and p99 jitter ≤ 1 ms while the link and the ToF run. Health polling that ignores the voltage bit (Shutdown 52). Bus Watchdog verified with the firmware halted mid-stand.</td></tr>
     <tr><td>H2 IMU and range</td><td>Gyro bias calibrated at boot; gravity within ±2° at known tilts at 500 Hz or more; ToF zones read at 15 Hz and the obstacle stop works on the bench.</td></tr>
-    <tr><td>V0 Camera</td><td>ESP32-P4 vision board with the wide-angle camera on the forehead mount: MJPEG on the phone, a standing person's face found from 0.5 to 3 m, gaze packets reaching the face board. Pedestrian detection measured on the board while streaming (fps and latency), as the go or no-go for on-robot following.</td></tr>
+    <tr><td>V0 Camera</td><td>On the Waveshare kit first, then with the robot's camera on the forehead mount: MJPEG on the phone, a standing person's face found from 0.5 to 3 m, gaze packets reaching the face board. Pedestrian detection measured on the board while streaming (fps and latency), as the go or no-go for on-robot following. The Waveshare board's size and mounting checked against the space behind the bezel, to choose the robot's vision board.</td></tr>
     <tr><td>H3 Mechanical design</td><td>Final OpenSCAD for the shell, bezel with lips, ears and forehead camera mount, chin ToF window, legs and cradles, tail, battery door and cable routing, from the model's numbers. No interference across the gait's joint ranges. Fit-check prints match the real boards and servos. STLs frozen.</td></tr>
     <tr><td>H4 Assembly</td><td>Printed and assembled; every part weighed and the model updated; retrained if the measured mass properties fall outside the randomization ranges. Golden test passes on the body board.</td></tr>
     <tr><td>H5 First steps</td><td>On a stand with the feet off the floor, then lying, standing up, standing and walking on a flat floor. The scripted lie-down proven before the first free walk. Logs compared with twin runs. Servo temperatures logged on the first walks.</td></tr>
@@ -1046,7 +1048,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Screen damage in falls</td><td>Bezel lips proud of the glass, ears as bumpers, the forehead camera recessed.</td></tr>
     <tr><td>Brownouts on the logic rail</td><td>A 3 A buck that accepts the pack's full range, bulk capacitance on the servo bus, a BMS sized for peaks.</td></tr>
     <tr><td>Servo lead time and cost</td><td>Order at the design freeze with three spares; ROBOTIS America quotes a lead time to the end of November 2026.</td></tr>
-    <tr><td>The ESP32-P4 board is new</td><td>Pre-order (about 5 weeks), first chip revision at 360 MHz, camera and AI only under ESP-IDF, Wi-Fi through a second chip. Buy it early for V0; the XIAO ESP32S3 Sense is the fallback, with detection off the robot.</td></tr>
+    <tr><td>The ESP32-P4 boards are new</td><td>Camera and AI only under ESP-IDF, Wi-Fi through a second chip; the DFRobot board is a pre-order (about 5 weeks) with the first chip revision at 360 MHz. The Waveshare kit, in stock with two-day delivery, de-risks V0; the XIAO ESP32S3 Sense is the fallback, with detection off the robot.</td></tr>
     <tr><td>Three firmwares to maintain</td><td>Only the body firmware is safety-critical and it is tested on the twin; the face is DeskSprite's; the vision firmware is small. OTA for all three from one page.</td></tr>
   </tbody>
 </table></div>
@@ -1069,7 +1071,8 @@ svg text { font-family: var(--font-body); }
 <h2 id="questions"><span class="n">13</span>Open questions</h2>
 <ol>
   <li>Where the face firmware lives: a MicroPup build inside DeskSprite's repository (recommended, so the face and voice stay one codebase), or a copy in this repository.</li>
-  <li>Which Raspberry Pi-compatible camera for the P4: a sensor ESP-IDF's MIPI camera driver supports (OV5647 class; check before buying, since the common IMX708 Camera Module 3 may not be), a field of view of about 120°, its distortion, and a ribbon long enough from the forehead to the board.</li>
+  <li>Which ESP32-P4 board goes in the robot: the Waveshare ESP32-P4-WIFI6 (bring-up board, audio on board, larger) or the DFRobot FireBeetle 2 (25.4 × 60 mm, 360 MHz), after V0.</li>
+  <li>Which Raspberry Pi-compatible camera for the robot: the kit's RPi Camera (B) if its field of view is enough, otherwise a sensor ESP-IDF's MIPI camera driver supports (OV5647 class; check before buying, since the common IMX708 Camera Module 3 may not be), a field of view of about 120°, its distortion, and a ribbon long enough from the forehead to the board.</li>
   <li>Which person detector for v2 and its measured rate on the VPS's CPUs (6 vCPUs, 8 GB, no GPU), and how much of the server the vision container may take next to its other services.</li>
   <li>Whether v2 vision uses the home Raspberry Pi 4 at all (§11): its measured detection rate, whether the robot can find it directly on the home network or always goes through the relay, and Tailscale between the VPS and the Pi for use away from home.</li>
   <li>Which XL330 variant Pollen's actuator model targets (M288 is assumed; their constants name only <code>xl330</code> and BAM model <code>m6</code>).</li>
@@ -1135,6 +1138,7 @@ svg text { font-family: var(--font-body); }
   <li><a href="https://github.com/pollen-robotics/microduck">pollen-robotics/microduck</a>, the onboard runtime</li>
   <li><a href="https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/">ROBOTIS XL330-M288-T e-Manual</a>, <a href="https://robotis.us/dynamixel-xl330-m288-t">ROBOTIS America XL330-M288-T</a>, <a href="https://robotis.us/u2d2/">U2D2</a></li>
   <li><a href="https://store.freenove.com/products/fnk0104">Freenove FNK0104 ESP32-S3 Display</a>; DeskSprite's <code>docs/HARDWARE.md</code> for the FNK0104N's pins</li>
+  <li><a href="https://www.waveshare.com/wiki/ESP32-P4-WIFI6">Waveshare ESP32-P4-WIFI6 wiki</a></li>
   <li><a href="https://www.dfrobot.com/product-2915.html">DFRobot FireBeetle 2 ESP32-P4 (DFR1172)</a> and its <a href="https://wiki.dfrobot.com/SKU_DFR1172_FireBeetle_2_Board_ESP32_P4">wiki</a></li>
   <li><a href="https://components.espressif.com/components/espressif/pedestrian_detect">Espressif pedestrian_detect</a> and <a href="https://github.com/espressif/esp-detection">esp-detection</a>, with per-chip latency tables</li>
   <li><a href="https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/">Seeed XIAO ESP32S3 and XIAO ESP32S3 Sense</a></li>
