@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MicroCluck Dog Study</title>
+<title>MicroPup Study</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -278,10 +278,10 @@ svg text { font-family: var(--font-body); }
 
 <header class="hero" style="grid-template-columns: 1fr;">
   <div>
-    <h1>MicroCluck as a dog</h1>
-    <p class="lede">Simulation study of an 8-servo quadruped body under the MicroCluck face.</p>
+    <h1>MicroPup</h1>
+    <p class="lede">The robot dog that replaces the MicroCluck biped: simulation study of the 8-servo body under the screen face.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Study, sim only</dd></div>
+      <div><dt>Status</dt><dd>Target design (9 Nov 2026); sim only so far</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>9 November 2026</dd></div>
     </dl>
@@ -305,7 +305,7 @@ svg text { font-family: var(--font-body); }
 
 <!-- 1 -->
 <h2 id="summary"><span class="n">1</span>Summary</h2>
-<p>On 8 November 2026 the project started looking at a robot dog in place of the biped chicken: the touchscreen face from DeskSprite on the same Freenove FNK0104N board, on a simplified Stanford Pupper-style body with two XL330 servos per leg (eight in all, no hip abduction) and an expressive tail. The dog is the working direction but not a final decision. <a href="PRD.html">The PRD</a> still describes the biped and has not been revised for it.</p>
+<p>On 8 November 2026 the project started looking at a robot dog in place of the biped chicken: the touchscreen face from DeskSprite on the same Freenove FNK0104N board, on a simplified Stanford Pupper-style body with two XL330 servos per leg (eight in all, no hip abduction) and an expressive tail. On 9 November 2026 the user made the dog, MicroPup, the project's final target. <a href="PRD.html">The PRD</a> still describes the biped until it is revised.</p>
 <p>Everything below is simulation, with the same tools and actuator model as the biped (PRD §7). The results:</p>
 <ul>
   <li><strong>It walks.</strong> 0.1 to 0.3 m/s forward within about 25% of the command, backward at about −0.18 m/s for a −0.2 command, turning at 0.73 to 0.78 rad/s for a 1.0 command, and no falls, even under the frequent pushes of the play configuration.</li>
