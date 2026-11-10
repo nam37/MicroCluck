@@ -546,7 +546,8 @@ svg text { font-family: var(--font-body); }
     <tr class="total"><td>Total</td><td></td><td>Everything, including the kit and a charger. About $115–160 if the kit and a charger are already owned</td><td><strong>~$150–195</strong></td></tr>
   </tbody>
 </table></div>
-<p><strong>Optional:</strong> potentiometer read-back on the leg servos (§6.3) adds only wire and an ADC (about $5) if the simulation shows it is worth having. Ready-made feedback servos cost about $12 each and are not planned.</p>
+<p><strong>No servo feedback.</strong> v1 walks with a scripted gait that needs no joint angles (§7.2), so the potentiometer read-back is not fitted and nothing is bought for it: no ADC, no wiper wires, no opened servos. Ready-made feedback servos (about $12 each) are not planned either.</p>
+<p><strong>Servo option:</strong> TowerPro MG92B in place of the MG90S, about $8–12 each (+$40–60 for ten), for more torque margin; decided when its simulation finishes (§7.2).</p>
 
 <h3 id="pins"><span class="n">6.2</span>Board and pins</h3>
 <p>The Waveshare board's header pinout is checked against this list in H1, before anything is soldered.</p>
@@ -561,14 +562,14 @@ svg text { font-family: var(--font-body); }
     <tr><td>On board, not repurposed: MIPI CSI camera, audio codec, ESP32-C6 link, flash, PSRAM, USB</td><td>–</td></tr>
   </tbody>
 </table></div>
-<p>Twelve pins. If the potentiometer read-back is fitted, the eight angles come from an I2C ADC (two 4-channel ADS1115-class boards) or the P4's own ADC pins, decided in H1.</p>
+<p>Twelve pins. No ADC pins are needed: the servos are not read back.</p>
 
 <h3 id="servos"><span class="n">6.3</span>Servo drive</h3>
 <ul>
   <li><strong>PCA9685 at 50 Hz</strong>, one frame per control cycle, written in one I2C burst at 400 kHz or 1 MHz (well under 1 ms). Its 12-bit counter gives about 4.9 µs steps, about 0.45° on an MG90S.</li>
   <li><strong>Channels:</strong> 0–7 the leg servos in joint order (FL hip, FL knee, FR hip, FR knee, RL hip, RL knee, RR hip, RR knee), 8 the tail. The pulse width for each joint's zero and its direction are calibrated per servo in H0 and stored on the board.</li>
   <li><strong>Limp on reset:</strong> OE is pulled high, so from power-on and after any reset the outputs are off and the servos go limp until core 1 enables them (S9). Some digital servos hold their last position without pulses; the MG90S is checked for this in H0.</li>
-  <li><strong>Potentiometer read-back (optional):</strong> a wire soldered to each servo's potentiometer wiper gives its true angle, through a divider if needed. It needs the servo opened; it is fitted only if the simulation's "pot" policy clearly beats the "blind" one (§7.2) or the measured servos turn out to need it.</li>
+  <li><strong>No read-back:</strong> the servos stay sealed and stock. The scripted gait runs open loop (§7.2); the robot knows its legs only from what it last commanded, so every motion starts from a known pose (§9.6). Only the H0 bench servos have their potentiometer wired out, to measure them.</li>
 </ul>
 
 <h3 id="power"><span class="n">6.4</span>Power</h3>
