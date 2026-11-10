@@ -544,6 +544,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Dynamixel XL330-M288-T</td><td>8 + 1 spare</td><td>The eight leg servos; buy more spares later if one fails. ROBOTIS America, SKU 902-0163-000, $27.49 each on 9 November 2026, lead time to the end of November. Not the pricier XC330-M288-T</td><td>~$247</td></tr>
     <tr><td>Tail servo: SG90-class 9 g micro servo (metal-gear MG90S if the plastic gears strip)</td><td>1 + 1 spare</td><td>PWM from the body board, 5 V from the buck; no feedback, which a tail does not need. Matches the 9 g micro servo already in the walking model</td><td>~$3–8</td></tr>
     <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for IDs and servo firmware (Fast Sync Read needs v46 or newer). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
+    <tr><td>ROBOTIS U2D2 Power Hub Board Set</td><td>1</td><td>Bench only: powers the servos while the U2D2 talks to them (the U2D2 carries data, not power). Barrel jack or screw terminal; feed it 5 V, inside the XL330's 3.7–6.0 V rating. ROBOTIS America, SKU 902-0145-001</td><td>~$22</td></tr>
     <tr><td>Body board bring-up: ESP32-S3 N16R8 DevKitC-1-style boards, 2-pack (QIQIAZI)</td><td>2</td><td>16 MB flash, 8 MB octal PSRAM (GPIO35–37 reserved for it), pre-soldered headers, two USB-C. For H1 and H2 on the bench: one as the body board, one as a spare or as the face end of the link. Amazon, $15.99 with a $1.60 coupon on 9 November 2026, next-day delivery. About 63 × 26 mm, so it may not fit the body; the same firmware runs on the XIAO</td><td>~$14</td></tr>
     <tr><td>Body board for the robot: Seeed XIAO ESP32S3 (8 MB PSRAM), plain, not the Sense</td><td>1</td><td>Default for the robot because it is small (21 × 17.5 mm); bought at H3 if the DevKitC does not fit. Comes with a U.FL antenna (§6.2)</td><td>~$8–17</td></tr>
     <tr><td>Vision bring-up kit: Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>1</td><td>Amazon (seller Wonrabai), $34.55 on 9 November 2026, in stock with two-day delivery, returnable until 31 January 2027. The V0 development board: ESP32-P4 listed at 400 MHz, ESP32-C6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. Its camera is known to work with it but probably narrower than the robot's 120°</td><td>$34.55</td></tr>
@@ -559,7 +560,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Aluminium flat bar, 1/2" × 1/8" (12.7 × 3.2 mm)</td><td>~1 m</td><td>Thigh and shank plates; printed PETG cradles hold the servos</td><td>~$10</td></tr>
     <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables, 4-wire link cable</td><td>–</td><td></td><td>~$15</td></tr>
     <tr><td>Printed shell, bezel, ears, tail, cradles (PETG) and feet (TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
-    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned. The low end assumes the Waveshare board and its camera go in the robot</td><td><strong>~$450–550</strong></td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Excluding the face board, which is owned. The low end assumes the Waveshare board and its camera go in the robot</td><td><strong>~$470–575</strong></td></tr>
   </tbody>
 </table></div>
 
