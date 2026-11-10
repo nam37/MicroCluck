@@ -269,9 +269,10 @@ svg text { font-family: var(--font-body); }
     <li><a href="#load"><span class="n">5</span>Servo load</a></li>
     <li><a href="#getup"><span class="n">6</span>Getting up</a></li>
     <li><a href="#run8"><span class="n">7</span>The final model (run 8)</a></li>
-    <li><a href="#decisions"><span class="n">8</span>Decisions</a></li>
-    <li><a href="#open"><span class="n">9</span>Still open</a></li>
-    <li><a href="#files"><span class="n">10</span>Where things are</a></li>
+    <li><a href="#cost"><span class="n">8</span>Cheaper servos</a></li>
+    <li><a href="#decisions"><span class="n">9</span>Decisions</a></li>
+    <li><a href="#open"><span class="n">10</span>Still open</a></li>
+    <li><a href="#files"><span class="n">11</span>Where things are</a></li>
   </ol>
 </nav>
 
@@ -284,7 +285,7 @@ svg text { font-family: var(--font-body); }
     <dl class="meta">
       <div><dt>Status</dt><dd>Target design (9 Nov 2026); sim only so far</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
-      <div><dt>Updated</dt><dd>9 November 2026</dd></div>
+      <div><dt>Updated</dt><dd>10 November 2026</dd></div>
     </dl>
   </div>
 </header>
@@ -299,6 +300,7 @@ svg text { font-family: var(--font-body); }
     <li><a href="#load">Servo load</a></li>
     <li><a href="#getup">Getting up</a></li>
     <li><a href="#run8">The final model (run 8)</a></li>
+    <li><a href="#cost">Cheaper servos</a></li>
     <li><a href="#decisions">Decisions</a></li>
     <li><a href="#open">Still open</a></li>
     <li><a href="#files">Where things are</a></li>
@@ -316,6 +318,7 @@ svg text { font-family: var(--font-body); }
   <li><strong>It gets up from its belly</strong> in 64 of 64 starts under every stress tested, with the legs along the sides.</li>
   <li><strong>It cannot get up from its back</strong> with two servos per leg. The user deprioritized this: it should only end up on its back if kicked, and a person can right it.</li>
   <li>Moving the knee servo up to the hip, and a lighter parts budget, were both tested and neither is worth it (§5).</li>
+  <li><strong>Cheaper servos do not work as a drop-in</strong> (§8). A Feetech STS3215 dog walks at under half the speed with little torque to spare; an MG90S hobby-servo dog sits at stall and barely moves. The XL330 stays.</li>
 </ul>
 <p>Servo heat on the real robot is left to the first live walks, read from the servos' own temperature registers as the PRD already requires (S4). No bench test comes first and no more simulation runs chase the load.</p>
 
@@ -333,7 +336,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Sensors</td><td>A camera (XIAO ESP32S3 Sense class) and a ToF ranger (VL53L5CX class) in a chin under the bezel from v1, used for a first-person view and eye tracking. (Since PRD v0.25: an ESP32-P4 vision board with the camera on the forehead, tilted up; the ToF stays in the chin.)</td></tr>
   </tbody>
 </table></div>
-<p><strong>Parts chosen so far.</strong> The servos stay the XL330 the simulation was run with (a Feetech HD1910M was considered on 9 November and turned down: a different bus protocol and no actuator model for it).</p>
+<p><strong>Parts chosen so far.</strong> The servos stay the XL330 the simulation was run with (a Feetech HD1910M was considered on 9 November and turned down: a different bus protocol and no actuator model for it; the STS3215 and MG90S were simulated and rejected, §8).</p>
 <div class="tbl"><table>
   <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
@@ -427,17 +430,45 @@ svg text { font-family: var(--font-body); }
 </table></div>
 <p>Scripts: <code>scripts/quad_liedown_test.py</code>, <code>scripts/quad_shell_clearance.py</code>, the task <code>Mjlab-Velocity-Flat-MicroCluck-Quad8-Backlash</code>; run directory <code>logs/rsl_rl/microcluck_quad8/*_quad8_v8_prd_backlash</code>; helper <code>~/quad_run8.sh</code>; videos <code>~/quad_out/walk_r8.mp4</code> and <code>liedown_r8.mp4</code>. The distance query against the shell mesh returns a spurious exact 0 for about 6% of near-home poses; the script retries those and discards what stays at 0.</p>
 
-<h2 id="decisions"><span class="n">8</span>Decisions</h2>
+<!-- 8 -->
+<h2 id="cost"><span class="n">8</span>Cheaper servos (9 November)</h2>
+<p>Nine XL330s and a U2D2 come to about $285, most of the dog's budget, and a Microduck costs $399 ready-made. A search for a cheaper servo turned up no light, cheap bus servo with an actuator model. The XL-320, STS3032 and HD1910 cost about as much, the LX-224 and HTS-20L are heavy, and the SCS0009 is too weak. Two candidates were simulated:</p>
+<ul>
+  <li><strong>Feetech STS3215</strong>, about $17 each: a 55 g bus servo with position feedback and a published BAM model (<code>feetech_sts3215_7_4V/m1</code>, 7.4 V). It is bigger, so the body was scaled up: 70 mm thigh and shank, 120 mm stance, heavier shell, battery and electronics, 996 g in all.</li>
+  <li><strong>MG90S</strong>, a few dollars each: a 13 g metal-gear hobby servo, PWM only, no feedback. Modelled from the datasheet (no measurement): 0.216 N·m stall at 6 V, with a ±0.5° deadband. The body was scaled down: 45 mm thigh and shank, 75 mm stance, 414 g. The policy gets potentiometer-grade joint angles (±0.02 rad noise, ±0.05 rad bias) and no joint velocities, as if read back through a hacked pot.</li>
+</ul>
+<p>The STS3215 policy was a 1,000-iteration warm start from run 5, with the torque penalty scaled down for its larger torques. The MG90S policy was trained from scratch for 1,500 iterations. Both were run through the same walking, load and belly stand-up tests as above.</p>
+<div class="tbl"><table>
+  <thead><tr><th></th><th>XL330 (run 7)</th><th>STS3215</th><th>MG90S</th></tr></thead>
+  <tbody>
+    <tr><td>Robot mass</td><td>579 g</td><td>996 g</td><td>414 g</td></tr>
+    <tr><td>Forward at 0.1 / 0.2 / 0.3 m/s</td><td>0.12 / 0.20 / 0.25</td><td>0.05 / 0.11 / 0.12</td><td>0.02 / 0.06 / 0.05</td></tr>
+    <tr><td>Top speed</td><td>about 0.28</td><td>about 0.12</td><td>about 0.06</td></tr>
+    <tr><td>Backward at −0.2 m/s</td><td>−0.18</td><td>−0.09</td><td>−0.01</td></tr>
+    <tr><td>Turn at 1.0 rad/s</td><td>0.76</td><td>0.65</td><td>0.52</td></tr>
+    <tr><td>Falls, with and without pushes</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>Belly stand-up, every stress</td><td>64/64</td><td>64/64</td><td>64/64</td></tr>
+    <tr><td>Typical torque (RMS) against stall</td><td>about 0.12 of 0.52–0.60 N·m</td><td>0.43–0.49 of about 1.9 N·m (datasheet)</td><td>0.12–0.15 of 0.216 N·m</td></tr>
+    <tr><td>Peaks</td><td>at the ceiling briefly, as on the duck</td><td>up to 2.6 N·m, above the datasheet stall</td><td>at stall on every joint (99th percentile)</td></tr>
+  </tbody>
+</table></div>
+<p><strong>MG90S: rejected.</strong> Every joint sits at its stall torque most of the time, averaging 55 to 70% of stall; real hobby servos would overheat and strip their gears, and the dog still barely moves. The 60 g face board alone makes a body light enough for these servos hard to reach. The servo model is an estimate, but the margin is too large for that to matter.</p>
+<p><strong>STS3215: walks, not recommended.</strong> It is slow, partly because training's exploration collapsed early (action noise down to 0.02), so a fresh run might find a faster gait, and partly because the servo is about half as fast as the XL330. Its typical load is near its continuous rating, and its peaks only work because the BAM model's stall (3.25 N·m at 7.4 V) is stronger than the datasheet's. Shorter legs and a lighter body could restore the margin, but that is more redesign and risk to save about $95.</p>
+<p><strong>Conclusion.</strong> The XL330 is the right servo at this size, so cheaper servos do not make the dog cheaper than a Microduck. The leanest XL330 v1 is about $360–390: no U2D2 at first (servo IDs set from the ESP32, if the servos ship with recent enough firmware), the bench ESP32-S3 as the body board, and the camera and ToF moved to v2. The choice between MicroPup and a Microduck is about the design, not the cost.</p>
+<p>Variant switches: <code>QUAD_SERVO</code> (<code>xl330</code>, <code>sts3215</code> or <code>mg90s</code>) and <code>QUAD_FEEDBACK</code> (<code>full</code>, <code>pot</code> or <code>blind</code>; <code>pot</code> is the default for the MG90S). Actuators in <code>src/mjlab_microduck/actuator/servo_models.py</code>, MG90S parameters in <code>robot/quad/params/mg90s_m1.json</code>. Runs <code>2026-11-09_21-49-16_quad8_c1_sts3215</code> (model_999) and <code>2026-11-09_21-50-44_quad8_c2_mg90s</code> (model_1499); helpers <code>~/quad_cost_build.sh</code> and <code>~/quad_cost_run.sh</code>; videos <code>~/quad_out/walk_cost_sts3215.mp4</code> and <code>walk_cost_mg90s.mp4</code>. Sim commit <code>47ed4400</code>.</p>
+
+<h2 id="decisions"><span class="n">9</span>Decisions</h2>
 <ul>
   <li><strong>Top speed:</strong> specify 0.3 m/s.</li>
   <li><strong>Knee servo:</strong> at the knee. The pushrod layout is rejected.</li>
   <li><strong>Mass budget:</strong> keep the placeholder budget, including the 85 g battery. Saving weight does not help the servos.</li>
   <li><strong>Servo heat:</strong> settled for the simulation stage. Checked live on the first walks of the real robot through the servos' temperature readings (PRD S4), with vent slots near the enclosed hip servos if they run hot. No bench test first.</li>
   <li><strong>Getting up from the back:</strong> not pursued.</li>
+  <li><strong>Servo:</strong> the XL330 stays. The STS3215 and MG90S were simulated and rejected (§8).</li>
 </ul>
 
 <!-- 8 -->
-<h2 id="open"><span class="n">9</span>Still open</h2>
+<h2 id="open"><span class="n">10</span>Still open</h2>
 <ol>
   <li>Decided 9 November 2026: the dog is the project's direction, and the PRD has been rewritten for it (v0.24).</li>
   <li>The real masses and centre of mass. Every value in the model is a placeholder; weigh the parts and balance the assembled body before trusting the get-up.</li>
@@ -448,7 +479,7 @@ svg text { font-family: var(--font-body); }
 </ol>
 
 <!-- 9 -->
-<h2 id="files"><span class="n">10</span>Where things are</h2>
+<h2 id="files"><span class="n">11</span>Where things are</h2>
 <p>The simulation work is in the WSL sim repo, in a worktree at <code>~/microcluck_quad</code> on the local branch <code>microcluck_quad</code> (from <code>microcluck_standup</code>). It is not pushed.</p>
 <div class="tbl"><table class="plain">
   <thead><tr><th>What</th><th>Where</th></tr></thead>

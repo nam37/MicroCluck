@@ -318,13 +318,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroPup</h1>
     <p class="lede">Product requirements for a small walking robot dog whose face is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.29</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.30</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
-      <div><dt>Updated</dt><dd>9 November 2026</dd></div>
+      <div><dt>Updated</dt><dd>10 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.30</strong> Cheaper leg servos simulated and rejected (<a href="quadruped-study.html#cost">study §8</a>). A Feetech STS3215 dog (about $17 a servo, 996 g) walks at about 0.12 m/s, under half the XL330 dog's speed, with its typical torque near the servo's rating; an MG90S hobby-servo dog (414 g) sits at stall on every joint and barely moves. Both stand up from the belly 64 of 64. The XL330 stays. A lean v1 (no U2D2, a bench ESP32-S3 as body board, camera and ToF in v2) is about $360–390, close to a $399 Microduck, so whether to build MicroPup or buy a Microduck is now an open question (§13).</li>
         <li><strong>v0.29</strong> The four simulation checks before the design freeze all pass, on the final model (the forehead camera on a 14 mm band above the screen, tilted 27° up, the ToF sensor in the chin, the ears on; 596 g). A walking policy trained with ±1° of gear play on every servo (run 8, warm-started from run 7) walks 0.26 m/s at a 0.3 m/s command, turns at 0.70 rad/s and never falls, with the worst joint at 0.123 N·m RMS under the play pushes; it walks as well without the play. Over 96,000 recorded gait poses no leg part comes closer than 6 mm to the shell or 19 mm to the bezel, and the legs never touch each other. The scripted lie-down works in 64 of 64 starts for all three scripts tried, under every stress and with the gear play, at no more than 0.09 N·m, and the stand-up from where it ends works every time. Run 7's policy used unchanged on the final model turned noticeably slower (0.63 rad/s), so the final model needs its own policy, which run 8 is. The model's tail servo was the 18 g XL330 of v0.24, 9 g heavier than v0.28's micro servo, and the vision board of v0.25 is not in it (§7.2).</li>
         <li><strong>v0.28</strong> Cheaper servo plan: the tail moves from an XL330 to an SG90-class micro servo on a PWM pin of the body board, fed from the 5 V buck (the walking model already carries a 9 g micro servo there), and the XL330 order drops from 9 + 3 spares to 8 + 1, about $247 instead of $330. No cheaper leg servo was found that is as light, as strong and modelled: the Feetech STS3215 and Hiwonder LX-224 weigh 55–63 g, the SCS0009 is too weak, and the STS3032 costs more than the XL330 (§6.1, §6.3, §6.5).</li>
         <li><strong>v0.27</strong> Bench boards for the body: a 2-pack of ESP32-S3 N16R8 DevKitC-1-style boards for servo-bus, IMU and link bring-up (H1, H2), with the small XIAO ESP32S3 still the default for inside the robot, chosen at H3 (§6.1, §13).</li>
@@ -542,7 +543,7 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
     <tr><td>Freenove ESP32-S3 Display, 3.5" IPS touch (FNK0104N)</td><td>1</td><td>Already owned; runs DeskSprite. Microphone, codec, amplifier and speaker on board</td><td>owned</td></tr>
-    <tr><td>Dynamixel XL330-M288-T</td><td>8 + 1 spare</td><td>The eight leg servos; buy more spares later if one fails. ROBOTIS America, SKU 902-0163-000, $27.49 each on 9 November 2026, lead time to the end of November. Not the pricier XC330-M288-T</td><td>~$247</td></tr>
+    <tr><td>Dynamixel XL330-M288-T</td><td>8 + 1 spare</td><td>The eight leg servos; buy more spares later if one fails. ROBOTIS America, SKU 902-0163-000, $27.49 each on 9 November 2026, lead time to the end of November. Not the pricier XC330-M288-T. Cheaper servos were simulated on 9 November and rejected: the STS3215 is too slow and near its torque rating, the MG90S too weak (<a href="quadruped-study.html#cost">study §8</a>)</td><td>~$247</td></tr>
     <tr><td>Tail servo: SG90-class 9 g micro servo (metal-gear MG90S if the plastic gears strip)</td><td>1 + 1 spare</td><td>PWM from the body board, 5 V from the buck; no feedback, which a tail does not need. Matches the 9 g micro servo already in the walking model</td><td>~$3–8</td></tr>
     <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for IDs and servo firmware (Fast Sync Read needs v46 or newer). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
     <tr><td>ROBOTIS U2D2 Power Hub Board Set</td><td>1</td><td>Bench only: powers the servos while the U2D2 talks to them (the U2D2 carries data, not power). Barrel jack or screw terminal; feed it 5 V, inside the XL330's 3.7–6.0 V rating. ROBOTIS America, SKU 902-0145-001</td><td>~$22</td></tr>
@@ -1055,7 +1056,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Off-robot vision is too slow for following</td><td>Measure the round trip in v2 before tuning behaviour; the PC's GPU as a nearer server; an on-board Pi as the last step.</td></tr>
     <tr><td>Screen damage in falls</td><td>Bezel lips proud of the glass, ears as bumpers, the forehead camera recessed.</td></tr>
     <tr><td>Brownouts on the logic rail</td><td>A 3 A buck that accepts the pack's full range, bulk capacitance on the servo bus, a BMS sized for peaks.</td></tr>
-    <tr><td>Servo lead time and cost</td><td>The leg servos are most of the budget: 8 + 1 spare, the tail on a $3 micro servo. Order at the design freeze; ROBOTIS America quotes a lead time to the end of November 2026, so a failed servo can mean weeks without walking. Buy a second spare once the first walks show which joints work hardest.</td></tr>
+    <tr><td>Servo lead time and cost</td><td>The leg servos are most of the budget: 8 + 1 spare, the tail on a $3 micro servo. Order at the design freeze; ROBOTIS America quotes a lead time to the end of November 2026, so a failed servo can mean weeks without walking. Buy a second spare once the first walks show which joints work hardest. No cheaper servo works as a substitute (v0.30); the lean v1 in §13 trims the rest of the bill instead.</td></tr>
     <tr><td>The ESP32-P4 boards are new</td><td>Camera and AI only under ESP-IDF, Wi-Fi through a second chip; the DFRobot board is a pre-order (about 5 weeks) with the first chip revision at 360 MHz. The Waveshare kit, in stock with two-day delivery, de-risks V0; the XIAO ESP32S3 Sense is the fallback, with detection off the robot.</td></tr>
     <tr><td>Three firmwares to maintain</td><td>Only the body firmware is safety-critical and it is tested on the twin; the face is DeskSprite's; the vision firmware is small. OTA for all three from one page.</td></tr>
   </tbody>
@@ -1078,6 +1079,7 @@ svg text { font-family: var(--font-body); }
 <!-- 13 -->
 <h2 id="questions"><span class="n">13</span>Open questions</h2>
 <ol>
+  <li>Build MicroPup or buy a Microduck ($399 pre-order with battery and gamepad, delivery targeted before Christmas 2026). With XL330s a lean v1 is about $360–390: skip the U2D2 at first (set servo IDs from the ESP32, if the servos ship with recent enough firmware; check one on arrival), use a bench ESP32-S3 as the body board, and move the camera and ToF to v2. The full build in §6.1 costs more. MicroPup's case is the design (face, voice, a dog of its own), not the price. The servo order waits on this.</li>
   <li>Where the face firmware lives: a MicroPup build inside DeskSprite's repository (recommended, so the face and voice stay one codebase), or a copy in this repository.</li>
   <li>Which ESP32-P4 board goes in the robot: the Waveshare ESP32-P4-WIFI6 (bring-up board, audio on board, larger) or the DFRobot FireBeetle 2 (25.4 × 60 mm, 360 MHz), after V0.</li>
   <li>Which Raspberry Pi-compatible camera for the robot: the kit's RPi Camera (B) if its field of view is enough, otherwise a sensor ESP-IDF's MIPI camera driver supports (OV5647 class; check before buying, since the common IMX708 Camera Module 3 may not be), a field of view of about 120°, its distortion, and a ribbon long enough from the forehead to the board.</li>
