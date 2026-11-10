@@ -318,13 +318,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroPup</h1>
     <p class="lede">Product requirements for a small walking robot dog whose face is a touchscreen.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.28</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.29</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>9 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.29</strong> The four simulation checks before the design freeze all pass, on the final model (the forehead camera on a 14 mm band above the screen, tilted 27° up, the ToF sensor in the chin, the ears on; 596 g). A walking policy trained with ±1° of gear play on every servo (run 8, warm-started from run 7) walks 0.26 m/s at a 0.3 m/s command, turns at 0.70 rad/s and never falls, with the worst joint at 0.123 N·m RMS under the play pushes; it walks as well without the play. Over 96,000 recorded gait poses no leg part comes closer than 6 mm to the shell or 19 mm to the bezel, and the legs never touch each other. The scripted lie-down works in 64 of 64 starts for all three scripts tried, under every stress and with the gear play, at no more than 0.09 N·m, and the stand-up from where it ends works every time. Run 7's policy used unchanged on the final model turned noticeably slower (0.63 rad/s), so the final model needs its own policy, which run 8 is. The model's tail servo was the 18 g XL330 of v0.24, 9 g heavier than v0.28's micro servo, and the vision board of v0.25 is not in it (§7.2).</li>
         <li><strong>v0.28</strong> Cheaper servo plan: the tail moves from an XL330 to an SG90-class micro servo on a PWM pin of the body board, fed from the 5 V buck (the walking model already carries a 9 g micro servo there), and the XL330 order drops from 9 + 3 spares to 8 + 1, about $247 instead of $330. No cheaper leg servo was found that is as light, as strong and modelled: the Feetech STS3215 and Hiwonder LX-224 weigh 55–63 g, the SCS0009 is too weak, and the STS3032 costs more than the XL330 (§6.1, §6.3, §6.5).</li>
         <li><strong>v0.27</strong> Bench boards for the body: a 2-pack of ESP32-S3 N16R8 DevKitC-1-style boards for servo-bus, IMU and link bring-up (H1, H2), with the small XIAO ESP32S3 still the default for inside the robot, chosen at H3 (§6.1, §13).</li>
         <li><strong>v0.26</strong> Camera bring-up starts on a Waveshare ESP32-P4-WIFI6 kit (Kit A, on Amazon for $34.55 on 9 November 2026, in stock with two-day delivery): the same ESP32-P4 and ESP32-C6, listed at 400 MHz, with an RPi Camera (B) known to work with it and a 200 mm Pi 5 camera cable. It is the V0 development board. Which ESP32-P4 board goes in the robot, this one or the smaller DFRobot FireBeetle 2, is decided after V0 from its size and the measured detection rate (§6.1, §6.2, §10, §13).</li>
@@ -405,7 +406,7 @@ svg text { font-family: var(--font-body); }
 <!-- 3 -->
 <h2 id="approach"><span class="n">3</span>Development approach</h2>
 <p>Work runs in two phases. <strong>Phase A</strong> builds MicroPup in simulation: the model, the walking policy, the design checks, the C port of the policy and a virtual MicroPup that runs the real body firmware against the simulator (§8). <strong>Phase B</strong> builds the robot. Much of Phase A is done: the dog's model, its walking policy and its belly stand-up all pass in simulation (§7.2).</p>
-<p>The face board is already owned and already runs DeskSprite, so face and voice work continues in parallel. Servos ship with a lead time (§6.1), so they are ordered at the <strong>design freeze</strong>, once the remaining simulation checks are done: the forehead camera in the model, the shell's clearance to the legs over the gait, and a backlash-trained policy (§7.2). Driver bring-up on one or two early servos, the body board and the IMU may start earlier.</p>
+<p>The face board is already owned and already runs DeskSprite, so face and voice work continues in parallel. Servos ship with a lead time (§6.1), so they are ordered at the <strong>design freeze</strong>, once the simulation checks are done. They are (v0.29): the final model with the forehead camera, the shell's clearance to the legs over the gait, a backlash-trained policy and the scripted lie-down all pass (§7.2). Driver bring-up on one or two early servos, the body board and the IMU may start earlier.</p>
 
 <h3>Purchase plan</h3>
 <div class="tbl"><table>
@@ -675,7 +676,7 @@ svg text { font-family: var(--font-body); }
     <tr class="total"><td><strong>Target total for v1</strong></td><td><strong>≤ 600 g</strong>, with about 60 g reserved for v2</td></tr>
   </tbody>
 </table></div>
-<p>The model still carries a 9 g micro servo for the tail and the camera in the chin; both change before the next training run (§7.2). A 95 g lighter budget was tested and is not needed: it cut servo load by only 5 to 7%.</p>
+<p>The final model (<code>QUAD_DESIGN=prd</code>, §7.1) has the camera on the forehead and the ToF sensor in the chin, and is 596 g; its tail servo is an 18 g XL330, so with v0.28's 9 g micro servo the robot is about 587 g, and the v0.25 vision board in the front of the body is not modelled yet (it falls inside the training's mass and centre-of-mass randomization if it weighs under about 60 g). A 95 g lighter budget was tested and is not needed: it cut servo load by only 5 to 7%.</p>
 
 <!-- 7 -->
 <h2 id="sim"><span class="n">7</span>Simulation and training</h2>
@@ -684,7 +685,8 @@ svg text { font-family: var(--font-body); }
 <h3 id="model"><span class="n">7.1</span>Model and task</h3>
 <ol>
   <li><strong>Fork.</strong> <code>pollen-robotics/microduck_rl</code> is forked; the dog lives on the branch <code>microcluck_quad</code> in the worktree <code>~/microcluck_quad</code>, not yet pushed. It becomes the <code>sim/</code> submodule.</li>
-  <li><strong>Model.</strong> <code>src/mjlab_microduck/robot/quad/build_quad_model.py</code> writes the robot, scene and get-up models from parameters: the 8-servo body and a 12-servo variant with hip abduction, tail and shell styles, ears, stance height (<code>QUAD_STAND_H</code>, 0.100 m), knee servo position and mass budget. Every process of a run (training, evaluation, video) must see the same environment variables.</li>
+  <li><strong>Model.</strong> <code>src/mjlab_microduck/robot/quad/build_quad_model.py</code> writes the robot, scene and get-up models from parameters: the 8-servo body and a 12-servo variant with hip abduction, tail and shell styles, ears, stance height (<code>QUAD_STAND_H</code>, 0.100 m), knee servo position and mass budget. Every process of a run (training, evaluation, video) must see the same environment variables. <code>QUAD_DESIGN=prd</code> builds the final design (forehead camera, chin ToF, ears; files <code>robot_quad8_prd*.xml</code>); the default rebuilds the study's models for runs 4 to 7.</li>
+  <li><strong>Backlash.</strong> <code>Mjlab-Velocity-Flat-MicroCluck-Quad8-Backlash</code> puts Pollen's ±1° passive hinge after every servo joint; the servo's position loop and the policy read the encoder through it, as on the real XL330. Run 8 is trained on it.</li>
   <li><strong>Collision naming.</strong> Only geoms named <code>*_collision</code> collide in the GPU simulator; anything else is switched off. Every leg part, the shell, the bezel and the tail are named for collision.</li>
   <li><strong>Actuator order.</strong> Actuators are declared in joint order. The BAM actuator applies each joint's torque by index, so a mismatch drives the wrong motor (it once made the tail look able to flip the robot). <code>quad_getup_search.py</code> asserts it.</li>
   <li><strong>Task.</strong> <code>Mjlab-Velocity-Flat-MicroCluck-Quad8</code>, Pollen's velocity recipe with: no head or body command slots, a sideways command kept alive at ±0.001 m/s and never tracked, a bucket of pure backward commands, tighter tracking at slow speeds, forward commands capped at 0.5 m/s, a staged torque penalty and the full Pollen randomization plus trunk mass 0.95–1.15 and centre of mass ±15 mm.</li>
@@ -695,19 +697,19 @@ svg text { font-family: var(--font-body); }
 <h3 id="validation"><span class="n">7.2</span>Design validation (S3)</h3>
 <p>The pass line for servo load is relative to Pollen's stock duck measured with the same tool, because the datasheet's ~0.10 N·m continuous rating cannot be one: the stock duck runs at 0.145 N·m on hip pitch and 0.16–0.17 on the knee (99th percentile 0.53 and 0.46–0.49), about 1.7 falls per robot-minute, under the play configuration's frequent pushes.</p>
 <div class="tbl"><table>
-  <thead><tr><th>Check</th><th>Pass condition</th><th>Result (run 7, lean variant where marked)</th></tr></thead>
+  <thead><tr><th>Check</th><th>Pass condition</th><th>Result (run 8 on the final model with gear play, unless marked)</th></tr></thead>
   <tbody>
-    <tr><td>Walking</td><td>0.1–0.3 m/s forward within 25%, backward, turning, no falls without pushes</td><td><strong>Pass.</strong> 0.116 / 0.201 / 0.254 m/s at 0.1 / 0.2 / 0.3; −0.179 at −0.2; 0.761 rad/s at 1.0; 0 falls. Top speed about 0.28 m/s whatever the training</td></tr>
-    <tr><td>Thermal margin</td><td>RMS torque per joint no more than 10% above the stock duck's, same test</td><td><strong>Pass.</strong> Under the play pushes the hips run 0.106–0.128 N·m and the knees 0.093–0.120 (runs 4 to 7), 12–45% below the duck</td></tr>
-    <tr><td>Peak torque</td><td>99th percentile no higher than the stock duck's</td><td><strong>Pass.</strong> At most 0.36 N·m against 0.53. Every joint touches the 0.64 ceiling at some instant, as the duck's do</td></tr>
-    <tr><td>Pushes</td><td>No more falls than the stock duck under the play pushes</td><td><strong>Pass.</strong> 0 falls in 64 robots over 30 s</td></tr>
-    <tr><td>Belly stand-up</td><td>≥ 60 of 64 under each stress: nominal, +60 g with a 6.4 V sagging battery, friction 0.3–0.5, a 6-step servo delay, all of them with the centre of mass ±10 mm</td><td><strong>Pass.</strong> 64 of 64 everywhere with the legs along the sides; 63 of 64 with the legs folded under and every stress at once</td></tr>
+    <tr><td>Walking</td><td>0.1–0.3 m/s forward within 25%, backward, turning, no falls without pushes</td><td><strong>Pass.</strong> 0.107 / 0.193 / 0.259 m/s at 0.1 / 0.2 / 0.3; −0.176 at −0.2; 0.699 rad/s at 1.0; 0 falls. Without the gear play 0.244 m/s at 0.3 and 0.677 rad/s. Top speed about 0.28 m/s whatever the training</td></tr>
+    <tr><td>Thermal margin</td><td>RMS torque per joint no more than 10% above the stock duck's, same test</td><td><strong>Pass.</strong> Under the play pushes the worst joint is 0.123 N·m with the gear play and 0.120 without, 15% under the duck's hip pitch; runs 4 to 7 put the hips at 0.106–0.128 and the knees at 0.093–0.120, 12–45% below the duck</td></tr>
+    <tr><td>Peak torque</td><td>99th percentile no higher than the stock duck's</td><td><strong>Pass</strong> (runs 4 to 7). At most 0.36 N·m against 0.53. Every joint touches the 0.64 ceiling at some instant, as the duck's do</td></tr>
+    <tr><td>Pushes</td><td>No more falls than the stock duck under the play pushes</td><td><strong>Pass.</strong> 0 falls in 64 robots over 30 s, with and without the gear play</td></tr>
+    <tr><td>Belly stand-up</td><td>≥ 60 of 64 under each stress: nominal, +60 g with a 6.4 V sagging battery, friction 0.3–0.5, a 6-step servo delay, all of them with the centre of mass ±10 mm</td><td><strong>Pass</strong> (final model). 64 of 64 everywhere with the legs along the sides, the pose the lie-down ends in. With the legs folded under, 63–64 of 64 under each stress alone and 53 of 64 under every stress at once (63 on the lighter study model); the robot never lies that way on its own</td></tr>
     <tr><td>Payload</td><td>Walks and stands up with 60 g extra</td><td><strong>Pass</strong> for the stand-up; walking trains with up to +15% trunk mass (about +85 g)</td></tr>
-    <tr><td>Mass budget</td><td>≤ 600 g modelled</td><td><strong>Pass.</strong> 579 g</td></tr>
-    <tr><td>Forehead camera in the model</td><td>The checks above still pass</td><td><strong>Not run.</strong> Adds about 10 g at the front, the camera module up on the forehead. (The micro-servo tail is already in the model.)</td></tr>
-    <tr><td>Shell clearance</td><td>No leg part enters the shell or the bezel over the recorded gait and a joint-range sweep</td><td><strong>Not run</strong> for the dog</td></tr>
-    <tr><td>Backlash</td><td>A backlash-trained policy (±1° gear play) passes the walking checks</td><td><strong>Not run</strong> for the dog</td></tr>
-    <tr><td>Scripted lie-down</td><td>Lies down onto the belly with the legs along the sides, the start pose of the stand-up</td><td><strong>Not run</strong></td></tr>
+    <tr><td>Mass budget</td><td>≤ 600 g modelled</td><td><strong>Pass.</strong> 596 g (about 587 g with v0.28's micro-servo tail)</td></tr>
+    <tr><td>Forehead camera in the model</td><td>The checks above still pass</td><td><strong>Pass.</strong> Camera 7 g on a 14 mm forehead band, lens 172 mm off the floor, tilted 27° up; ToF 4 g in the chin at 105 mm; ears on. Run 7's policy unchanged on it walks 0.230 m/s at 0.3 but turns at only 0.627 rad/s, so the final model gets its own policy (run 8, rows above). The model's tail servo is v0.24's 18 g XL330 (v0.28 uses a 9 g micro servo, so the results are slightly conservative); v0.25's vision board is not modelled</td></tr>
+    <tr><td>Shell clearance</td><td>No leg part enters the shell or the bezel over the recorded gait and a joint-range sweep</td><td><strong>Pass.</strong> Over 96,000 recorded poses of run 8's gait (and of run 7's, alike): knee servos 6 mm from the shell at the closest (rear 8 mm), shanks and feet 32 mm or more; front thighs 19 mm and feet 35 mm from the bezel; front and rear legs 5.3 mm apart at the closest, never touching; no overlaps. MuJoCo never collides a thigh with the body it hangs from, so this is the only check on thigh against bezel. The joint-range sweep reaches the bezel only with a leg swung fully forward and the knee fully folded (hip −57°, knee −149°, up to 2.7 mm), a pose no motion uses</td></tr>
+    <tr><td>Backlash</td><td>A backlash-trained policy (±1° gear play) passes the walking checks</td><td><strong>Pass.</strong> Run 8: 750 iterations on the gear-play model, warm-started from run 7 (results in the rows above)</td></tr>
+    <tr><td>Scripted lie-down</td><td>From standing, ends in the stand-up's start pose (legs folded back along the sides) without tipping, and the stand-up works from there</td><td><strong>Pass.</strong> Three scripts (straight to the pose in 1.0 or 2.0 s, or a crouch with the feet under the hips then the legs back): 64 of 64 lying and 64 of 64 back up each, nominal, under every stress at once and with the gear play; tilt at most 3°, torque at most 0.09 N·m. It ends resting on the folded legs, the trunk origin about 51 mm up and the belly about 35 mm off the floor. The 2 s straight script is the default (lowest torque). Going limp after it (torque off) is not simulated</td></tr>
   </tbody>
 </table></div>
 <p><strong>Rejected options.</strong> Moving the knee servo up to the hip with a pushrod saved no load (0.004–0.007 N·m more) and dropped the folded-legs stand-up to 29 of 64 under all stresses. A 95 g lighter trunk cut load 5–7% with the policy unchanged and nothing after retraining: the load comes from the gait's dynamics, not the weight it carries (standing still, the knee holds about 0.03 N·m).</p>
@@ -964,7 +966,7 @@ svg text { font-family: var(--font-body); }
 </svg>
 <figcaption>Lying down is the rest pose, so IDLE is lying with torque off. STAND_UP and LIE_DOWN are scripts, not policies.</figcaption>
 </figure>
-<p><strong>STAND_UP</strong> eases the legs to the lying pose (along the sides) at low gains, then runs the scripted push-up of §7.5 and hands over to the policy. <strong>LIE_DOWN</strong> is its reverse, ending belly-down with the legs along the sides, then torque off. Both are joint-target trajectories, so v1 needs no extra training for them. <strong>Stand only when upright:</strong> belly-down or standing within 20° of level by the gravity vector; anything else is refused with a reason (S10).</p>
+<p><strong>STAND_UP</strong> eases the legs to the lying pose (along the sides) at low gains, then runs the scripted push-up of §7.5 and hands over to the policy. <strong>LIE_DOWN</strong> is its reverse: in 2 s straight to the lying pose, resting low on the folded legs with the belly about 35 mm off the floor (§7.2), then torque off. Both are joint-target trajectories, so v1 needs no extra training for them. <strong>Stand only when upright:</strong> belly-down or standing within 20° of level by the gravity vector; anything else is refused with a reason (S10).</p>
 
 <h3 id="safety"><span class="n">9.8</span>Safety requirements</h3>
 <p>All of them are enforced on the body board.</p>
@@ -1001,9 +1003,9 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>Milestone</th><th>Exit criteria</th><th>Status</th></tr></thead>
   <tbody>
     <tr><td>S0 Toolchain</td><td>The fork trains Pollen's stock walker on the RTX 3060; the stock duck's per-joint torque baseline is logged.</td><td>Done (biped era)</td></tr>
-    <tr><td>S1 MicroPup model</td><td>Parametric 8-servo model with shell, bezel, ears, tail, camera and ToF; stands from noisy starts; collision naming and actuator order checked.</td><td>Done; forehead camera to add</td></tr>
-    <tr><td>S2 Walking policy</td><td>Tracks 0.1–0.3 m/s forward, backward and turning; no falls under the play pushes; trained on the final model, with a backlash variant.</td><td>Walks (run 7); final model and backlash pending</td></tr>
-    <tr><td>S3 Design validation</td><td>Every §7.2 check passes or has a recorded decision; scripted stand-up and lie-down pass; design report and ADRs written; BOM frozen and parts ordered.</td><td>Most checks pass; see §7.2</td></tr>
+    <tr><td>S1 MicroPup model</td><td>Parametric 8-servo model with shell, bezel, ears, tail, camera and ToF; stands from noisy starts; collision naming and actuator order checked.</td><td>Done: final design (<code>QUAD_DESIGN=prd</code>)</td></tr>
+    <tr><td>S2 Walking policy</td><td>Tracks 0.1–0.3 m/s forward, backward and turning; no falls under the play pushes; trained on the final model, with a backlash variant.</td><td>Done: run 8, final model with gear play</td></tr>
+    <tr><td>S3 Design validation</td><td>Every §7.2 check passes or has a recorded decision; scripted stand-up and lie-down pass; design report and ADRs written; BOM frozen and parts ordered.</td><td>Every §7.2 check passes; design report, ADRs and the parts order to do</td></tr>
     <tr><td>S4 Policy port</td><td>Export pipeline; C inference matches the golden vectors within 1e-4 and drives MuJoCo with the ONNX gait.</td><td>Not started</td></tr>
     <tr><td>S5 Virtual MicroPup</td><td>The phone drives the simulated dog through the link emulator; S1–S7, S10, S11 and the software side of S9 pass as automated tests.</td><td>Not started</td></tr>
   </tbody>

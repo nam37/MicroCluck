@@ -268,9 +268,10 @@ svg text { font-family: var(--font-body); }
     <li><a href="#walking"><span class="n">4</span>Walking</a></li>
     <li><a href="#load"><span class="n">5</span>Servo load</a></li>
     <li><a href="#getup"><span class="n">6</span>Getting up</a></li>
-    <li><a href="#decisions"><span class="n">7</span>Decisions</a></li>
-    <li><a href="#open"><span class="n">8</span>Still open</a></li>
-    <li><a href="#files"><span class="n">9</span>Where things are</a></li>
+    <li><a href="#run8"><span class="n">7</span>The final model (run 8)</a></li>
+    <li><a href="#decisions"><span class="n">8</span>Decisions</a></li>
+    <li><a href="#open"><span class="n">9</span>Still open</a></li>
+    <li><a href="#files"><span class="n">10</span>Where things are</a></li>
   </ol>
 </nav>
 
@@ -297,6 +298,7 @@ svg text { font-family: var(--font-body); }
     <li><a href="#walking">Walking</a></li>
     <li><a href="#load">Servo load</a></li>
     <li><a href="#getup">Getting up</a></li>
+    <li><a href="#run8">The final model (run 8)</a></li>
     <li><a href="#decisions">Decisions</a></li>
     <li><a href="#open">Still open</a></li>
     <li><a href="#files">Where things are</a></li>
@@ -411,7 +413,21 @@ svg text { font-family: var(--font-body); }
 <p><strong>From the back or a side.</strong> With two servos per leg the legs swing only fore and aft, and no motion found got the body past lying on its side, with a box or a rounded shell. The tail does not flip it either. (An early result said it did; that was a bug in the get-up model, which declared the tail's actuator after the legs while its joint came first, so each joint's torque went to the wrong motor. Actuators must be declared in joint order; the search script now checks this.) The user deprioritized getting up from the back: it should only happen if someone kicks the robot, a person can right it, and the robot can ask for help. A third servo per leg (hip abduction, the 12-servo variant) is the likely fix if it ever matters. It has not been tested.</p>
 
 <!-- 7 -->
-<h2 id="decisions"><span class="n">7</span>Decisions</h2>
+<h2 id="run8"><span class="n">7</span>The final model (run 8, 9 November)</h2>
+<p>The four checks the PRD (v0.24) set before the design freeze, run on the final model: <code>QUAD_DESIGN=prd</code>, with the camera on a 14 mm forehead band above the screen (lens 172 mm off the floor, tilted 27° up), the ToF sensor in the chin (105 mm), the ears on and an 18 g XL330 tail servo, 596 g in all. (The PRD has since moved the tail to a 9 g micro servo and the vision board into the front of the body; the first makes these results slightly conservative, the second is not modelled.)</p>
+<div class="tbl"><table>
+  <thead><tr><th>Check</th><th>Result</th></tr></thead>
+  <tbody>
+    <tr><td>Run 7's policy unchanged on the final model</td><td>0.230 m/s at a 0.3 command, 0.275 at 0.4, 0.627 rad/s at 1.0 (0.761 on its own model), no falls; worst joint 0.112 / 0.121 / 0.127 N·m (steady 0.3, random commands, play pushes). It needs retraining for the turns.</td></tr>
+    <tr><td>Run 8: 750 iterations with ±1° gear play per servo, warm start from run 7</td><td>0.107 / 0.193 / 0.259 / 0.283 m/s at 0.1–0.4; −0.176 and −0.222 at −0.2 and −0.4; 0.270 and 0.699 rad/s at 0.5 and 1.0; no falls. Worst joint 0.123 / 0.117 / 0.123 N·m. Without the gear play: 0.244 m/s at 0.3, 0.677 rad/s, worst joint 0.120 under the pushes, no falls.</td></tr>
+    <tr><td>Shell and bezel clearance, 96,000 poses of run 8's gait (run 7's alike)</td><td>Knee servos 6 mm (front) and 8 mm (rear) from the shell; shanks and feet 32 mm or more; front thighs 19 mm and feet 35 mm from the bezel; front and rear legs 5.3 mm apart at the closest. No overlaps. The thigh's collision capsule reads −3 mm against the side wall in every pose, because it is fatter than the real plate that runs 3 mm outside the wall. A joint sweep reaches the bezel only with the leg fully forward and the knee fully folded (up to 2.7 mm).</td></tr>
+    <tr><td>Belly stand-up, final model</td><td>64 of 64 under every stress with the legs along the sides. Legs folded under: 64, 64, 63, 64 under the single stresses and 53 of 64 under all at once (63 on the lighter model of run 7).</td></tr>
+    <tr><td>Scripted lie-down, then the stand-up</td><td>Straight to the belly pose (hip +55°, knee −78° from home) in 1.0 s or 2.0 s, or a crouch with the feet under the hips for 1.2 s then the legs back in 0.8 s: each 64 of 64 lying and 64 of 64 back up, nominal, under every stress at once, and with the gear play. Tilt at most 3°, torque at most 0.09 N·m. It ends on the folded legs, trunk origin about 51 mm up, belly about 35 mm off the floor.</td></tr>
+  </tbody>
+</table></div>
+<p>Scripts: <code>scripts/quad_liedown_test.py</code>, <code>scripts/quad_shell_clearance.py</code>, the task <code>Mjlab-Velocity-Flat-MicroCluck-Quad8-Backlash</code>; run directory <code>logs/rsl_rl/microcluck_quad8/*_quad8_v8_prd_backlash</code>; helper <code>~/quad_run8.sh</code>; videos <code>~/quad_out/walk_r8.mp4</code> and <code>liedown_r8.mp4</code>. The distance query against the shell mesh returns a spurious exact 0 for about 6% of near-home poses; the script retries those and discards what stays at 0.</p>
+
+<h2 id="decisions"><span class="n">8</span>Decisions</h2>
 <ul>
   <li><strong>Top speed:</strong> specify 0.3 m/s.</li>
   <li><strong>Knee servo:</strong> at the knee. The pushrod layout is rejected.</li>
@@ -421,7 +437,7 @@ svg text { font-family: var(--font-body); }
 </ul>
 
 <!-- 8 -->
-<h2 id="open"><span class="n">8</span>Still open</h2>
+<h2 id="open"><span class="n">9</span>Still open</h2>
 <ol>
   <li>Decided 9 November 2026: the dog is the project's direction, and the PRD has been rewritten for it (v0.24).</li>
   <li>The real masses and centre of mass. Every value in the model is a placeholder; weigh the parts and balance the assembled body before trusting the get-up.</li>
@@ -432,7 +448,7 @@ svg text { font-family: var(--font-body); }
 </ol>
 
 <!-- 9 -->
-<h2 id="files"><span class="n">9</span>Where things are</h2>
+<h2 id="files"><span class="n">10</span>Where things are</h2>
 <p>The simulation work is in the WSL sim repo, in a worktree at <code>~/microcluck_quad</code> on the local branch <code>microcluck_quad</code> (from <code>microcluck_standup</code>). It is not pushed.</p>
 <div class="tbl"><table class="plain">
   <thead><tr><th>What</th><th>Where</th></tr></thead>
