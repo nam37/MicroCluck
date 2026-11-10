@@ -318,13 +318,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroPup</h1>
     <p class="lede">Product requirements for a small, low-cost walking robot dog with a screen for a face.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.31</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.32</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>10 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.32</strong> First simulation results for the micro dog (§7.2): it stands, never falls and gets up from its belly every time, but neither trained policy walks (about 0.03 m/s with the joints at stall, or standing still). A scripted gait, the planned fallback, is tested next. The model now has the forehead camera and chin ToF.</li>
         <li><strong>v0.31</strong> MicroPup is redesigned around cost. The XL330 dog (v0.24–v0.30) came to about $470–575, more than a $399 Microduck, and no cheaper bus servo could replace the XL330 at that size. This version is a smaller dog on hobby servos: eight MG90S micro servos driven through a PCA9685, one Waveshare ESP32-P4 board for everything (walking, safety, face, voice, camera, Wi-Fi), a Waveshare 1.69" SPI screen as the face, the camera on a forehead strip and a VL53L5CX in the chin, about 160 mm long and 318 g modelled, for about $150–195. The face and voice software is a rewrite for the P4, with DeskSprite as the reference. Walking in simulation is being trained (§7). The XL330 design is kept unchanged in <a href="archive/PRD-MicroPup-v0.30.html">archive/PRD-MicroPup-v0.30.html</a>.</li>
         <li><strong>v0.24 to v0.30</strong> MicroPup with XL330 servos, a DeskSprite face on the Freenove FNK0104N and three boards. See the archived document.</li>
         <li><strong>v0.1 to v0.23</strong> MicroCluck, the biped robot chicken. See <a href="archive/PRD-MicroCluck-v0.23.html">archive/PRD-MicroCluck-v0.23.html</a>.</li>
@@ -621,21 +622,22 @@ svg text { font-family: var(--font-body); }
 </ol>
 
 <h3 id="validation"><span class="n">7.2</span>Design validation</h3>
-<p>Two policies are being trained on the micro model (10 November 2026): with potentiometer read-back and blind, each 1,500 iterations. This table is filled in when they finish.</p>
+<p>Two policies were trained on the micro model (10 November 2026): with potentiometer read-back ("pot") and blind, each 1,500 iterations from scratch. <strong>Neither walks.</strong> The pot policy shuffles at about 0.03 m/s with its joints at stall; the blind one learned to stand still. Lighter body or not, reinforcement learning on this servo model does not find a gait.</p>
 <div class="tbl"><table>
   <thead><tr><th>Check</th><th>Pass condition</th><th>Result</th></tr></thead>
   <tbody>
     <tr><td>Standing</td><td>Holds the home pose from noisy starts</td><td><strong>Pass.</strong> 81 mm trunk height, tilt under 1.3°, 0 falls; holding torque about 0.02 N·m at the knees, 10% of stall</td></tr>
-    <tr><td>Walking</td><td>At least 0.15 m/s forward at a 0.2–0.3 m/s command, backward and turning, no falls without pushes</td><td>Training</td></tr>
-    <tr><td>Servo load</td><td>RMS torque on every joint at most half the 0.216 N·m stall; the 99th percentile below stall</td><td>Training</td></tr>
-    <tr><td>Pushes</td><td>No falls under the play configuration's pushes</td><td>Training</td></tr>
-    <tr><td>Belly stand-up</td><td>≥ 60 of 64 under each stress: nominal, +60 g with a 5.4 V sagging supply, friction 0.3–0.5, a 6-step servo delay, all of them with the centre of mass ±10 mm</td><td>Training</td></tr>
+    <tr><td>Walking</td><td>At least 0.15 m/s forward at a 0.2–0.3 m/s command, backward and turning, no falls without pushes</td><td><strong>Fail.</strong> Pot: 0.01–0.03 m/s forward at 0.1–0.4, −0.05 backward, 0.39 rad/s at a 1.0 turn command, 0 falls. Blind: does not move</td></tr>
+    <tr><td>Servo load</td><td>RMS torque on every joint at most half the 0.216 N·m stall; the 99th percentile below stall</td><td><strong>Fail</strong> (pot). Worst RMS 0.13–0.15 N·m (60–69% of stall), every joint at stall at the 99th percentile. The blind policy stays at 0.04–0.06 N·m only because it does not walk</td></tr>
+    <tr><td>Pushes</td><td>No falls under the play configuration's pushes</td><td><strong>Pass</strong>, both policies (0 falls), but neither is walking</td></tr>
+    <tr><td>Belly stand-up</td><td>≥ 60 of 64 under each stress: nominal, +60 g with a 5.4 V sagging supply, friction 0.3–0.5, a 6-step servo delay, all of them with the centre of mass ±10 mm</td><td><strong>Pass.</strong> 64/64 under every stress, both policies, about 0.1 N·m per servo</td></tr>
     <tr><td>Mass budget</td><td>≤ 350 g modelled</td><td><strong>Pass.</strong> 318 g</td></tr>
-    <tr><td>Pot or blind</td><td>Whether the potentiometer read-back is worth fitting</td><td>Training</td></tr>
+    <tr><td>Pot or blind</td><td>Whether the potentiometer read-back is worth fitting</td><td>Pot moves a little, blind not at all: not decided until a gait works</td></tr>
   </tbody>
 </table></div>
 <p><strong>Background.</strong> On 9 November an MG90S dog built around the old design (414 g, with the 60 g FNK0104N face board) stood and got up from its belly every time but barely walked (at most 0.06 m/s), with every joint at its stall torque. The micro design takes about 100 g out of the body to give the servos that margin back. A Feetech STS3215 dog was also tried and rejected (study §8).</p>
-<p><strong>If the policy falls short</strong> of the walking bar, the fallback is a scripted gait: a hand-tuned walk cycle played as joint targets, with the IMU used only for balance corrections and the falls check. Hobby-servo robot dogs commonly walk this way.</p>
+<p><strong>What the result means.</strong> Standing (0.02 N·m) and belly stand-up (about 0.1 N·m) are well inside the servo, so static strength is not the problem: what fails is fast, repeated leg swings through a slow servo with a deadband. Two things are uncertain. The MG90S model is a datasheet estimate, and the H0 bench measurement may show a faster or stronger servo. And a learned policy may simply be the wrong tool here.</p>
+<p><strong>Next: the scripted gait</strong>, which was the planned fallback. It gets tested in simulation before anything else: a hand-tuned walk cycle played as joint targets, with the IMU used only for balance corrections and the falls check. Hobby-servo robot dogs commonly walk this way.</p>
 
 <h3 id="export"><span class="n">7.3</span>Policy export pipeline</h3>
 <p>Lives in <code>tools/policy_export/</code>, unchanged from the earlier design: ONNX with the normalizer baked in, folded into the first layer, emitted as a C header with metadata and the contract hash, golden vectors checked on the board (maximum error ≤ 1e-4), and a closed-loop host test driving MuJoCo.</p>
@@ -849,7 +851,7 @@ svg text { font-family: var(--font-body); }
   <tbody>
     <tr><td>S0 Toolchain</td><td>The fork trains on the RTX 3060.</td><td>Done</td></tr>
     <tr><td>S1 Micro model</td><td>Parametric model of the micro design with the MG90S servo model; stands from noisy starts.</td><td>Done (camera to move to the forehead)</td></tr>
-    <tr><td>S2 Walking policy</td><td>Passes the walking, load and push checks of §7.2; pot or blind decided.</td><td>Training</td></tr>
+    <tr><td>S2 Walking policy</td><td>Passes the walking, load and push checks of §7.2; pot or blind decided.</td><td>Failed with learned policies (10 Nov); scripted gait next</td></tr>
     <tr><td>S3 Design validation</td><td>Every §7.2 check passes or has a recorded decision; scripted stand-up and lie-down pass; BOM frozen.</td><td>Not started</td></tr>
     <tr><td>S4 Policy port</td><td>Export pipeline; C inference matches the golden vectors within 1e-4 on the P4 and drives MuJoCo with the ONNX gait.</td><td>Not started</td></tr>
     <tr><td>S5 Virtual MicroPup</td><td>The phone drives the simulated dog; the safety requirements pass as automated tests.</td><td>Not started</td></tr>
@@ -904,7 +906,7 @@ svg text { font-family: var(--font-body); }
 <!-- 13 -->
 <h2 id="questions"><span class="n">13</span>Open questions</h2>
 <ol>
-  <li>Does the micro dog walk well enough in simulation (§7.2), and is the potentiometer read-back worth fitting?</li>
+  <li>Does the micro dog walk in simulation with a scripted gait (§7.2)? Learned policies did not (10 November). If it does not, the build-or-buy question (Q1) comes back.</li>
   <li>How the real MG90S compares with the datasheet model (H0), and which seller's servos are consistent.</li>
   <li>Does the Waveshare board fit in a 70 mm-wide body, or does the robot need the smaller FireBeetle 2 (no audio codec, a PDM microphone only)?</li>
   <li>Does the Waveshare kit have a usable microphone for voice, or does one need adding (an I2S MEMS microphone, about $5)?</li>

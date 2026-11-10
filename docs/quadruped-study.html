@@ -453,6 +453,20 @@ svg text { font-family: var(--font-body); }
   </tbody>
 </table></div>
 <p><strong>MG90S: rejected.</strong> Every joint sits at its stall torque most of the time, averaging 55 to 70% of stall; real hobby servos would overheat and strip their gears, and the dog still barely moves. The 60 g face board alone makes a body light enough for these servos hard to reach. The servo model is an estimate, but the margin is too large for that to matter.</p>
+<p><strong>The micro dog (10 November).</strong> The redesigned MicroPup (PRD v0.31) is the MG90S dog made smaller: 318 g, the 1.69" screen in place of the 60 g face board, one ESP32-P4 board, camera on the forehead and ToF in the chin (<code>QUAD_DESIGN=micro</code>). Two policies were trained from scratch for 1,500 iterations, one with potentiometer read-back (pot) and one blind.</p>
+<div class="tbl"><table>
+  <thead><tr><th></th><th>Micro, pot</th><th>Micro, blind</th></tr></thead>
+  <tbody>
+    <tr><td>Forward at 0.1 / 0.2 / 0.3 / 0.4 m/s</td><td>0.01 / 0.03 / 0.03 / 0.02</td><td>0 (stands still)</td></tr>
+    <tr><td>Backward at −0.2 m/s</td><td>−0.05</td><td>0</td></tr>
+    <tr><td>Turn at 1.0 rad/s</td><td>0.39</td><td>0.04</td></tr>
+    <tr><td>Falls, with and without pushes</td><td>0</td><td>0</td></tr>
+    <tr><td>Belly stand-up, every stress</td><td>64/64</td><td>64/64</td></tr>
+    <tr><td>Typical torque (RMS), worst joint</td><td>0.13–0.15 of 0.216 N·m</td><td>0.04–0.06 (not walking)</td></tr>
+    <tr><td>Peaks</td><td>at stall on every joint</td><td>near stall when pushed</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Micro: does not walk with a learned policy.</strong> Taking about 100 g out made no difference: the 414 g dog managed 0.05–0.06 m/s, the 318 g one 0.03. Standing needs 0.02 N·m and belly stand-up about 0.1, so the problem is the gait, not the weight: fast repeated swings through a slow servo with a deadband. The blind policy settled on standing still (its action noise fell to 0.11 by halfway). Two caveats: the MG90S model is a datasheet estimate, not a measurement, and a hand-written gait may do what training did not. A scripted gait in simulation is the next test (PRD §7.2). Runs <code>2026-11-10_12-05-19_quad8_m1_micro_pot</code> and <code>2026-11-10_12-06-48_quad8_m2_micro_blind</code> (model_1499), helpers <code>~/quad_micro_build.sh</code> and <code>~/quad_micro_run.sh</code>, sim commit <code>aabffce4</code>.</p>
 <p><strong>STS3215: walks, not recommended.</strong> It is slow, partly because training's exploration collapsed early (action noise down to 0.02), so a fresh run might find a faster gait, and partly because the servo is about half as fast as the XL330. Its typical load is near its continuous rating, and its peaks only work because the BAM model's stall (3.25 N·m at 7.4 V) is stronger than the datasheet's. Shorter legs and a lighter body could restore the margin, but that is more redesign and risk to save about $95.</p>
 <p><strong>Conclusion.</strong> The XL330 is the right servo at this size, so cheaper servos do not make the dog cheaper than a Microduck. The leanest XL330 v1 is about $360–390: no U2D2 at first (servo IDs set from the ESP32, if the servos ship with recent enough firmware), the bench ESP32-S3 as the body board, and the camera and ToF moved to v2. The choice between MicroPup and a Microduck is about the design, not the cost.</p>
 <p>Variant switches: <code>QUAD_SERVO</code> (<code>xl330</code>, <code>sts3215</code> or <code>mg90s</code>) and <code>QUAD_FEEDBACK</code> (<code>full</code>, <code>pot</code> or <code>blind</code>; <code>pot</code> is the default for the MG90S). Actuators in <code>src/mjlab_microduck/actuator/servo_models.py</code>, MG90S parameters in <code>robot/quad/params/mg90s_m1.json</code>. Runs <code>2026-11-09_21-49-16_quad8_c1_sts3215</code> (model_999) and <code>2026-11-09_21-50-44_quad8_c2_mg90s</code> (model_1499); helpers <code>~/quad_cost_build.sh</code> and <code>~/quad_cost_run.sh</code>; videos <code>~/quad_out/walk_cost_sts3215.mp4</code> and <code>walk_cost_mg90s.mp4</code>. Sim commit <code>47ed4400</code>.</p>
