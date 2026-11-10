@@ -414,7 +414,7 @@ svg text { font-family: var(--font-body); }
 </table></div>
 
 <h3>Which machine does what</h3>
-<p>The Windows 11 PC with the RTX 3060 (12 GB) does all development. The VPS runs DeskSprite's relay, and later the v2 vision service if it has the capacity (§13).</p>
+<p>The Windows 11 PC with the RTX 3060 (12 GB) does all development. The VPS runs DeskSprite's relay, and later the v2 vision service in a container of its own.</p>
 <div class="tbl"><table>
   <thead><tr><th>Job</th><th>Where it runs</th></tr></thead>
   <tbody>
@@ -422,7 +422,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Policy playback and the virtual MicroPup</td><td>CPU MuJoCo on the same PC.</td></tr>
     <tr><td>Body and vision firmware</td><td>ESP-IDF on the same PC, flashing over USB.</td></tr>
     <tr><td>Face firmware</td><td>DeskSprite's Arduino toolchain, as today.</td></tr>
-    <tr><td>Voice relay, v2 vision</td><td>The VPS (Docker behind Caddy); the PC's GPU is the fallback for vision.</td></tr>
+    <tr><td>Voice relay, v2 vision</td><td>The VPS, each as its own Docker container behind Caddy; the PC's GPU is the fallback for vision.</td></tr>
   </tbody>
 </table></div>
 
@@ -1022,7 +1022,7 @@ svg text { font-family: var(--font-body); }
   <li><strong>Following people first.</strong> The vision board streams frames (QVGA to VGA, 5–10 fps) to a vision service next to the relay, which runs person detection and sends back the target's bearing and size. The face board's behaviour layer turns that into velocity and turn commands, the same commands the phone sends, and the body board applies its limits and the obstacle stop. The robot needs no new hardware for this.</li>
   <li><strong>Patrolling second.</strong> Wandering with ToF obstacle avoidance, plus AprilTag-style markers on doorways and on a charging dock, so the robot knows roughly where it is and can return to charge. A dock with contacts under the chest; the charger and BMS handle the pack.</li>
   <li><strong>Conversation with sight.</strong> "What do you see?" sends a frame through the relay to a vision-capable model.</li>
-  <li><strong>Where the compute runs.</strong> The relay's VPS container today has one CPU and 256 MiB, too little for detection at frame rate; the vision service needs its own container or a bigger plan, or runs on the PC's GPU (§13). An on-board Raspberry Pi (about 10–45 g, 2–5 W) comes back only if round-trip latency makes following unusable; the 60 g mass reserve and the training's payload range cover it.</li>
+  <li><strong>Where the compute runs.</strong> The vision service runs on the VPS as its own container, next to the relay. The relay container's limits (one CPU, 256 MiB) are settings for that container only, not the server's size, so the vision container gets its own limits sized for person detection at 5–10 fps. The PC's GPU is the fallback if the VPS turns out too slow (§13). An on-board Raspberry Pi (about 10–45 g, 2–5 W) comes back only if round-trip latency makes following unusable; the 60 g mass reserve and the training's payload range cover it.</li>
   <li><strong>Hip abduction</strong> (12 servos) if following needs sideways steps or self-righting turns out to matter; the body board's bus and the model are ready for it.</li>
 </ul>
 
@@ -1066,7 +1066,7 @@ svg text { font-family: var(--font-body); }
 <ol>
   <li>Where the face firmware lives: a MicroPup build inside DeskSprite's repository (recommended, so the face and voice stay one codebase), or a copy in this repository.</li>
   <li>The wide-angle lens for the XIAO ESP32S3 Sense: which module fits its connector, its field of view and distortion.</li>
-  <li>Where v2's vision service runs: a separate container on the VPS (needs more than the relay's one CPU and 256 MiB), a bigger VPS plan, or the PC's GPU.</li>
+  <li>The VPS's real CPU, memory and any GPU, to size v2's vision container and choose its detector. The relay's one CPU and 256 MiB are that container's own limits.</li>
   <li>Which XL330 variant Pollen's actuator model targets (M288 is assumed; their constants name only <code>xl330</code> and BAM model <code>m6</code>).</li>
   <li>Pollen's action low-pass: their runtime filters the leg targets, their training says it does not. Settle in the contract before H5.</li>
   <li>IMU choice: the ICM-42688-P is supply-constrained; LSM6DSOX or LSM6DSV16X with on-board fusion are the alternatives.</li>
