@@ -305,7 +305,7 @@ svg text { font-family: var(--font-body); }
 
 <!-- 1 -->
 <h2 id="summary"><span class="n">1</span>Summary</h2>
-<p>On 8 November 2026 the project started looking at a robot dog in place of the biped chicken: the touchscreen face from DeskSprite on the same Freenove FNK0104N board, on a simplified Stanford Pupper-style body with two XL330 servos per leg (eight in all, no hip abduction) and an expressive tail. On 9 November 2026 the user made the dog, MicroPup, the project's final target. <a href="PRD.html">The PRD</a> still describes the biped until it is revised.</p>
+<p>On 8 November 2026 the project started looking at a robot dog in place of the biped chicken: the touchscreen face from DeskSprite on the same Freenove FNK0104N board, on a simplified Stanford Pupper-style body with two XL330 servos per leg (eight in all, no hip abduction) and an expressive tail. On 9 November 2026 the user made the dog, MicroPup, the project's final target, and <a href="PRD.html">the PRD</a> was rewritten for it (v0.24). This page keeps the study's full numbers.</p>
 <p>Everything below is simulation, with the same tools and actuator model as the biped (PRD §7). The results:</p>
 <ul>
   <li><strong>It walks.</strong> 0.1 to 0.3 m/s forward within about 25% of the command, backward at about −0.18 m/s for a −0.2 command, turning at 0.73 to 0.78 rad/s for a 1.0 command, and no falls, even under the frequent pushes of the play configuration.</li>
@@ -339,7 +339,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for IDs and servo firmware (Fast Sync Read needs v46 or newer). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
   </tbody>
 </table></div>
-<p>The rest of the biped's bill of materials (PRD §6.1) still applies where the parts are shared; the dog's full list waits on the PRD revision.</p>
+<p>The full bill of materials is in the PRD (§6.1).</p>
 <p><strong>Autonomy.</strong> Patrolling and following people are the intended final use. A remote-controlled v1 is an acceptable step. The plan agreed in principle: vision on the relay PC for following in v2, AprilTag-style markers and a dock for patrol, and an on-board Pi only if needed. The walking training already carries payload headroom (trunk mass randomized from 0.95 to 1.15 times nominal) and tighter tracking at slow speeds, for following.</p>
 <p><strong>Why a dog.</strong> The biped's two hardest open problems were getting up (PRD v0.15 to v0.22) and the XL330's thermal margin. Four legs ease both. The cost is the chicken identity and Microduck as a reference design: the dog is trained with the same method, but nothing of Pollen's mechanical design carries over. Pupper V3 walks with the same reinforcement-learning approach; what four legs add is stability, not a simpler method. Pupper's code is GPL-3.0, so only ideas and published numbers are borrowed from it, not code.</p>
 
@@ -423,7 +423,7 @@ svg text { font-family: var(--font-body); }
 <!-- 8 -->
 <h2 id="open"><span class="n">8</span>Still open</h2>
 <ol>
-  <li>Whether to make the dog the project's direction, and then revise the PRD for it: goals (strafing is gone), architecture (a second MCU for the body), hardware, simulation and milestones.</li>
+  <li>Decided 9 November 2026: the dog is the project's direction, and the PRD has been rewritten for it (v0.24).</li>
   <li>The real masses and centre of mass. Every value in the model is a placeholder; weigh the parts and balance the assembled body before trusting the get-up.</li>
   <li>Enclosed hip servos and long walks: the simulation does not model heat. The live temperature readings decide whether the shell needs vents.</li>
   <li>The face-to-body UART protocol and where the walking policy runs (the body MCU is the assumption). The policy has not been exported or timed on an ESP32-S3 for the dog.</li>

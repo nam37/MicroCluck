@@ -1,0 +1,1682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MicroCluck PRD (archived)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #ffffff;
+  --ink: #1f2328;
+  --muted: #5c6470;
+  --rule: #e2e5e9;
+  --line: #9aa3ad;
+  --panel: #ffffff;
+  --shell: #efeae1;
+  --sky: #deebf8;
+  --yolk: #f2b705;
+  --yolk-soft: #fdf1c7;
+  --beak: #f07b1f;
+  --comb: #d7362b;
+  --comb-soft: #fbe3e1;
+  --blush: #f2797b;
+  --screen: #000000;
+  --code-bg: #f4f5f7;
+  --font-head: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #16181c;
+    --ink: #e8eaed;
+    --muted: #a3aab4;
+    --rule: #2d3138;
+    --line: #6c7480;
+    --panel: #1d2025;
+    --shell: #2a2620;
+    --sky: #1c2a38;
+    --yolk-soft: #3a3115;
+    --comb-soft: #3b1e1c;
+    --code-bg: #1f2227;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #16181c;
+  --ink: #e8eaed;
+  --muted: #a3aab4;
+  --rule: #2d3138;
+  --line: #6c7480;
+  --panel: #1d2025;
+  --shell: #2a2620;
+  --sky: #1c2a38;
+  --yolk-soft: #3a3115;
+  --comb-soft: #3b1e1c;
+  --code-bg: #1f2227;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration-color: var(--beak); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--beak); outline-offset: 2px; border-radius: 4px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 56px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 32px 96px;
+}
+nav.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.45;
+}
+nav.toc .toc-title { font-family: var(--font-head); font-weight: 700; font-size: 15px; margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; }
+nav.toc li { margin: 0 0 6px; }
+nav.toc a { text-decoration: none; color: var(--muted); display: grid; grid-template-columns: 28px 1fr; }
+nav.toc a:hover { color: var(--ink); }
+nav.toc .n { font-variant-numeric: tabular-nums; }
+
+main { max-width: 760px; min-width: 0; }
+
+/* Hero */
+.hero {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 36px;
+  align-items: center;
+  padding-bottom: 36px;
+  border-bottom: 2px solid var(--yolk);
+  margin-bottom: 40px;
+}
+.hero svg { width: 100%; height: auto; display: block; cursor: pointer; }
+.hero h1 {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: clamp(48px, 7vw, 76px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.hero .lede { font-size: 20px; line-height: 1.45; margin: 0 0 18px; max-width: 30em; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 24px; margin: 0; font-size: 15px; color: var(--muted); }
+.meta div { display: flex; gap: 6px; }
+.meta dt { font-weight: 700; color: var(--ink); }
+.meta dd { margin: 0; }
+details.changes { margin-top: 14px; font-size: 15px; color: var(--muted); }
+details.changes summary { cursor: pointer; color: var(--ink); }
+details.changes ul { margin: 8px 0 0; padding-left: 20px; }
+
+/* Text */
+h2 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 64px 0 16px;
+  scroll-margin-top: 20px;
+}
+h2 .n, h3 .n { color: var(--muted); font-weight: 600; margin-right: 10px; font-variant-numeric: tabular-nums; }
+h3 {
+  font-family: var(--font-head);
+  font-weight: 650;
+  font-size: 21px;
+  line-height: 1.25;
+  margin: 36px 0 10px;
+  scroll-margin-top: 20px;
+}
+p, ul, ol { margin: 0 0 14px; }
+ul, ol { padding-left: 22px; }
+li { margin-bottom: 6px; }
+li > ul { margin-top: 6px; }
+strong { font-weight: 700; }
+code {
+  font-family: var(--font-code);
+  font-size: 0.84em;
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+pre {
+  font-family: var(--font-code);
+  font-size: 13.5px;
+  line-height: 1.55;
+  background: var(--code-bg);
+  padding: 16px 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0 0 18px;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+/* Callouts */
+.callout {
+  border-left: 4px solid var(--yolk);
+  background: var(--yolk-soft);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 18px;
+}
+.callout.verify { border-left-color: var(--comb); background: var(--comb-soft); }
+.callout p:last-child { margin-bottom: 0; }
+
+/* Tables */
+.tbl { overflow-x: auto; margin: 0 0 20px; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; line-height: 1.45; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule); }
+th { font-weight: 700; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+td:first-child { font-weight: 700; }
+table.plain td:first-child { font-weight: 400; }
+tr.total td { border-bottom: none; border-top: 2px solid var(--ink); }
+
+/* Diagrams */
+figure { margin: 8px 0 28px; }
+figure.diagram { overflow-x: auto; }
+figure.diagram svg { display: block; width: 100%; height: auto; }
+figure.diagram.wide svg { min-width: 620px; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+svg text { font-family: var(--font-body); }
+.d-box { fill: var(--panel); stroke: var(--line); stroke-width: 1.25; }
+.d-strong { fill: var(--panel); stroke: var(--ink); stroke-width: 1.75; }
+.d-sim { fill: var(--sky); stroke: var(--line); stroke-width: 1.25; }
+.d-hw { fill: var(--shell); stroke: var(--line); stroke-width: 1.25; }
+.d-gate { fill: var(--yolk); }
+.d-alert { fill: var(--comb-soft); stroke: var(--comb); stroke-width: 1.5; }
+.d-dash { stroke-dasharray: 5 4; }
+.d-t { fill: var(--ink); font-size: 14px; font-weight: 700; }
+.d-tg { fill: #1f2328; font-size: 14px; font-weight: 700; }
+.d-s { fill: var(--muted); font-size: 12px; }
+.d-wire { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.d-power { stroke: var(--beak); stroke-width: 2.2; fill: none; }
+.d-dot { fill: var(--ink); }
+.m-ink { fill: var(--ink); }
+.m-beak { fill: var(--beak); }
+
+/* Faces */
+.faces {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 22px 18px;
+  margin: 10px 0 28px;
+}
+.faces figure { margin: 0; }
+.faces svg { width: 100%; max-width: 150px; height: auto; display: block; }
+.faces figcaption { margin-top: 6px; font-size: 14px; line-height: 1.35; color: var(--muted); }
+.faces figcaption b { display: block; color: var(--ink); font-size: 15px; }
+
+.eyes-blink { transform-box: fill-box; transform-origin: center; }
+.eyes-blink.blinking { animation: blink 0.32s ease-in-out 1; }
+@keyframes blink { 0%, 100% { transform: scaleY(1); } 45%, 55% { transform: scaleY(0.08); } }
+@media (prefers-reduced-motion: reduce) { .eyes-blink.blinking { animation: none; } }
+
+.mobile-toc { display: none; margin-bottom: 28px; }
+
+@media (max-width: 1000px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 24px 16px 72px; }
+  nav.toc { display: none; }
+  .mobile-toc { display: block; }
+  .mobile-toc summary { font-family: var(--font-head); font-weight: 700; cursor: pointer; }
+  .mobile-toc ol { padding-left: 22px; margin-top: 10px; font-size: 15px; }
+}
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .hero { grid-template-columns: 1fr; gap: 20px; }
+  .hero svg { max-width: 150px; }
+  h2 { font-size: 26px; }
+}
+@media print {
+  nav.toc, .mobile-toc { display: none; }
+  .layout { display: block; padding: 0; }
+  h2 { break-after: avoid; }
+  figure, table { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- Shared arrow markers -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="m-ink"/>
+    </marker>
+    <marker id="arrP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="m-beak"/>
+    </marker>
+  </defs>
+</svg>
+
+<div class="layout">
+
+<nav class="toc" aria-label="Contents">
+  <p class="toc-title">Contents</p>
+  <ol>
+    <li><a href="#summary"><span class="n">1</span>Summary</a></li>
+    <li><a href="#goals"><span class="n">2</span>Goals and non-goals</a></li>
+    <li><a href="#approach"><span class="n">3</span>Development approach</a></li>
+    <li><a href="#reference"><span class="n">4</span>Reference design</a></li>
+    <li><a href="#architecture"><span class="n">5</span>System architecture</a></li>
+    <li><a href="#hardware"><span class="n">6</span>Hardware</a></li>
+    <li><a href="#sim"><span class="n">7</span>Simulation and training</a></li>
+    <li><a href="#twin"><span class="n">8</span>Virtual MicroCluck</a></li>
+    <li><a href="#firmware"><span class="n">9</span>Firmware</a></li>
+    <li><a href="#milestones"><span class="n">10</span>Milestones</a></li>
+    <li><a href="#claw"><span class="n">11</span>v2 claw</a></li>
+    <li><a href="#risks"><span class="n">12</span>Risks</a></li>
+    <li><a href="#questions"><span class="n">13</span>Open questions</a></li>
+    <li><a href="#repo"><span class="n">14</span>Repo layout</a></li>
+    <li><a href="#claude-code"><span class="n">15</span>Notes for Claude Code</a></li>
+    <li><a href="#references"><span class="n">16</span>References</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="hero">
+  <svg id="heroFace" viewBox="0 0 240 330" role="img" aria-label="MicroCluck's curious face: a yellow-framed black screen with big white eyes, an orange beak and a red comb on top">
+    <g fill="#d7362b">
+      <circle cx="102" cy="26" r="14"/>
+      <circle cx="120" cy="16" r="16"/>
+      <circle cx="138" cy="26" r="14"/>
+      <rect x="96" y="22" width="48" height="16" rx="6"/>
+    </g>
+    <rect x="20" y="32" width="200" height="290" rx="34" fill="#f2b705"/>
+    <rect x="36" y="48" width="168" height="258" rx="22" fill="#000"/>
+    <path d="M70 106 Q86 95 102 104" stroke="#f2b705" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M138 104 Q154 95 170 106" stroke="#f2b705" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <g class="eyes-blink" id="heroEyes">
+      <circle cx="88" cy="142" r="24" fill="#fff"/>
+      <circle cx="152" cy="142" r="24" fill="#fff"/>
+      <g id="heroPupils">
+        <circle cx="91" cy="145" r="11" fill="#1b1b1b"/>
+        <circle cx="155" cy="145" r="11" fill="#1b1b1b"/>
+        <circle cx="95" cy="140" r="3.5" fill="#fff"/>
+        <circle cx="159" cy="140" r="3.5" fill="#fff"/>
+      </g>
+    </g>
+    <path d="M106 172 L134 172 L120 196 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="5" stroke-linejoin="round"/>
+    <ellipse cx="62" cy="180" rx="10" ry="6" fill="#f2797b"/>
+    <ellipse cx="178" cy="180" rx="10" ry="6" fill="#f2797b"/>
+    <g stroke="#555b63" stroke-width="2" fill="none">
+      <rect x="160" y="278" width="24" height="12" rx="3"/>
+      <path d="M58 290 a10 10 0 0 1 14 0 M54 285 a16 16 0 0 1 22 0"/>
+    </g>
+    <rect x="163" y="281" width="15" height="6" rx="1" fill="#555b63"/>
+    <circle cx="65" cy="292" r="2" fill="#555b63"/>
+  </svg>
+  <div>
+    <h1>MicroCluck</h1>
+    <p class="lede">Product requirements for a 25 cm walking robot chicken whose body is a touchscreen.</p>
+    <dl class="meta">
+      <div><dt>Status</dt><dd>Archived at v0.23, superseded by MicroPup (<a href="../PRD.html">PRD</a>)</dd></div>
+      <div><dt>Owner</dt><dd>Neil</dd></div>
+      <div><dt>Updated</dt><dd>9 November 2026</dd></div>
+    </dl>
+    <details class="changes">
+      <summary>Change history</summary>
+      <ul>
+        <li><strong>v0.23</strong> A robot-dog alternative, studied in simulation and written up in <a href="../quadruped-study.html">quadruped-study.html</a>: the face on a Pupper-style body with two XL330s per leg (eight in all) and a paddle tail. It walks 0.1 to 0.3 m/s with no falls under the play pushes, tops out near 0.28 m/s, and gets up from its belly in 64 of 64 starts under every stress tested; it cannot get up from its back without a third servo per leg. Its servo load passes this document's rule (§7.2) with room to spare, every joint 12 to 45% below the stock duck's hip pitch and knee. The dog is the working direction but not decided, and the rest of this document still describes the biped (§13).</li>
+        <li><strong>v0.22</strong> A learned correction on the get-up motions, and bumper lips on the bezel. A policy adds a bounded correction to the open-loop roll and stand-up (it sees the IMU, the joints, the motion's own offset and the time) and was trained over wider physics than the earlier motions: friction, battery, servo delay, extra trunk mass and centre of mass. Where the open-loop get-up needs the fore-aft balance point within about 4 mm back to 8 mm forward of the model's (a window 12 mm wide), the policy gets up in 98 to 100% of starts from 12 mm back to 20 mm forward (at least 32 mm wide), and in 100% under extra mass with a low battery and under a combined worst case, where the open-loop motions get 60% and 92%. Its weak point is servo delay: it holds up to the 50 ms it was trained on, falls to 85% at 60 ms and 73% at 70 ms, and the open-loop motions do not care. A first run with an entropy bonus got worse after 500 iterations as its action noise grew; the second, with none, did not. The bezel in the model now has top and bottom bumper lips (hardware/bezel.scad): the open-loop get-up is unchanged with lips up to 8 mm and the side get-up falls to 71% at 12 mm, the lips and not the glass take the floor contact, and the policy trained with 6 mm lips loses part of its backward margin on a flat bezel, so it is tied to the bezel's real shape. All of it is simulation (§6.5, §7.5, §12, §13).</li>
+        <li><strong>v0.21</strong> The get-up works inside a narrow window of the robot's fore-aft balance point, and a correction of v0.20. The collapse under extra mass plus a low battery was read as a torque limit; it is a shift of the balance point. The same combination with the trunk's centre of mass 8 mm further back gets 95 to 100% for all four motions, and with it 8 mm forward gets 0%. Scanning the shift alone, each motion gets up in 84% or more of starts only between about 4 mm back and 8 mm forward of the model's centre of mass, so the window is about 12 mm wide, centred near +2 mm, and the model's value sits near its back edge. Searching the motions again with randomized physics (friction, battery, delay, mass and centre of mass, each candidate on four robots) worked only as a warm start from the existing stand-ups; from scratch the stand-up never reached standing, over a wide range or a 7 s window. The warm-started motions are better under low friction, low battery and mass plus battery, and re-centre the window rather than widen it much. The motions are saved in the sim repo (§7.5, §12, §13).</li>
+        <li><strong>v0.20</strong> How far the open-loop get-up holds. The two chained recoveries (from a side, and from up to 30° off flat on the back) were replayed on 256 starts each with the physics changed one factor at a time: friction, battery voltage, servo delay, extra mass in the trunk and the trunk's centre of mass. Single changes cost little (friction, delay, battery and up to 30 g each leave 91 to 100%), but 60 g extra mass together with a low battery drops them to 42% and 24%, and the combination with a longer delay to 30% and 21% (v0.21 traces this to a shift of the balance point, not a torque limit). The centre of mass matters most: 10 mm further back or lower takes both to about 0%, 10 mm forward or higher to 58 to 95%, and 20 mm either way to 0%. A first version of this test did nothing for the centre of mass (the task's own reset randomization undid the shift) and read as no effect; it is corrected here. Taking away all contact between the legs and the body drops them to 49% and 77%, and a contact log shows the legs touching the bezel, shell and tail throughout. The roll onto the front survives every combination (256 of 256); it is the stand-up behind it that breaks (§7.5, §12, §13).</li>
+        <li><strong>v0.19</strong> Getting up from the back and the side, and a correction. The back and side searches of v0.17 and v0.18 kept the legs mirrored, which cannot roll the body about its long axis, so their 3% and 0% described mirrored motions only (the text did not say so). With all ten joints free a search finds no better direct stand-up (7 of 256 from flat on the back, 0 from a side) but finds a roll onto the front easily, 256 of 256 from flat on the back and from a side for the mean motions. With a stand-up searched behind that roll, the robot gets up in 255 of 256 starts up to 30° from flat on the back and in 254 of 256 from a side (60° to 90° from flat). Around 45° neither roll is reliable. A recovery policy trained from scratch on lying starts learned nothing (0 of 256 from every start; its action noise fell from 1.0 to 0.12), as the earlier learned runs did; the searched motions are the reference for the next attempt. All of it is open-loop, in simulation, without pushes. A video of the chain from a side to walking is rendered from the final model (§7.5, §12, §13).</li>
+        <li><strong>v0.18</strong> Corrections and one consistent model. Pollen's chassis plate and its 50 g were left at the old low position in every raised-hip test since v0.15, which put the whole-body center of mass 9 mm too low. Moving them with the hips cut the hips-back layout's face-down success (best candidate from 97% to 14–44%, mean motion from 100% to 61–84%), so v0.17's hips-back numbers are superseded. The tail is now a rigid feather fan estimated from the design mockups (28 mm deep, 42 mm tall, centered 70 mm up the rear) instead of a 70 mm tall block, and with it the face-down stand-up works in 255 of 256 starts. Replays now use 256 starts and also the mean motion of the search, which is steadier than its best candidate. Walking with the corrected hips-back body reaches 91–93% of the stock layout's speed at 0.3 and 0.4 m/s, its home pose leaning 41° at the hip, and it fell 31 times under pushes against 19 for the stock hips. From flat on the back 3% of starts get up and from exactly the side 0%; the stock hips get 0 everywhere. Dropped on its back with the legs holding the home pose, the robot rests flat in roll with the screen about 20° back, whatever the fan's width (§7.5, §12, §13).</li>
+        <li><strong>v0.17</strong> Walking with the hips moved back, and getting up from the back. The layout that gets up face-down (hips raised 70 mm and moved 29 mm behind the stock position) also walks. Its home pose leans 43° at the hip pitch instead of 28° to keep the center of mass over the ankles, and the stock walking policy trained 500 more iterations on it reaches 0.17 and 0.24 m/s at 0.3 and 0.4 m/s commands (stock hips: 0.19 and 0.27), with a similar foot lift and 30 falls against 27 under the play pushes. Lying flat on its back, neither layout gets up (0 of 64 each): the stock hips flip up for a moment and fall back, and the hips-back layout ends sitting on its tail and feet with the screen tilted back. From starts rolled from the back toward the side, the hips-back layout gets up in 6 of 64 and the stock hips in 0. Packaging and the gait's clearance to the shell are still open (§7.5, §12, §13).</li>
+        <li><strong>v0.16</strong> Getting up, re-run with every leg part colliding. The simulator collides only geoms named for collision, and the stand-up model named only the soles and the torso pieces, so the thighs, shanks and hip brackets passed through the floor and the body in v0.15's searches; its successes were upper bounds. With every leg part colliding, the legs-outside layout fails (0 of 64) and so does the centered layout at the stock hip position (0 of 64, it ends lying face down again). With the hips raised 70 mm, at the stock spacing and moved 29 mm further back, the robot gets up in 62 of 64 starts (15 of 16 in a second replay). Walking has not been tried at that position, and the hips there sit inside the shell's outline, so the shell needs openings for them (§7.5, §12, §13).</li>
+        <li><strong>v0.15</strong> Getting up, and where the hips go. In simulation the stock leg layout cannot get up from lying on the screen: the hips sit at the bottom end of the body, well below its center of mass, so the legs only reach behind the weight. Two learned runs and a search over open-loop leg motions all fail (0 of 64 starts up). With the leg mounts raised 55 mm or more, up the sides of the body, the same search gets up (60 of 64 at 55 mm, 63 and 64 of 64 at 70 mm), but only with the legs 25 mm outside the shell. Walking with the legs raised 70 mm at the stock spacing does not come out of a cold start (the policy stands still) but does when it starts from the stock walking policy, with weaker push recovery (51 falls against 32). One layout that gets up, walks and fits the screen, battery and electronics is not shown yet. The test models also left the two hip-yaw servos and the power plate at the old height, which the next run fixes (§7.5, §12, §13).</li>
+        <li><strong>v0.14</strong> Target-look shell built. The default shell is now 70 mm deep, with the top sloping about 20 degrees from the bezel, a rounded rear edge and an underside that rises toward the rear, and the tail placeholder sits behind its rear wall (moved from x = −45 to −63 mm; the stand check shows no measurable change). Over all 96,000 recorded gait poses nothing intersects it and the closest approach is 4.8 mm; 21 of 6,000 stress poses (0.4%) do. The 86 mm deep egg of v0.13 is kept for comparison (§6.5, §12).</li>
+        <li><strong>v0.13</strong> Target look and the egg-shaped shell. Five points set the look: flat wings on the sides, a tuft (the comb) on top, a tail at the back, a screen frame that curves outward at the top and bottom to protect the screen in falls, and mostly decorative claws on the feet. The shell prototype in hardware/ gains an egg style with wing discs and an 86 mm default depth, as sketched, next to the box and a compact egg. The clearance check now covers the wing discs and every recorded pose. The deep egg only just clears the legs (one of 96,000 gait poses intersects by 0.8 mm), because its low rear floor is set by the placeholder tail block, so the next shell prototype ends the body where the tail begins (§6.5, §12).</li>
+        <li><strong>v0.12</strong> First MicroCluck results. The torque baseline and fall counts were measured with the play configuration's frequent pushes, which v0.10 did not say; without pushes there were no falls. MicroCluck falls as often as the stock duck, uses less torque on hip pitch and knee and more on hip yaw, hip roll and ankle, and walks at about half the commanded speed, as the stock duck does. The shell clears MicroCluck's own gait by at least 7.5 mm (§6.5, §7.2).</li>
+        <li><strong>v0.11</strong> A parametric body shell in hardware/ joins the bezel to the tail; the sim draws the battery, electronics and shell, and checks fit and leg clearance (§6.5).</li>
+        <li><strong>v0.10</strong> S0 results: the stock walker's torque baseline shows Pollen's own duck exceeds the datasheet continuous rating on hip pitch and knee, so the S3 thermal and peak-torque checks are now relative to the stock duck. First MicroCluck training run started.</li>
+        <li><strong>v0.9</strong> OpenSCAD chosen for the parametric parts. Pollen's foot stays and gets three chunky toes in front, defined in hardware/ and kept as an option next to the plain sole (§6.5).</li>
+        <li><strong>v0.8</strong> Corrections from building the first MicroCluck model: unused command slots use tiny sampling ranges, the stock actor is 512-256-128, Pollen trains at action scale 1.0 and runs 0.9, and the head chain is 38% of the stock duck's mass. The robot_groundcontact models exist and are named correctly.</li>
+        <li><strong>v0.7</strong> Servos now run straight from the 2S pack, like Microduck and its training model, so the 5 V servo buck is gone (§6.4). Command slots stay zero-padded (49 inputs) and the model is edited by hand instead of re-exported from Onshape (§7.1). Added Pollen's known runtime values to the contract and two watchlist rows.</li>
+        <li><strong>v0.6</strong> One development machine: the Windows PC with the RTX 3060. The Mac is out of the plan, and the open question on where the tools run is reworded for native Windows versus WSL2.</li>
+        <li><strong>v0.5</strong> Resolved the H1/H2 early-start contradiction. Added H3 Mechanical design (the later hardware milestones are now H4 to H7). Added a scripted SIT state, an upright check before enable (S10) and hang protection (S9). Retired the Markdown copy of the PRD. Added a possible issue watchlist (§12).</li>
+        <li><strong>v0.4</strong> HTML format. Simulation-first roadmap with a design-freeze purchase gate, design validation step, virtual MicroCluck host twin and hardware abstraction layer. Diagrams.</li>
+        <li><strong>v0.3</strong> Through-hole 74HC126 servo bus buffer.</li>
+        <li><strong>v0.2</strong> Named MicroCluck. Comb, tail, three-toed feet. Expression set, face rig, stabilized eyes, sounds.</li>
+        <li><strong>v0.1</strong> Initial draft.</li>
+      </ul>
+    </details>
+  </div>
+</header>
+
+<details class="mobile-toc">
+  <summary>Contents</summary>
+  <ol>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#goals">Goals and non-goals</a></li>
+    <li><a href="#approach">Development approach</a></li>
+    <li><a href="#reference">Reference design</a></li>
+    <li><a href="#architecture">System architecture</a></li>
+    <li><a href="#hardware">Hardware</a></li>
+    <li><a href="#sim">Simulation and training</a></li>
+    <li><a href="#twin">Virtual MicroCluck</a></li>
+    <li><a href="#firmware">Firmware</a></li>
+    <li><a href="#milestones">Milestones</a></li>
+    <li><a href="#claw">v2 claw</a></li>
+    <li><a href="#risks">Risks</a></li>
+    <li><a href="#questions">Open questions</a></li>
+    <li><a href="#repo">Repo layout</a></li>
+    <li><a href="#claude-code">Notes for Claude Code</a></li>
+    <li><a href="#references">References</a></li>
+  </ol>
+</details>
+
+<!-- 1 -->
+<h2 id="summary"><span class="n">1</span>Summary</h2>
+<p><strong>MicroCluck</strong> is a ~25 cm bipedal walking robot chicken in the style of Pollen Robotics' Microduck. Its whole torso is a vertical, front-facing <strong>Freenove ESP32-S3 3.5" touchscreen</strong> (FNK0104 family) showing an animated chicken face, with a comb tuft on top, flat wings on the sides, tail feathers at the back and clawed three-toed feet. It has no separate head, neck or beak.</p>
+<p>Walking comes from a reinforcement-learning policy trained in simulation (forked from Pollen's open-source <code>microduck_rl</code>) and run <strong>entirely on the ESP32-S3 at 50 Hz</strong>. It is driven from a <strong>phone browser over the robot's own Wi-Fi</strong>. A claw on top is planned for v2.</p>
+<p>Two decisions shape everything else:</p>
+<ul>
+  <li><strong>Single MCU.</strong> The ESP32-S3 runs the control loop, policy inference, servo bus, IMU fusion, face, sound, Wi-Fi controller and OTA. No Raspberry Pi.</li>
+  <li><strong>Simulation first.</strong> The robot is designed, trained and driven end to end in simulation, including the real firmware logic and face, before most parts are ordered (§3).</li>
+</ul>
+<p>The name is a homage to Microduck. MicroCluck is a personal project and is not affiliated with Pollen Robotics or Hugging Face.</p>
+
+<!-- 2 -->
+<h2 id="goals"><span class="n">2</span>Goals and non-goals</h2>
+<h3>v1 goals</h3>
+<div class="tbl"><table>
+  <thead><tr><th>ID</th><th>Goal</th></tr></thead>
+  <tbody>
+    <tr><td>G1</td><td>Stand and walk on flat indoor floors from velocity commands (forward/back, strafe, turn).</td></tr>
+    <tr><td>G2</td><td>Single board: all compute on the Freenove ESP32-S3.</td></tr>
+    <tr><td>G3</td><td>Phone control from any browser (iOS/Android), no app install.</td></tr>
+    <tr><td>G4</td><td>Expressive chicken face mapped to robot state, with touch interaction (§9.6).</td></tr>
+    <tr><td>G5</td><td>Safe failure: dead-man stop, fall detection, servo protection, low-battery handling, E-stop.</td></tr>
+    <tr><td>G6</td><td>OTA firmware and policy updates; live telemetry for sim2real debugging.</td></tr>
+    <tr><td>G7</td><td>Chicken personality: IMU-stabilized eyes (the body moves, the face holds still) and cluck sound effects.</td></tr>
+    <tr><td>G8</td><td>Prove the design, the walking policy and the firmware logic in simulation before buying the bulk of the parts.</td></tr>
+  </tbody>
+</table></div>
+<h3>Non-goals for v1</h3>
+<ul>
+  <li>Camera or vision, voice interaction, ToF or obstacle sensing, autonomous navigation</li>
+  <li>Rough terrain</li>
+  <li>Standing up after a fall (stretch goal for v1.1)</li>
+  <li>Direct Bluetooth gamepad pairing. The ESP32-S3 is BLE-only, so physical controllers connect through the phone (§9.5).</li>
+  <li>Any commercial use. Microduck's meshes are licensed CC BY-NC-SA (§4).</li>
+</ul>
+
+<!-- 3 -->
+<h2 id="approach"><span class="n">3</span>Development approach</h2>
+<p>Work runs in two phases. <strong>Phase A</strong> builds MicroCluck in simulation: the model, the walking policy, a design validation report, the C port of the policy and a <a href="#twin">virtual MicroCluck</a> that runs the real firmware logic and face against the simulator. <strong>Phase B</strong> builds the robot.</p>
+<p>Bench bring-up (H0) needs only the Freenove board, which is already owned, so it runs alongside Phase A. Servos, battery and power parts are ordered at the <strong>design freeze</strong> after S3, once the simulator has settled stance width, mass and torque margins. Two kinds of hardware work may start earlier: driver bring-up on one or two early servos and an IMU (the start of H1 and H2), and fit-check prints of the board mount and bezel on the board you already own (the start of H3). The full exit criteria of H1 to H3 still wait for the freeze.</p>
+
+<figure class="diagram wide">
+<svg viewBox="0 0 760 760" role="img" aria-label="Roadmap: simulation milestones S0 to S5 on the left, hardware milestones H0 to H7 on the right, with a design freeze gate before parts are ordered. H1, H2 and H3 can overlap and all three feed H4.">
+  <text x="190" y="26" text-anchor="middle" class="d-t">Simulation</text>
+  <text x="570" y="26" text-anchor="middle" class="d-t">Hardware</text>
+
+  <rect x="40" y="44" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="63" class="d-t">S0 Toolchain</text>
+  <text x="56" y="80" class="d-s">Reproduce Pollen's duck walking</text>
+
+  <rect x="40" y="102" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="121" class="d-t">S1 MicroCluck model</text>
+  <text x="56" y="138" class="d-s">10 servos, torso, comb, tail, feet</text>
+
+  <rect x="40" y="160" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="179" class="d-t">S2 Walking policy</text>
+  <text x="56" y="196" class="d-s">Backlash and payload randomization</text>
+
+  <rect x="40" y="218" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="237" class="d-t">S3 Design validation</text>
+  <text x="56" y="254" class="d-s">Torque, stance, toes, payload, sit</text>
+
+  <rect x="420" y="44" width="300" height="218" rx="10" class="d-hw"/>
+  <text x="436" y="66" class="d-t">H0 Bench bring-up</text>
+  <text x="436" y="86" class="d-s">Freenove board only, in parallel</text>
+  <text x="436" y="112" class="d-s">Verify 3.5" pinout and PSRAM</text>
+  <text x="436" y="132" class="d-s">Face rig on the real screen</text>
+  <text x="436" y="152" class="d-s">SoftAP, controller page, WebSocket</text>
+  <text x="436" y="172" class="d-s">OTA with rollback, SD logging, sound</text>
+  <text x="436" y="198" class="d-s">Optional: 1–2 servos and an IMU for</text>
+  <text x="436" y="216" class="d-s">early H1 and H2 driver work, plus</text>
+  <text x="436" y="234" class="d-s">fit-check prints for H3</text>
+
+  <line x1="190" y1="88" x2="190" y2="100" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="190" y1="146" x2="190" y2="158" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="190" y1="204" x2="190" y2="216" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="190" y1="262" x2="190" y2="282" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="262" x2="570" y2="282" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="40" y="284" width="680" height="42" rx="21" class="d-gate"/>
+  <text x="380" y="310" text-anchor="middle" class="d-tg">Design freeze: order servos, battery and power parts</text>
+
+  <line x1="190" y1="326" x2="190" y2="344" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="326" x2="570" y2="344" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="40" y="346" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="365" class="d-t">S4 Policy port</text>
+  <text x="56" y="382" class="d-s">C inference, golden tests, closed loop</text>
+
+  <rect x="40" y="404" width="300" height="44" rx="10" class="d-sim"/>
+  <text x="56" y="423" class="d-t">S5 Virtual MicroCluck</text>
+  <text x="56" y="440" class="d-s">Your phone drives the simulated chicken</text>
+  <line x1="190" y1="390" x2="190" y2="402" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="40" y="462" width="300" height="44" rx="10" class="d-sim d-dash"/>
+  <text x="56" y="481" class="d-t">S2 again, if needed</text>
+  <text x="56" y="498" class="d-s">Retrain if CAD or weighed masses differ</text>
+
+  <rect x="420" y="346" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="365" class="d-t">H1 Servo bus</text>
+  <text x="436" y="382" class="d-s">74HC126 buffer, 10 servos at 50 Hz</text>
+
+  <rect x="420" y="404" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="423" class="d-t">H2 IMU</text>
+  <text x="436" y="440" class="d-s">Fusion, stabilized eyes on the bench</text>
+
+  <rect x="420" y="462" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="481" class="d-t">H3 Mechanical design</text>
+  <text x="436" y="498" class="d-s">Final CAD, fit-check prints, STLs frozen</text>
+
+  <rect x="420" y="520" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="539" class="d-t">H4 Assembly</text>
+  <text x="436" y="556" class="d-s">Weigh every part, update the model</text>
+
+  <rect x="420" y="578" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="597" class="d-t">H5 First steps</text>
+  <text x="436" y="614" class="d-s">Gantry, standing, then walking</text>
+
+  <rect x="420" y="636" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="655" class="d-t">H6 v1 complete</text>
+  <text x="436" y="672" class="d-s">Phone, faces, sounds, safety on hardware</text>
+
+  <rect x="420" y="694" width="300" height="44" rx="10" class="d-hw"/>
+  <text x="436" y="713" class="d-t">H7 v1.1</text>
+  <text x="436" y="730" class="d-s">Fall recovery, learned sit and stand</text>
+
+  <path d="M720 368 H734 M720 426 H734 M720 484 H734" class="d-wire"/>
+  <path d="M734 368 V542 H722" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="564" x2="570" y2="576" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="622" x2="570" y2="634" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="570" y1="680" x2="570" y2="692" class="d-wire" marker-end="url(#arr)"/>
+
+  <line x1="420" y1="484" x2="344" y2="484" class="d-wire d-dash" marker-end="url(#arr)"/>
+  <path d="M340 426 H380 V600 H416" class="d-wire" marker-end="url(#arr)"/>
+  <text x="374" y="588" class="d-s" text-anchor="end">needs S5</text>
+</svg>
+<figcaption>Simulation milestones gate the parts order. H0 runs from day one on the board you already own, and driver bring-up on one or two servos and fit-check prints may start before the freeze. H1, H2 and H3 can overlap, and H4 needs all three. H5 starts only after the virtual MicroCluck works.</figcaption>
+</figure>
+
+<h3>Purchase plan</h3>
+<div class="tbl"><table>
+  <thead><tr><th>When</th><th>Buy</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Now</td><td>Nothing, apart from filament for fit-check prints; the Freenove board is already owned</td><td>H0 bench bring-up needs only the board, and H3's fit-check prints test the mount and bezel against it.</td></tr>
+    <tr><td>Optional, early</td><td>1–2 XL330-M288-T, 74HC126 and perfboard parts, IMU breakout</td><td>Lets servo driver and IMU work (the start of H1 and H2) begin during Phase A. The full H1 and H2 exit criteria still wait for the freeze. These parts are the same in every design option, so they carry no design risk.</td></tr>
+    <tr><td>At design freeze</td><td>Remaining servos and spares, battery, logic buck converter, INA226, connectors, print material</td><td>Mechanical decisions are settled in simulation first (§7.2). Production printing follows H3, which freezes the STLs.</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Which machine does what</h3>
+<p>One machine does everything: the Windows 11 PC with the RTX 3060 (12 GB). No Mac is involved. Training ties up the GPU for an hour or two per run, so twin and firmware work in that window uses the CPU.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Job</th><th>Where it runs</th></tr></thead>
+  <tbody>
+    <tr><td>Policy training</td><td><code>mjlab</code> runs on MuJoCo Warp and needs a CUDA GPU. It is Linux-first, so a Windows PC likely trains under WSL2. Hugging Face Jobs is the fallback.</td></tr>
+    <tr><td>Policy playback and the virtual MicroCluck</td><td>CPU MuJoCo on the same PC. Native Windows or WSL2 is still open (§13).</td></tr>
+    <tr><td>Firmware development and flashing</td><td>ESP-IDF on the same PC, flashing over USB.</td></tr>
+  </tbody>
+</table></div>
+
+<!-- 4 -->
+<h2 id="reference"><span class="n">4</span>Reference design and constraints</h2>
+<p>The design stays deliberately close to Microduck so its training stack, actuator model and leg kinematics can be reused.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Microduck (reference)</th><th>MicroCluck</th></tr></thead>
+  <tbody>
+    <tr><td>Height and mass</td><td>25 cm, 780 g</td><td>~25 cm, <strong>≤ 800 g budget</strong></td></tr>
+    <tr><td>Servos</td><td>15 (legs, neck and head, beak)</td><td><strong>10</strong> (legs only)</td></tr>
+    <tr><td>Leg joints</td><td>hip_yaw, hip_roll, hip_pitch, knee, ankle</td><td>Same; hip_yaw stays for turning</td></tr>
+    <tr><td>Servo model</td><td>Dynamixel XL330 (BAM actuator model)</td><td><strong>Dynamixel XL330-M288-T</strong> (variant to confirm, §13)</td></tr>
+    <tr><td>Compute</td><td>Rockchip RK3566 with NPU, Linux</td><td>ESP32-S3, FreeRTOS</td></tr>
+    <tr><td>Policy</td><td>PPO in mjlab, 50 Hz, ONNX, 61 inputs to 14 outputs</td><td>Same recipe, retrained: ~49 inputs (head and body command slots zero-padded) to 10 outputs</td></tr>
+    <tr><td>Extras</td><td>Camera, ToF, microphones, NFC, beak</td><td>Screen face, speaker, comb, wings, tail, three-toed feet; claw in v2</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Facts carried over from Pollen's repos</h3>
+<ul>
+  <li>Policies are trained at 50 Hz with PPO and exported to ONNX. The exporter bakes the observation normalizer into the ONNX graph.</li>
+  <li>The actor sees 61 values: 48 proprioception plus commands for twist (3), head pose (4) and body pose (6).</li>
+  <li>Actuator fidelity is the dominant sim2real gap at this scale. The XL330 is modeled down to its voltage control law, with randomized battery voltage, voltage sag, command delay and friction. Each task has a <strong>Backlash</strong> variant with ±1° of gear play.</li>
+  <li>Training needs a CUDA GPU; Pollen quotes 1–2 hours for a usable gait at 4096 parallel environments.</li>
+  <li>Robot models are exported from Onshape with <code>onshape-to-robot</code>. The CAD is not published, so MicroCluck edits the exported XML by hand (§7.1).</li>
+  <li>A simulated duck can run the real robot software against a body in MuJoCo, which is the model for the virtual MicroCluck (§8).</li>
+  <li><strong>Licensing:</strong> code is Apache-2.0; STL meshes are CC BY-NC-SA 4.0 (non-commercial). The CAD is not published, and Pollen asks that the mechanical design not be called open-source hardware.</li>
+</ul>
+
+<h3>XL330-M288-T key specs</h3>
+<p>18 g. Stall torque 0.52 N·m at 5 V (1.47 A) and 0.60 N·m at 6 V (1.74 A); the Current Limit register defaults to 1.75 A, so about 0.60 N·m is the ceiling at pack voltage. Input 3.7–6.0 V, 5.0 V recommended; Microduck and MicroCluck run it from a 2S pack anyway (§6.4). TTL half-duplex bus with <strong>3.3 V logic</strong> (5 V tolerant), 9.6 kbps to 4 Mbps, Protocol 2.0. Feedback includes position, velocity, current, temperature and input voltage. 12-bit absolute encoder. The estimated continuous torque is only ~0.10 N·m, 20% of stall, so thermal margin is a design constraint (§7.2, §9.8).</p>
+
+<!-- 5 -->
+<h2 id="architecture"><span class="n">5</span>System architecture</h2>
+<figure class="diagram wide">
+<svg viewBox="0 0 760 510" role="img" aria-label="System architecture: phone connects over Wi-Fi to the ESP32-S3, which drives a 74HC126 buffer to ten XL330 servos and reads an IMU and INA226 over I2C; the 2S battery feeds the servos directly and a 5 volt buck feeds the logic board">
+  <rect x="20" y="40" width="130" height="70" rx="12" class="d-box"/>
+  <text x="85" y="70" text-anchor="middle" class="d-t">Phone browser</text>
+  <text x="85" y="90" text-anchor="middle" class="d-s">joystick, E-stop</text>
+  <line x1="152" y1="75" x2="226" y2="75" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="189" y="66" text-anchor="middle" class="d-s">Wi-Fi AP</text>
+  <text x="189" y="94" text-anchor="middle" class="d-s">WebSocket</text>
+
+  <rect x="230" y="20" width="300" height="290" rx="14" class="d-strong"/>
+  <text x="380" y="46" text-anchor="middle" class="d-t">ESP32-S3 (Freenove 3.5")</text>
+  <rect x="248" y="62" width="264" height="74" rx="8" class="d-hw"/>
+  <text x="262" y="83" class="d-t">Core 1</text>
+  <text x="262" y="103" class="d-s">control_task: 50 Hz, highest priority</text>
+  <text x="262" y="121" class="d-s">imu_task: 500 Hz to 1 kHz</text>
+  <rect x="248" y="148" width="264" height="94" rx="8" class="d-hw"/>
+  <text x="262" y="169" class="d-t">Core 0</text>
+  <text x="262" y="189" class="d-s">Wi-Fi, HTTP, WebSocket, OTA</text>
+  <text x="262" y="207" class="d-s">LVGL face, audio</text>
+  <text x="262" y="225" class="d-s">Telemetry, SD logging</text>
+  <rect x="248" y="254" width="264" height="40" rx="8" class="d-box d-dash"/>
+  <text x="380" y="279" text-anchor="middle" class="d-s">On board: display, touch, speaker, SD</text>
+
+  <rect x="580" y="40" width="160" height="50" rx="8" class="d-box"/>
+  <text x="660" y="61" text-anchor="middle" class="d-t">74HC126 buffer</text>
+  <text x="660" y="79" text-anchor="middle" class="d-s">UART1, half-duplex</text>
+  <rect x="580" y="110" width="160" height="50" rx="8" class="d-box"/>
+  <text x="660" y="131" text-anchor="middle" class="d-t">10× XL330-M288-T</text>
+  <text x="660" y="149" text-anchor="middle" class="d-s">daisy chain, 2 Mbps</text>
+  <rect x="580" y="180" width="160" height="44" rx="8" class="d-box"/>
+  <text x="660" y="199" text-anchor="middle" class="d-t">IMU</text>
+  <text x="660" y="215" text-anchor="middle" class="d-s">I2C plus data-ready pin</text>
+  <rect x="580" y="236" width="160" height="44" rx="8" class="d-box"/>
+  <text x="660" y="255" text-anchor="middle" class="d-t">INA226</text>
+  <text x="660" y="271" text-anchor="middle" class="d-s">pack voltage, current</text>
+
+  <line x1="530" y1="65" x2="576" y2="65" class="d-wire" marker-end="url(#arr)"/>
+  <text x="553" y="57" text-anchor="middle" class="d-s">UART</text>
+  <line x1="660" y1="90" x2="660" y2="110" class="d-wire"/>
+  <path d="M530 230 H560 M560 202 V258 M560 202 H576 M560 258 H576" class="d-wire"/>
+  <circle cx="560" cy="230" r="3" class="d-dot"/>
+  <text x="545" y="222" text-anchor="middle" class="d-s">I2C</text>
+
+  <rect x="20" y="380" width="150" height="62" rx="10" class="d-box"/>
+  <text x="95" y="405" text-anchor="middle" class="d-t">2S Li-ion pack</text>
+  <text x="95" y="424" text-anchor="middle" class="d-s">7.4 V, with BMS</text>
+  <rect x="200" y="396" width="60" height="30" rx="6" class="d-box"/>
+  <text x="230" y="416" text-anchor="middle" class="d-s">Fuse</text>
+  <rect x="300" y="358" width="180" height="54" rx="10" class="d-box"/>
+  <text x="390" y="381" text-anchor="middle" class="d-t">5 V logic buck</text>
+  <text x="390" y="399" text-anchor="middle" class="d-s">2 A</text>
+  <rect x="300" y="438" width="180" height="54" rx="10" class="d-box"/>
+  <text x="390" y="461" text-anchor="middle" class="d-t">Servo power tap</text>
+  <text x="390" y="479" text-anchor="middle" class="d-s">pack voltage, bulk caps</text>
+
+  <path d="M170 411 H200" class="d-power"/>
+  <path d="M260 411 H280 V385 H296" class="d-power" marker-end="url(#arrP)"/>
+  <path d="M280 411 V465 H296" class="d-power" marker-end="url(#arrP)"/>
+  <path d="M390 358 V314" class="d-power" marker-end="url(#arrP)"/>
+  <text x="398" y="340" class="d-s">5 V in</text>
+  <path d="M480 465 H750 V135 H744" class="d-power" marker-end="url(#arrP)"/>
+  <text x="615" y="457" text-anchor="middle" class="d-s">servo rail, 6.6–8.4 V</text>
+</svg>
+<figcaption>Data in dark lines, power in orange. The servos run straight from the pack, and only the logic board gets a regulated 5 V. Grounds are common.</figcaption>
+</figure>
+
+<!-- 6 -->
+<h2 id="hardware"><span class="n">6</span>Hardware</h2>
+
+<h3 id="bom"><span class="n">6.1</span>Bill of materials</h3>
+<p>Estimates for v1. Verify prices before ordering; timing follows the purchase plan in §3.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
+  <tbody>
+    <tr><td>Freenove ESP32-S3 Display, 3.5" IPS touch (FNK0104)</td><td>1</td><td>Already owned; ships with a speaker</td><td>~$22–30</td></tr>
+    <tr><td>Dynamixel XL330-M288-T</td><td>10 + 2 spare</td><td>Leg servos; spares strongly recommended. ROBOTIS America, SKU 902-0163-000, $27.49 each (9 November 2026, with a lead time to the end of November). Not the pricier XC330-M288-T</td><td>~$27.49 each</td></tr>
+    <tr><td>ROBOTIS U2D2 (USB-C)</td><td>1</td><td>USB to Dynamixel TTL adapter for setting IDs and updating servo firmware (Fast Sync Read needs v46 or newer, §13). ROBOTIS America, SKU 902-0132-000</td><td>~$37</td></tr>
+    <tr><td>IMU breakout</td><td>1</td><td>Default ICM-42688-P, but it is supply-constrained; see §13</td><td>~$10–20</td></tr>
+    <tr><td>INA226 power monitor breakout</td><td>1</td><td>Pack voltage and current over I2C, no GPIO</td><td>~$5</td></tr>
+    <tr><td>74HC126 (DIP-14) with socket, perfboard, 10 kΩ pull-up, 0.1 µF cap</td><td>1</td><td>Through-hole servo bus interface (§6.3)</td><td>~$5</td></tr>
+    <tr><td>2S Li-ion or LiPo pack, ~1500–2500 mAh, with BMS</td><td>1</td><td>Plus charger</td><td>~$20–35</td></tr>
+    <tr><td>Bulk capacitor, ≥ 1000 µF, for the servo bus entry</td><td>1</td><td>Low ESR, rated 16 V or more</td><td>~$3</td></tr>
+    <tr><td>5 V buck for logic, 2 A</td><td>1</td><td>Accepts the pack's full range, about 6–8.4 V; the servos do not use it</td><td>~$5</td></tr>
+    <tr><td>Switch, XT30, inline fuse, JST-EH Dynamixel cables</td><td>–</td><td></td><td>~$15</td></tr>
+    <tr><td>Printed frame, feet, comb, tail, bumpers (PLA/PETG and TPU); M2 hardware</td><td>–</td><td></td><td>~$20–30</td></tr>
+    <tr class="total"><td>Total</td><td></td><td>Including two spare servos and the U2D2</td><td><strong>~$475–515</strong></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="pins"><span class="n">6.2</span>Pin map</h3>
+<div class="callout verify"><p><strong>Verify first.</strong> This map comes from the 2.8" FNK0104B. Check the 3.5" variant against Freenove's pin chart before wiring anything (H0).</p></div>
+<div class="tbl"><table>
+  <thead><tr><th>Function</th><th>GPIO</th><th>Header</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Servo bus TX</td><td>IO21</td><td>P3 expanded IO</td><td>UART1 through the GPIO matrix</td></tr>
+    <tr><td>Servo bus RX</td><td>IO14</td><td>P3</td><td></td></tr>
+    <tr><td>Servo bus direction</td><td>IO2</td><td>P3</td><td>Drives the 74HC126 gate enable; ESP-IDF's <code>UART_MODE_RS485_HALF_DUPLEX</code> toggles it automatically</td></tr>
+    <tr><td>IMU data-ready</td><td>IO3</td><td>P3</td><td>Input only. IO3 is a strapping pin (JTAG source); harmless unless the JTAG eFuse is set</td></tr>
+    <tr><td>I2C SDA, SCL</td><td>16, 15</td><td>P4 I2C</td><td>Shared with the touch controller. IMU at 0x68/0x69, INA226 at 0x40; confirm the touch address on the 3.5"</td></tr>
+    <tr><td>On board</td><td>–</td><td>–</td><td>Display, touch, SD, audio codec and amp, BOOT on IO0. Do not repurpose.</td></tr>
+  </tbody>
+</table></div>
+<p>This uses all four free expansion pins. Anything added later, including the claw, goes on the servo bus or I2C.</p>
+
+<h3 id="bus"><span class="n">6.3</span>Servo bus interface</h3>
+<figure class="diagram wide">
+<svg viewBox="0 0 760 300" role="img" aria-label="Wiring: ESP32 TX feeds one 74HC126 gate enabled by the direction pin; the gate output is the servo data line, which also connects straight to RX and has a 10 kilohm pull-up to 3.3 volts">
+  <rect x="20" y="40" width="150" height="220" rx="10" class="d-strong"/>
+  <text x="95" y="68" text-anchor="middle" class="d-t">ESP32-S3 header</text>
+  <text x="36" y="115" class="d-s">IO21  TX</text>
+  <text x="36" y="155" class="d-s">IO2   DIR</text>
+  <text x="36" y="195" class="d-s">IO14  RX</text>
+  <text x="36" y="235" class="d-s">GND</text>
+  <circle cx="170" cy="110" r="3.5" class="d-dot"/>
+  <circle cx="170" cy="150" r="3.5" class="d-dot"/>
+  <circle cx="170" cy="190" r="3.5" class="d-dot"/>
+  <circle cx="170" cy="230" r="3.5" class="d-dot"/>
+
+  <text x="320" y="62" text-anchor="middle" class="d-t">74HC126, one gate</text>
+  <text x="320" y="80" text-anchor="middle" class="d-s">VCC 3.3 V, 0.1 µF to GND</text>
+  <path d="M300 90 L300 130 L340 110 Z" class="d-box" style="stroke:var(--ink);stroke-width:1.75"/>
+  <path d="M170 110 H300" class="d-wire"/>
+  <path d="M170 150 H320 V120" class="d-wire"/>
+  <text x="328" y="142" class="d-s">EN</text>
+  <path d="M340 110 H540" class="d-wire"/>
+  <circle cx="460" cy="110" r="4" class="d-dot"/>
+  <path d="M460 110 V190 H170" class="d-wire"/>
+  <path d="M460 110 V84" class="d-wire"/>
+  <rect x="452" y="50" width="16" height="34" rx="3" class="d-box" style="stroke:var(--ink);stroke-width:1.5"/>
+  <path d="M460 50 V36" class="d-wire"/>
+  <text x="460" y="28" text-anchor="middle" class="d-s">3.3 V</text>
+  <text x="476" y="60" class="d-s">10 kΩ pull-up</text>
+
+  <rect x="540" y="70" width="200" height="150" rx="10" class="d-hw"/>
+  <text x="640" y="94" text-anchor="middle" class="d-t">XL330 bus, 3-pin</text>
+  <text x="556" y="114" class="d-s">DATA</text>
+  <text x="556" y="154" class="d-s">GND</text>
+  <text x="556" y="194" class="d-s">VDD, pack voltage</text>
+  <text x="640" y="212" text-anchor="middle" class="d-s">to 10 servos, daisy chained</text>
+  <path d="M540 150 H500 V230 H170" class="d-wire"/>
+  <path d="M540 190 H520 V276" class="d-power"/>
+  <text x="520" y="292" text-anchor="middle" class="d-s">Pack voltage straight from the battery, never to the buffer</text>
+</svg>
+<figcaption>Transmit goes through one tri-state gate; receive is wired straight to the data line.</figcaption>
+</figure>
+<ul>
+  <li>The gate drives the bus only while DIR is high, then releases the line so servos can reply.</li>
+  <li>RX also hears the ESP32's own transmissions. The <code>dxl</code> driver discards that echo, or the UART's RS-485 mode is configured to ignore RX during TX.</li>
+  <li>3.3 V logic matches the XL330's TTL level, so no level shifting is needed. Unused gates: inputs and enables tied to GND.</li>
+  <li>Built on perfboard with DIP parts and a socket for the chip. There is no surface-mount soldering anywhere in the build.</li>
+</ul>
+
+<h3 id="power"><span class="n">6.4</span>Power</h3>
+<ul>
+  <li><strong>Servo rail:</strong> the 2S pack directly, from about 6.6 V near empty to 8.4 V fully charged and unloaded, with no regulator. This is what Microduck does and what the training model assumes: the stock simulation randomizes the servo supply from 6.5 to 8.2 V with load-dependent sag. It is above ROBOTIS's rated 3.7–6.0 V (5.0 V recommended), so it is an accepted risk (§12).</li>
+  <li><strong>Servo settings for the higher voltage:</strong> the XL330's Max Voltage Limit register tops out at 7.0 V, so a fresh pack sets the Input Voltage Error bit and the Alert flag on status packets. Following Microduck, clear that bit in the Shutdown register (52 instead of the default 53) so torque is not cut, and have the <code>dxl</code> driver ignore that bit and the Alert flag when it checks health (S4).</li>
+  <li><strong>Peak current:</strong> the Current Limit register caps each servo at 1.75 A by default, so the theoretical worst case with every servo stalled is about 17 A. Walking draws far less. Measure it in H1, then size the fuse and the BMS peak rating from the measurement, and put at least 1000 µF of bulk capacitance at the servo bus entry.</li>
+  <li><strong>Logic rail:</strong> a separate 5 V buck from the pack into the Freenove board, with grounds joined at one star point. It must accept the pack's full range and ride through the sag that servo current causes.</li>
+  <li><strong>Monitoring:</strong> the servos' Present Input Voltage register is the battery gauge, as on Microduck, averaged over about 10 s, with about 6.6 V as the empty floor (S5). The INA226 on the pack adds current.</li>
+  <li><strong>Charging:</strong> the charger and BMS must hold the pack at or below 8.4 V.</li>
+</ul>
+
+<h3 id="mechanical"><span class="n">6.5</span>Mechanical</h3>
+<p>CAD starts in S1, because the model's masses and inertias come from it, and is finished in H3 once S3 has settled the stance width.</p>
+<ul>
+  <li><strong>Legs:</strong> reuse Microduck's leg geometry from the STLs in <code>microduck_rl</code> (non-commercial license) to keep kinematic parity with Pollen's model. Only the torso and feet change, except that the hip position is open: with the stock layout the robot cannot get up from lying on its screen (§7.5).</li>
+  <li><strong>Torso:</strong> screen frame with a raised bezel and rubber corner bumpers, glass recessed 2–3 mm. Forward falls land on the frame, not the glass: the frame curves outward at the top and bottom into soft (TPU) lips that stand proud of the glass. How far they must stand out comes from a drop test, not from the simulation; the simulation only limits how far they can (the get-up is unchanged with lips up to 8 mm and the side get-up falls to 71% at 12 mm, §7.5). The bottom lip sits in front of the hip servos, where the thighs swing forward, so its clearance to the legs is checked the way the shell's is. Bezel in yellow, per the renders.</li>
+  <li><strong>Comb:</strong> a tuft on top, snap-on on a top mounting boss. In the target look it is larger and feathered, so it is soft and light: it sits high, and its mass is part of the 15–30 g for comb and tail. The v2 claw uses the same boss and replaces the comb, or the comb becomes the claw's cover.</li>
+  <li><strong>Wings:</strong> flat wings on both sides of the body, in a second colour. The shell prototype has 30 mm round discs as stand-ins for feather-shaped plates (3.5 mm thick, about 4 g each if printed solid, less hollow). They sit high on the body, 26 mm or more clear of the legs in every checked pose, and are decorative. They are separate prints, so a different outline changes only the wing file and the wing clearance check.</li>
+  <li><strong>Body shell:</strong> a hollow shell runs back from the screen bezel's back face and holds the battery and electronics, with an opening in the rear wall for the tail's mounting stub, a USB-C slot, a power-switch hole and vents. It is a parametric OpenSCAD part in <code>hardware/</code> (<code>torso.scad</code> for the layout, <code>shell.scad</code> for the body). The default is the target-look egg: 70 mm deep, with the top flush with the bezel and sloping about 20 degrees, a rounded rear edge, an underside that rises 18 mm toward the rear, and the tail behind the rear wall. Three earlier shapes are kept for comparison: a straight-sided box and a compact egg, both 52 mm deep, and a deep egg, 86 mm deep, which wraps the placeholder tail block. All four share the bezel's 66 mm width and 100 mm height. The simulation checks that the battery and electronics (and the tail block, where a shell wraps it) fit in the exported cavity, measures the thinnest wall, and measures how close the legs and wing discs come to the shell over MicroCluck's own gait (all 96,000 recorded poses) plus a joint-range stress sweep. The table below compares the four. Fastening to the bezel and tail, and the battery door, are not designed yet.</li>
+  <li><strong>Tail:</strong> feathers in slightly flexible TPU, so the tail doubles as a bumper for backward falls and a third contact point when sitting. It shifts the center of mass backward, so its mass and collision shape go into the model. The tail is a separate feather piece at the back, attached to the shell's rear wall, so the shell ends where the tail begins and does not wrap it. The tail placeholder in the model sits behind that wall, at x = −63 mm (it was −45 mm), with the same mass and size. If the tail is only a small tuft it cannot be the sitting contact point, so the sit design (§9.7) needs either a larger tail or a rear pad on the shell.</li>
+  <li><strong>Feet:</strong> three-toed chicken feet on a flat sole, which is the designed contact surface. The feet keep Pollen's foot and ankle interface. The claws on the front of the sole are mostly decorative in the target look: short and soft, and not counted as contact, so the plain sole's contact patch and the trained policy stay as they are. An optional second design fuses three chunky, floor-touching toes onto the front wall of the sole. They are a parametric OpenSCAD part in <code>hardware/</code>: one parameter table (<code>params.scad</code>) drives the printed toes, their appearance in the simulation and the simulation's collision shape, the convex hull of Pollen's sole plus the toes. They extend the contact patch 17 mm forward and change the walking dynamics, so the plain sole stays the default, and the plain-versus-toes training comparison (S2, S3) is only needed if the toes are kept. If they are kept, shorten the inner toe or leave the toes in the collision model, so the policy learns to avoid foot-to-foot contact on narrow steps.</li>
+  <li><strong>Stance:</strong> hip spacing is decided in simulation (§7.2). Wider spacing stands steadier but makes each step's side-to-side weight shift larger.</li>
+  <li><strong>IMU:</strong> rigidly mounted to the torso frame. Its exact pose relative to the model's base link goes into the model.</li>
+  <li><strong>Cabling:</strong> daisy-chain routing with strain relief across the hip joints.</li>
+</ul>
+
+<p><strong>Shell comparison.</strong> The four shell shapes under the same checks. Fit margins and wall are against the real cavity. The leg rows use MicroCluck's own gait (plain sole, <code>model_4999.pt</code>) and the same 6,000 stress poses for all four; the first third of the 96,000 recorded poses (32,000) is the common set, and the box, the deep egg and the target look also have the rest.</p>
+<div class="tbl"><table>
+  <thead><tr><th></th><th>Box</th><th>Compact egg</th><th>Deep egg</th><th>Target look (default)</th></tr></thead>
+  <tbody>
+    <tr><td>Depth</td><td>52 mm</td><td>52 mm</td><td>86 mm</td><td>70 mm</td></tr>
+    <tr><td>Shell mass, full wall volume in PETG</td><td>37 g</td><td>38 g</td><td>63 g</td><td>52 g</td></tr>
+    <tr><td>Wing discs, both, solid</td><td>none</td><td>7.9 g</td><td>7.9 g</td><td>7.9 g</td></tr>
+    <tr><td>Fit margin, battery / electronics</td><td>+0.6 / +0.5 mm</td><td>+0.7 / +2.1 mm</td><td>+2.0 / +6.5 mm</td><td>+1.1 / +4.0 mm</td></tr>
+    <tr><td>Tail block</td><td>outside</td><td>outside</td><td>inside, +0.8 mm</td><td>behind the rear wall</td></tr>
+    <tr><td>Thinnest wall (nominal 1.6 mm)</td><td>1.60 mm</td><td>1.51 mm</td><td>1.51 mm</td><td>1.53 mm</td></tr>
+    <tr><td>Closest leg, real gait, 32,000 poses</td><td>7.5 mm</td><td>6.4 mm</td><td>−0.8 mm, 1 pose intersects</td><td>4.8 mm</td></tr>
+    <tr><td>Closest leg, real gait, all 96,000 poses</td><td>7.5 mm</td><td>not run</td><td>−0.8 mm</td><td>4.8 mm, none intersect</td></tr>
+    <tr><td>Closest leg, 6,000 stress poses</td><td>1.1 mm, none intersect</td><td>−0.4 mm, 2 intersect</td><td>−12.8 mm, 130 intersect (2.2%)</td><td>−2.6 mm, 21 intersect (0.4%)</td></tr>
+    <tr><td>Closest wing disc to a leg</td><td>none</td><td>26 mm</td><td>26 mm</td><td>26 mm</td></tr>
+  </tbody>
+</table></div>
+<p>The target look keeps what the deep egg lost. Nothing in all 96,000 recorded poses intersects it, and the closest approach is 4.8 mm at the left thigh, against 7.5 mm for the box. The deep egg's trouble came from its low rear floor, which the placeholder tail block forced; with the tail behind the wall, the floor rises toward the rear, away from the thighs that swing back under it. The stress sweep is not clean: 21 of 6,000 poses intersect, by up to 2.6 mm at the right thigh, in the same legs-swung-back pose that comes closest for the box (1.1 mm). The walking policy does not use that pose, but a scripted sit or a fall recovery may. The egg shapes are wider through the middle than the box's straight taper, which costs a few millimetres at the thighs.</p>
+<p>The tail placeholder moved 18 mm back (x = −45 to −63 mm, same mass and size) so the body could be 70 mm deep with the tail outside it. The trunk's center of mass moves 0.7 mm back, and the zero-action stand check shows no measurable change: in the play configuration, which includes pushes, 57 of 64 environments fell with the old position and 54 and 50 in two runs with the new one. The trained policy used the old position. The shell is visual-only in the simulation: it adds no mass, and the frame mass in the model was set when the shell was the box. The target look with its wing discs is about 23 g heavier than the box, and the shell's center of mass sits 9 mm further back, so the shell's real mass goes into the model before the next training run. The compact egg's thinnest wall is 1.51 mm on a rebuild; v0.13 gave 1.56 mm.</p>
+
+<p><strong>Mass budget.</strong> Estimates until each part is weighed. Weigh the Freenove board now; it feeds S1 directly.</p>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>Part</th><th>Estimated mass</th></tr></thead>
+  <tbody>
+    <tr><td>10× XL330</td><td>180 g</td></tr>
+    <tr><td>Freenove 3.5" board</td><td>Weigh it</td></tr>
+    <tr><td>2S battery</td><td>70–100 g</td></tr>
+    <tr><td>Frame, feet, bumpers</td><td>~200–250 g</td></tr>
+    <tr><td>Comb and tail</td><td>~15–30 g</td></tr>
+    <tr><td>Electronics, logic buck converter, cables</td><td>~50–60 g</td></tr>
+    <tr><td>Reserve for the v2 claw</td><td>~60–100 g</td></tr>
+    <tr class="total"><td><strong>Target total for v1</strong></td><td><strong>≤ 800 g</strong></td></tr>
+  </tbody>
+</table></div>
+
+<!-- 7 -->
+<h2 id="sim"><span class="n">7</span>Simulation and training</h2>
+
+<h3 id="fork"><span class="n">7.1</span>Fork and adapt microduck_rl</h3>
+<ol>
+  <li>Fork <code>pollen-robotics/microduck_rl</code> and include it as the <code>sim/</code> submodule. Reproduce Pollen's stock walking policy first (S0).</li>
+  <li>Edit Pollen's exported XML by hand. Their <code>onshape-to-robot</code> configs (<code>config_mjcf_*.json</code>) cannot be re-run because the CAD is not published. Keep Pollen's leg meshes, and build the torso, comb and tail from primitive shapes whose masses and inertias come from the H3 CAD, or from estimates until it exists.</li>
+  <li>Create MicroCluck versions of the walking model, <code>robot_walk.xml</code>, and its backlash variant (Pollen's <code>add_backlash.py</code> generates these). Velocity loads the walk models. The <code>robot_groundcontact*.xml</code> and <code>robot_allcollisions*.xml</code> models belong to the v1.1 tasks (StandUp and VelStand). Keep the two sole geoms named <code>left_foot_collision</code> and <code>right_foot_collision</code>, because the collision and contact setup finds them by name.</li>
+  <li>Remove the neck and head joints (<code>neck_pitch</code>, <code>head_pitch</code>, <code>head_yaw</code>, <code>head_roll</code>) and the beak.</li>
+  <li>Add the torso with measured or estimated mass, center of mass and inertia for the board, frame, battery, comb and tail. Give the tail a collision shape.</li>
+  <li>Replace the feet with the MicroCluck sole (and toes, if kept long). Set the hip spacing.</li>
+  <li>Re-derive the home pose and the standing trunk height from the new model, because Pollen's values assume the head's mass. A rest pose must hold for about 3 s from noisy starts, with tilt checked as well as height.</li>
+  <li>Change the joint count from 14 to 10 everywhere: actuators, observations, actions, joint-index constants and the repo's regression tests, which lock in joint-index mappings. Keep the head-pose and body-pose command slots in the observation, padded with tiny sampling ranges (about ±0.001) so the inputs stay alive, because Pollen's rule is never to delete a slot. The firmware always sends zeros there. Remove the head-pose reward terms (<code>head_pose_tracking</code>, <code>head_pose_bias</code>) and their curriculum entries, which have no joints left to act on.</li>
+  <li><strong>Observation contract v1 (proposed, 49 values):</strong> gyro (3), projected gravity (3), joint positions (10), joint velocities (10), last action (10), then Pollen's 13-slot command block: twist (3), head pose (4, always zero) and body pose (6, always zero). This is Pollen's runtime layout with 10 joints in place of 14, as their <code>robotd</code> design doc describes it. Zero-padding keeps the fork's code and tests close to upstream. The 10 dead inputs cost about 2.5k parameters and can be pruned later.</li>
+  <li><strong>Actor network:</strong> Pollen's actor is 512-256-128 with ELU, about 190k parameters or 0.76 MB as float32 at 49 inputs. The first MicroCluck run keeps it, so the only change from the stock duck is the body. A smaller 256-128-64 actor (about 55k parameters or 218 KB) is an S2 ablation for the ESP32. The critic can be any size because it is never deployed.</li>
+  <li><strong>Domain randomization:</strong> keep Pollen's defaults, including the 6.5–8.2 V servo supply with load-dependent sag, which now matches the pack-powered robot, and add torso mass and center of mass ±10–15% for measurement error, plus a <strong>0–100 g payload at the top of the torso</strong> so v1 walking survives the v2 claw.</li>
+  <li>Train the Backlash variants. Reduce <code>num-envs</code> if the 3060's 12 GB runs out.</li>
+</ol>
+<p><strong>v1 tasks:</strong> <code>Velocity-Flat</code>, where standing is a zero command. <strong>v1.1:</strong> <code>VelStand</code> for walking plus fall recovery, and <code>SitStand</code>, which can use the tail as a support point. v1 still needs a sit for the dead-man, low-battery and over-temperature stops, but as a scripted joint trajectory (§9.7) rather than a policy, so it costs no training. S3 checks it (§7.2).</p>
+
+<h3 id="validation"><span class="n">7.2</span>Design validation (S3)</h3>
+<p>Before any parts beyond the board are ordered, the simulator answers the mechanical questions. Results go in <code>docs/design-report.md</code>, and each decision becomes an ADR.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Check</th><th>Method</th><th>Pass condition</th></tr></thead>
+  <tbody>
+    <tr><td>Thermal margin</td><td>RMS torque per joint over a 60 s walk at the top commanded speed, against the stock Microduck's numbers from S0</td><td>No joint more than 10% above the stock duck's RMS. The datasheet's ~0.10 N·m continuous rating cannot be the pass line: the stock duck already exceeds it on hip pitch and knee (see the baseline below)</td></tr>
+    <tr><td>Peak torque</td><td>Peak torque per joint across walking, pushes and payload</td><td>99th-percentile torque per joint no higher than the stock duck's. The stock policy reaches the actuator ceiling of 0.64 N·m on every joint, so peaks at the ceiling are expected and are not a failure</td></tr>
+    <tr><td>Stance width</td><td>Train and compare 2–3 hip spacings</td><td>Best combination of push recovery and energy use (sum of |torque × velocity|)</td></tr>
+    <tr><td>Toe clearance</td><td>Minimum distance between the feet during the gait</td><td>No foot-to-foot contacts</td></tr>
+    <tr><td>Claw headroom</td><td>Largest top payload that still tracks commands</td><td>At least 60 g, the low end of the claw reserve</td></tr>
+    <tr><td>Mass budget</td><td>Sum of modeled parts</td><td>≤ 800 g for v1</td></tr>
+    <tr><td>Scripted sit</td><td>Replay the sit and stand-up trajectories (§9.7) in the model and compute static torque along them</td><td>Rests stably on the feet and tail; peak static torque on the way back up stays below ~70% of the stall torque</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Baseline from S0.</strong> Pollen's stock walker at iteration 2,000, 64 environments, 30 s of random velocity commands, the play configuration's pushes (±0.3 m/s every 0.5–1 s, against every 3–6 s in training), BAM actuator model, measured with <code>scripts/torque_baseline.py</code>. RMS torque in N·m per joint (left and right nearly equal): hip yaw 0.06, hip roll 0.10, hip pitch 0.145, knee 0.16–0.17, ankle 0.10; neck 0.11, head pitch 0.09, head yaw 0.10, head roll 0.05. The 99th percentile is 0.53 on hip pitch and 0.46–0.49 on the knee, and every joint peaks at 0.64. Pollen's robot therefore runs well above the ~0.10 N·m continuous rating on its hip pitch and knee, so servo temperature, watched by the servo-health requirement (S4 in §9.8), is the real thermal limit.</p>
+<p><strong>Pushes in the baseline.</strong> The pushes are far more frequent than in training, so these torques are higher than steady walking would give, and about 1.7 falls per environment-minute (55 falls in 64 environments over 30 s) come with them. The baseline is therefore a like-for-like yardstick between two robots measured the same way, not the torque the real robot will see. A baseline without pushes has not been run. The one no-push test so far used fixed forward commands: 64 runs of 20 s per robot (16 each at 0.1, 0.2, 0.3 and 0.4 m/s), with no falls in either robot. That test also dropped the random command changes, so it does not show that the pushes alone cause the falls.</p>
+<p><strong>First MicroCluck result.</strong> The plain-sole model after 4,999 iterations, measured the same way as the baseline (64 environments, 30 s, pushes on). It fell 56 times in 30 s per 64 environments, against 55 for the stock duck (1.75 and 1.72 per environment-minute). RMS torque in N·m, with the change from the stock duck's value for the same side:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Joint</th><th>Stock left / right</th><th>MicroCluck left / right</th><th>Change</th></tr></thead>
+  <tbody>
+    <tr><td>Hip yaw</td><td>0.058 / 0.064</td><td>0.068 / 0.075</td><td>+17% / +17%</td></tr>
+    <tr><td>Hip roll</td><td>0.104 / 0.096</td><td>0.127 / 0.122</td><td>+22% / +27%</td></tr>
+    <tr><td>Hip pitch</td><td>0.143 / 0.144</td><td>0.129 / 0.126</td><td>−10% / −13%</td></tr>
+    <tr><td>Knee</td><td>0.169 / 0.161</td><td>0.156 / 0.155</td><td>−8% / −4%</td></tr>
+    <tr><td>Ankle</td><td>0.093 / 0.099</td><td>0.105 / 0.110</td><td>+13% / +11%</td></tr>
+  </tbody>
+</table></div>
+<p>Hip pitch and knee, the joints already above the continuous rating, go down. Hip yaw, hip roll and ankle go up by more than the 10% line in the thermal check above, so read literally that check fails on those three, although the largest rise is 0.026 N·m and none of them reaches the 0.145 N·m of the stock hip pitch. The 99th-percentile torque is lower on hip pitch (0.43–0.46 against 0.51–0.53) and higher on hip roll, hip yaw and ankle. Every joint still peaks at the 0.64 N·m ceiling. The cause of the higher hip roll is not known; losing the head as a counterbalance is a guess that has not been tested. Whether the 10% line should stay as written, or be paired with an absolute limit, is for the S3 report to settle.</p>
+<p><strong>Walking speed.</strong> With a fixed forward command, no pushes and 16 environments per speed (20 s, the first 3 s skipped), both robots fall short of the commanded speed, reaching about half of it at the top of the range. The stock duck is the iteration-2,000 checkpoint, so a longer stock run might do better; that has not been checked.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Commanded (m/s)</th><th>MicroCluck achieved (m/s)</th><th>Stock duck achieved (m/s)</th></tr></thead>
+  <tbody>
+    <tr><td>0.1</td><td>0.00</td><td>0.00</td></tr>
+    <tr><td>0.2</td><td>0.14</td><td>0.10</td></tr>
+    <tr><td>0.3</td><td>0.17</td><td>0.17</td></tr>
+    <tr><td>0.4</td><td>0.20</td><td>0.20</td></tr>
+  </tbody>
+</table></div>
+<p>MicroCluck tracks like the stock duck, so the slow pace comes from the training setup and not from MicroCluck's mass or foot. The training range tops out at 0.4 m/s, which gives a top speed of about 0.2 m/s, and a command of 0.1 m/s gives no motion at all. The S2 criterion that the policy tracks the full range of velocity commands would not be met by either policy as trained, so either the training changes or the criterion is reworded before S2 is called done (watchlist, §12).</p>
+<p>If a joint fails the thermal check, the fixes in order of preference are: reduce mass, shorten the leg's lever arms, then consider a stronger servo for that joint. A different servo model needs its own actuator identification, so it is the last resort.</p>
+
+<h3 id="export"><span class="n">7.3</span>Policy export pipeline</h3>
+<p>Lives in <code>tools/policy_export/</code>.</p>
+<ol>
+  <li>Input is the ONNX file from Pollen's <code>scripts/export.py</code>, with the normalizer baked in. Never convert a checkpoint by hand.</li>
+  <li>Extract weights, biases, activations and the normalizer. Fold the normalizer into the first layer: <code>W' = W / σ</code> and <code>b' = b − W·(μ/σ)</code>.</li>
+  <li>Emit <code>policy_&lt;name&gt;.h</code> with C arrays and metadata: input and output sizes, action scale, default pose and the contract hash.</li>
+  <li>Generate golden vectors: at least 1000 plausible observations and their ONNX outputs.</li>
+  <li><strong>Device test:</strong> C inference against the golden vectors, maximum absolute error ≤ 1e-4.</li>
+  <li><strong>Closed-loop test:</strong> the same C inference, built for the host, drives MuJoCo. The gait must match the ONNX policy's.</li>
+</ol>
+
+<h3 id="contract"><span class="n">7.4</span>Sim2real contract</h3>
+<p><code>docs/sim2real-contract.md</code> is the single, versioned, hashed source of truth. It must match Pollen's runtime (<code>robotd</code>) and constants (<code>microduck_constants.py</code>) exactly:</p>
+<ul>
+  <li>Observation order, units and scaling</li>
+  <li>Where joint velocity comes from: the servo register or a finite difference of position</li>
+  <li>Action post-processing: action scale, default pose offset, clipping</li>
+  <li>Servo control mode and firmware PD gains, since the sim emulates the servo's own PD loop</li>
+  <li>Command ranges, which the phone commands are clamped to</li>
+  <li>Loop rate (50 Hz) and expected command delay</li>
+</ul>
+<p><strong>Pollen's values, to confirm in S0.</strong> From their runtime docs: joint velocity comes from the servo's velocity register, read in the same fast sync read as position. Position P gain is 200 with I and D at zero, and 0.8 times that when standing. Training uses action scale 1.0, but their runtime runs 0.9 with the home pose as the offset, a deliberate deviation to understand before copying it. Return Delay Time is 0 and Shutdown is 52. Their runtime also applies a first-order low-pass to the leg targets, while the training repo says policies are trained unfiltered, so settle that in S0. Stock command ranges are ±0.4 m/s forward, ±0.3 m/s sideways and ±1.0 rad/s turning.</p>
+<p>Firmware refuses to enable torque if a policy's contract hash doesn't match its build.</p>
+
+<h3 id="getup"><span class="n">7.5</span>Getting up and the hip position</h3>
+<p>Fall recovery is a v1.1 goal (§10, H7), and the plan so far assumed Pollen's leg layout could do it. In simulation it cannot, from lying on the screen, and the reason is geometry rather than training. The hips sit at the bottom end of the body (hip yaw axes at z = −5 mm, y = ±17.5 mm in the trunk frame), while the trunk's center of mass is 54 mm above the trunk frame, about 59 mm above the hip axes. Lying face down, the legs can only reach behind the weight, so pushing on the floor lifts the rear of the body and never brings the feet under it. Two learned stand-up runs from face-down starts ended with the policy lying still: the action noise shrank before any lift was found, also in a face-down-only run with three times the entropy bonus. An open-loop search (six keyframes of joint targets, legs mirrored, 5 s, 1,024 candidates over 40 generations) left the best tilt at 51°, and 0 of 64 random face-down starts stood up.</p>
+<p><strong>Raising the leg mounts.</strong> The same search on models with each leg chain moved up the body, as a bird's legs sit, level with the body. A start counts as up if the trunk is at standing height with the tilt under 20° for the last second (64 random face-down starts, random heading, no pushes). The simulator collides only geoms named for collision and switches every other geom off, and the stock stand-up model names only the soles and the torso pieces. In the first group of rows the thighs, shanks and hip brackets therefore pass through the floor and the body without penalty, which makes those results upper bounds. In the second group every leg part collides: the thigh and its two servos, the shank and its servo, and the hip bracket. The hip brackets may sit inside the shell, which assumes openings in it for them.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Leg mounts, against the stock layout</th><th>Up</th><th>Note</th></tr></thead>
+  <tbody>
+    <tr><td colspan="3"><strong>Only the soles and the torso collide (upper bounds)</strong></td></tr>
+    <tr><td>Stock layout</td><td>0 of 64</td><td>Best tilt 51°. More freedom did not help it, so this stands</td></tr>
+    <tr><td>40 mm up, 25 mm out</td><td>0 of 64</td><td>Best tilt 62°</td></tr>
+    <tr><td>55 mm up, 25 mm out</td><td>60 of 64</td><td></td></tr>
+    <tr><td>70 mm up, 25 mm out</td><td>63 and 64 of 64</td><td>Two runs</td></tr>
+    <tr><td>70 mm up, 25 mm out, hip yaw and roll held fixed</td><td>56 of 64</td><td>Hip pitch, knee and ankle only</td></tr>
+    <tr><td>70 mm up, centered (stock spacing)</td><td>64 of 64</td><td>The thighs overlap the shell hull by about 3 mm; they do not touch the floor</td></tr>
+    <tr><td colspan="3"><strong>Every leg part collides</strong></td></tr>
+    <tr><td>70 mm up, 25 mm out</td><td>0 of 64</td><td>Rises most of the way, then ends reclined on its back</td></tr>
+    <tr><td>70 mm up, centered</td><td>0 of 64</td><td>Rises, then ends lying face down again. With only the thighs colliding: 0</td></tr>
+    <tr><td>70 mm up, hips 29 mm further back; chassis plate and its 50 g left 70 mm too low, tail block</td><td>62 of 64</td><td>Superseded. 249 of 256 for the best candidate, 256 of 256 for the mean motion. With only the thighs colliding: 52 of 64</td></tr>
+    <tr><td>The same, chassis moved with the hips, tail block</td><td>26 of 64</td><td>112 of 256 (44%) for the best candidate, 216 of 256 (84%) for the mean motion. A second search of 80 generations: 14% and 61%</td></tr>
+    <tr><td>The same, chassis moved, feather-fan tail</td><td>64 of 64</td><td>255 of 256 (100%), best candidate and mean motion alike</td></tr>
+  </tbody>
+</table></div>
+<p>Without collision the cliff lies between 40 and 55 mm. At 55 mm the hips are within a few millimetres of the trunk's center of mass height, which fits the geometry above; where exactly the cliff lies has not been measured. Hip yaw and roll help (63 against 56 of 64) but are not required.</p>
+<p>The "best candidate" is the single best motion of a search; the "mean motion" is the mean of its final distribution, which is steadier because the best candidate can be one lucky draw. Both are replayed on 256 random starts (64 in the first rows). With every leg part colliding, the one layout that gets up has the hips raised 70 mm at the stock spacing and 29 mm behind the stock position (x = −23 mm, where the earlier clearance check cleared a 0.5 rad thigh swing). Its result depends on two modelling details. The first model left Pollen's chassis plate (the structure the hip servos bolt to, 50 g in the model) where it was, which put the whole-body center of mass 9 mm too low; moving it with the hips lowers the success rate a lot. The second is the tail: with the tail estimated from the design mockups, a rigid fan 28 mm deep and 42 mm tall, 30 mm wide, centered 70 mm up the rear, which is shorter than the 70 mm tall placeholder block, nearly every start gets up. The tail's shape matters because the legs swing back toward it. In a replay of the first model the thighs and hip brackets touched nothing, and the shanks touched the screen frame in about 11% of the sampled states and the shell in about 2%. At the stock hip position the same search fails, and the hip bracket overlaps the screen frame by 7 mm at the home pose. Why the legs-outside layout fails was not examined. The motion found is open-loop and takes about four seconds, with the body swinging up quickly between roughly three and four seconds; its torques and the servo heating they would cause have not been checked beyond the simulated actuator limits.</p>
+<p><strong>Walking with raised legs.</strong> The walking task, trained from scratch for 500 iterations on a layout with the legs 70 mm up, gave a policy that stands still (speed 0.000 m/s), on both a wide stance (soles 131 mm apart) and the stock spacing (81 mm). In the stock-spacing run the reward was 94 against 77 for the stock layout's walking, so standing still is the better local optimum in the velocity task. The stock layout only escapes it because it starts stepping within the first 25–50 iterations. Starting instead from the stock layout's policy at iteration 500 and training 500 more on the raised layout at the stock spacing gives a walker. Used as it was, the stock policy reached 0.196 m/s at a 0.3 m/s command and fell in 5 of 16 runs; after the fine-tune, at iteration 1,000 on both sides (16 runs per speed, 20 s, no pushes unless stated):</p>
+<div class="tbl"><table>
+  <thead><tr><th></th><th>MicroCluck, stock hips</th><th>Hips 70 mm up, stock spacing, fine-tuned</th></tr></thead>
+  <tbody>
+    <tr><td>Speed at 0.1 / 0.2 m/s command</td><td>0.056 / 0.126 m/s</td><td>0.007 / 0.073 m/s</td></tr>
+    <tr><td>Speed at 0.3 / 0.4 m/s command</td><td>0.194 / 0.274 m/s</td><td>0.216 / 0.294 m/s</td></tr>
+    <tr><td>Foot lift at 0.3 m/s</td><td>about 24 mm</td><td>about 25 mm</td></tr>
+    <tr><td>Falls, no pushes (64 runs)</td><td>0</td><td>0</td></tr>
+    <tr><td>Falls, play-configuration pushes (64 environments, 20 s)</td><td>32</td><td>51</td></tr>
+  </tbody>
+</table></div>
+<p>The raised-hip walker matches the stock layout at 0.3 and 0.4 m/s, stands still more often at 0.1 and 0.2 m/s, and falls about 60% more often under the frequent pushes. It has had only 500 iterations on its own body, so the gap may close; that is unchecked.</p>
+<p><strong>Walking with the hips moved back.</strong> The layout that gets up face-down has its hips 29 mm behind the stock position, so at the stock home pose the feet would sit 29 mm behind the center of mass. Solving the home pose for the center of mass over the ankles gives a hip pitch of 41° and an ankle of 41° (stock: 28° and 28°) at almost the same trunk height (46.3 mm, against 47.8 mm for the raised hips at the stock position), well inside the joint limits. This model has the yaw servos and Pollen's chassis plate with its 50 g moved with the legs, and the power plate removed. A first version that left the chassis at the old height, 9 mm too low for the center of mass, leaned 43° and gave close results: 0.172 and 0.244 m/s at the 0.3 and 0.4 m/s commands. The stock policy at iteration 500, trained 500 more iterations on the corrected body, gives a walker. Against MicroCluck with the stock hips, both at iteration 1,000 (16 runs per speed, 20 s, no pushes unless stated):</p>
+<div class="tbl"><table>
+  <thead><tr><th></th><th>MicroCluck, stock hips</th><th>Hips 70 mm up and 29 mm back, fine-tuned</th></tr></thead>
+  <tbody>
+    <tr><td>Speed at 0.1 / 0.2 m/s command</td><td>0.056 / 0.126 m/s</td><td>0.051 / 0.101 m/s</td></tr>
+    <tr><td>Speed at 0.3 / 0.4 m/s command</td><td>0.194 / 0.275 m/s</td><td>0.176 / 0.256 m/s</td></tr>
+    <tr><td>Foot lift at 0.3 m/s</td><td>about 24 mm</td><td>about 25 mm</td></tr>
+    <tr><td>Falls, no pushes (64 runs)</td><td>0</td><td>0</td></tr>
+    <tr><td>Falls, play-configuration pushes (64 environments, 20 s)</td><td>19</td><td>31</td></tr>
+  </tbody>
+</table></div>
+<p>It reaches 91–93% of the stock layout's speed at 0.3 and 0.4 m/s, and does better at 0.1 and 0.2 m/s than the raised hips at the stock position (0.05 and 0.10 m/s against 0.01 and 0.07). Under the frequent pushes it fell 31 times against 19 for the stock hips in this run. The stock hips alone gave 19, 27 and 32 in three runs, and the first hips-back version 30 against 27, so the gap is probably real but small, and the corrected body was measured once. It has had only 500 iterations on its own body. The leaning home pose has not been checked against the shell, the screen frame or the battery for clearance (the 96,000-pose check of §6.5 is for the stock hips), and its torque cost has not been measured.</p>
+<p><strong>Lying on the back and on the side.</strong> The same search from lying on the back (screen up) and from lying exactly on a side (rolled 90° about the spine, random side and heading), every leg part colliding, with standing up as the goal. The hips-back column is the final model (chassis moved, feather-fan tail); the stock hips were searched with the earlier tail block. Replays on 256 random starts. <strong>These searches kept the legs mirrored</strong> (right joint = minus left), which keeps the motion symmetric and so cannot roll the body about its long axis; the two rows describe mirrored motions only:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Start, mirrored legs</th><th>Stock hips</th><th>Hips 70 mm up and 29 mm back</th></tr></thead>
+  <tbody>
+    <tr><td>Flat on the back</td><td>0 of 256</td><td>8 of 256 (3%) for the best candidate, 1 of 256 for the mean motion</td></tr>
+    <tr><td>Exactly on a side</td><td>0 of 256</td><td>0 of 256; the best motion reaches upright for a moment and then falls</td></tr>
+  </tbody>
+</table></div>
+<p>Letting all ten joints move (eight keyframes over 6 s, 2,048 candidates, 50 generations, on the final model with the trimmed home pose) did not change that: 7 of 256 (3%) from flat on the back for the best candidate and 0 for the mean motion, 0 of 256 from a side, and 0 from the stock mix of start rolls. What it finds easily is a roll onto the front, the position the face-down stand-up starts from. With the screen facing the floor for the last second as the goal, replays on 256 starts:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Start, all ten joints free</th><th>Best candidate</th><th>Mean motion</th></tr></thead>
+  <tbody>
+    <tr><td>Flat on the back</td><td>148 of 256 (58%)</td><td>256 of 256</td></tr>
+    <tr><td>Exactly on a side</td><td>136 of 256 (53%)</td><td>256 of 256</td></tr>
+    <tr><td>One motion for every roll from flat to 90°</td><td>91 of 256 (36%)</td><td>96 of 256 (38%): none of the 93 starts under 30°, 2 of 41 from 30° to 45°, 17 of 45 from 45° to 60°, all 75 from 60° to 90°</td></tr>
+  </tbody>
+</table></div>
+<p>The roll from the back and the roll from a side are two different motions, and each covers only part of the angles. Replaying each one's mean motion from starts rolled by a given angle from flat on the back (128 robots per cell, random side):</p>
+<div class="tbl"><table>
+  <thead><tr><th>Start, degrees from flat on the back</th><th>Roll found from flat on the back</th><th>Roll found from a side</th></tr></thead>
+  <tbody>
+    <tr><td>0, 15, 30</td><td>128 of 128 each</td><td>0 of 128 each</td></tr>
+    <tr><td>45</td><td>60 of 128</td><td>1 of 128</td></tr>
+    <tr><td>60, 75, 90</td><td>59 of 128 each (one of the two sides)</td><td>128 of 128 each</td></tr>
+  </tbody>
+</table></div>
+<p>The back's roll works from either side up to 30° and beyond that for one of the two sides; the side's roll works from 60° to 90° on either side and not below. Around 45° neither is reliable. The stand-up that follows was searched with the roll played first, so that the hand-off (leg angles, heading, the robot still moving) is part of what is optimized: six keyframes over 5 s with mirrored legs, 1,024 candidates, 40 generations, the roll's mean motion as a fixed prefix. Replays on 256 starts:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Start, then the roll, then the stand-up</th><th>Best candidate</th><th>Mean motion</th></tr></thead>
+  <tbody>
+    <tr><td>Up to 30° from flat on the back, random side (the back's roll first)</td><td>253 of 256 (99%)</td><td>255 of 256 (100%)</td></tr>
+    <tr><td>Exactly on a side, 90° (the side's roll first)</td><td>254 of 256 (99%)</td><td>254 of 256 (99%)</td></tr>
+    <tr><td>The same, started 75° and 60° from flat</td><td>not run</td><td>253 and 254 of 256</td></tr>
+  </tbody>
+</table></div>
+<p>All of this is open-loop, in simulation and without pushes, and from 30° to 60° from flat on the back the stand-up has not been tried. The roll from the back is a fast flip: the trunk peaks about 44 mm above its standing height (160 mm against 116 mm in the search's trunk-height measure), and the roll from a side peaks about level with it. How either fares with the real servos, the real shell and tail and a real floor has not been checked; the simulation checks below change the physics instead. A 24.5 s video from a side to walking (the two motions, then the trained walker handed the state in the same model) shows the chain; the walker managed 0.10 m/s there against 0.15 to 0.20 m/s on the same body from a standard start (and on its own walking model), and the reason is not established, the hand-off state being the candidate.</p>
+<p>A recovery policy trained from scratch on lying starts (half face-down, half on the back rolled up to 90°, 2,000 iterations on 4,096 environments, entropy bonus 0.03, the height rewards measured at a reference point near the top of the trunk because the raised-hip trunk frame sits lower standing than lying on the back) learned nothing: 0 of 256 from face-down, from flat on the back and from rolled starts, the same as zero actions, with the action noise down from 1.0 to 0.12 and the reward peaking near iteration 150. A policy that reads the robot's roll to choose between the routines has not been trained; the searched motions give a next attempt something to start from.</p>
+<p><strong>How far the open-loop get-up holds.</strong> The replays above run with the training's randomization: the feet's friction 0.7 to 1.3 against a floor of 1.0 (MuJoCo takes the larger of the two, so no contact in the model is ever below 1.0), battery 6.5 to 8.2 V with a sag of up to 0.2 V per N·m of joint torque, a servo delay of 15 to 30 ms, the trunk's mass and inertia ±5% and its centre of mass ±3 mm. Replaying the mean motions on 256 starts each with one thing changed (the servo model is the BAM fit of the XL330, which follows the supply voltage and a current limit):</p>
+<div class="tbl"><table>
+  <thead><tr><th>Changed</th><th>From a side (90°)</th><th>From the back (0 to 30°)</th></tr></thead>
+  <tbody>
+    <tr><td>Nothing (training randomization)</td><td>255 of 256</td><td>255 of 256</td></tr>
+    <tr><td>Friction of the floor and every part 0.3 to 0.5 (plastic on a smooth floor)</td><td>222 (87%)</td><td>255</td></tr>
+    <tr><td>Friction 0.5 to 0.8</td><td>254</td><td>256</td></tr>
+    <tr><td>Friction 1.3 to 1.8 (grippy floor)</td><td>244 (95%)</td><td>248 (97%)</td></tr>
+    <tr><td>Battery 6.4 V, sagging to 6.0 V under load</td><td>244 (95%)</td><td>233 (91%)</td></tr>
+    <tr><td>Battery 8.2 V, no sag</td><td>253</td><td>254</td></tr>
+    <tr><td>Servo delay 30, 50 and 70 ms</td><td>255, 255, 251</td><td>255, 254, 250</td></tr>
+    <tr><td>30 g added to the trunk (392 g now; 650 g robot)</td><td>256</td><td>246 (96%)</td></tr>
+    <tr><td>60 g added</td><td>244 (95%)</td><td>229 (89%)</td></tr>
+  </tbody>
+</table></div>
+<p>The shell (52 g) and the wing discs (8 g) are already in the 392 g trunk, at the full wall volume in PETG, an upper bound, so the added mass in the last two rows stands for a build heavier than the budget (solid walls, screws, wiring, a larger battery or tail); 60 g is 9% of the robot. The trunk's centre of mass is the sensitive one. Shifting it by the stated amount (trunk body only, the legs stay; 256 starts each):</p>
+<div class="tbl"><table>
+  <thead><tr><th>Centre of mass moved</th><th>From a side</th><th>From the back</th></tr></thead>
+  <tbody>
+    <tr><td>Backward 10 mm</td><td>0 of 256</td><td>1 of 256</td></tr>
+    <tr><td>Forward 10 mm</td><td>243 (95%)</td><td>207 (81%)</td></tr>
+    <tr><td>Backward or forward 20 mm</td><td>0</td><td>0</td></tr>
+    <tr><td>Down 10 mm</td><td>7 (3%)</td><td>4 (2%)</td></tr>
+    <tr><td>Up 10 mm</td><td>234 (91%)</td><td>149 (58%)</td></tr>
+    <tr><td>Up or down 20 mm</td><td>0</td><td>0</td></tr>
+    <tr><td>To the left 10 mm</td><td>256</td><td>255</td></tr>
+    <tr><td>To the left 20 mm</td><td>177 (69%)</td><td>256</td></tr>
+  </tbody>
+</table></div>
+<p>So the nominal centre of mass sits near the edge of what the motions tolerate: about 5 mm back or down is too much, 10 mm forward or up is survivable, and 20 mm in any direction is not. Every position in the model is a placeholder until the parts are weighed, so the real value is unknown by more than that. The first version of this test moved the centre of mass by 10 mm and 40 mm with no change in any result; the cause was the task's own centre-of-mass randomization, which sets the value from the model on every reset and so undid the shift made at startup, and the test now applies its shift after it.</p>
+<p>The single factors are harmless but the combination is not. With the friction at 0.4 to 0.6, the battery at 6.4 V with sag, a 40 ms delay and 60 g extra mass (the centre of mass unchanged), 76 of 256 get up from a side (30%) and 53 to 55 from the back (21%). Taking one factor out of that, or keeping only two:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Combination</th><th>From a side</th><th>From the back</th></tr></thead>
+  <tbody>
+    <tr><td>All four</td><td>76 (30%)</td><td>53 (21%)</td></tr>
+    <tr><td>Without the battery change</td><td>244 (95%)</td><td>232 (91%)</td></tr>
+    <tr><td>Without the extra mass</td><td>253 (99%)</td><td>249 (97%)</td></tr>
+    <tr><td>Without the longer delay (8 steps)</td><td>155 (61%)</td><td>98 (38%)</td></tr>
+    <tr><td>Without the friction change</td><td>58 (23%)</td><td>42 (16%)</td></tr>
+    <tr><td>Extra mass and low battery only</td><td>108 (42%)</td><td>61 (24%)</td></tr>
+    <tr><td>Extra mass and low friction only</td><td>253 (99%)</td><td>243 (95%)</td></tr>
+    <tr><td>Low battery and low friction only</td><td>254 (99%)</td><td>252 (98%)</td></tr>
+  </tbody>
+</table></div>
+<p>It takes the extra mass and the low battery together, and the delay makes it worse; low friction is not the cause (taking it out made the result worse). Torque alone does not explain it: from a side, with the training's randomization, the worst robot's peak is 0.23 to 0.43 N·m per joint (highest at the two hip yaw servos and the right hip roll), and the same four factors with the trunk's centre of mass moved back restore the get-up (below). Extra mass on a lower supply moves the point the robot balances about forward by a few millimetres, probably by letting the standing pose lean under the load, and the motions only work inside a narrow window of that point. The roll onto the front is not the weak half: from a side and from the back it got 256 of 256 in the same combined worst case, so it is the stand-up behind it that fails.</p>
+<p>The legs also lean on the body. With every contact between the trunk (shell, bezel, wings, comb, tail) and the legs switched off, 126 of 256 (49%) get up from a side and 197 (77%) from the back; switching off the shell, the tail, the wings or the bezel and comb one at a time changed nothing (98 to 100%), so no single part is the one they lean on. A log of which parts touch shows, from a side, the feet and shins against the bezel in every robot (about 6% of the steps) and the shell against the shin in 70%, and from the back the shell against the thighs, the bezel against the shin and servo, and the tail against the shin in every robot, with the trunk resting on the bezel for 75% of the side chain's steps and on the bezel, tail and one wing for the back's. The bezel in the model is a flat 14 mm slab with square edges and the shell is the convex hull of its outline, so, in these runs, the target look's hip openings in the shell and the real tail change exactly the contacts the motions use. The bumper lips are modelled next.</p>
+<p><strong>Bumper lips on the bezel.</strong> The target look's frame curves outward at the top and bottom into bumper lips that stand proud of the glass. <code>hardware/bezel.scad</code> now has them (<code>bezel_lip_proud</code> and <code>bezel_lip_r</code> in <code>torso.scad</code>: a rounded bar of 5 mm radius across the bezel's 66 mm width, flush with the frame's top and bottom edge, its front edge a set distance ahead of the frame's face), and the model takes the same shape as a capsule and a web box for each lip, rigid, with the mass unchanged (in the budget's bezel and bumpers remainder). Open loop, the same two motions, 256 starts each in the training's randomization:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Lips stand proud of the frame face by</th><th>From a side</th><th>From the back</th></tr></thead>
+  <tbody>
+    <tr><td>No lips (the flat slab)</td><td>256</td><td>254 (99%)</td></tr>
+    <tr><td>4 mm</td><td>256</td><td>252 (98%)</td></tr>
+    <tr><td>8 mm</td><td>256</td><td>253 (99%)</td></tr>
+    <tr><td>12 mm</td><td>181 (71%)</td><td>254 (99%)</td></tr>
+  </tbody>
+</table></div>
+<p>Lips up to 8 mm change nothing. At 12 mm the side get-up falls to 71%: the feet start to catch on the bottom lip (a log of the contacts shows them against it in 98 to 99% of the robots for 1.6 to 2.4% of the steps, against 1% of the robots at 8 mm). The lips take the floor contact the flat face had: from a side the top lip is on the floor for 75% of the steps and the bottom lip for 64%, and the face for under 1%, and from the back 52% and 54%, so the glass stays off the floor through the roll and the stand-up. With 8 mm lips the fore-aft window is the same as without (centre of mass moved, 512 starts, half each side: 8 mm back 46% against 43%, 4 mm back 93% against 94%, 4 mm forward 100% against 100%, 8 mm forward 96% against 97%, 12 mm forward 46% against 48%). Do the lips clear the legs while walking? Over 2,500 poses of the recorded gait (a stand-in recorded before the hips moved, with the same legs and joint ranges) the part of each lip standing ahead of the frame face is touched in 2 or 3 poses (0.1%) by the right ankle against the bottom lip, by 1.1 to 1.3 mm at 4 to 12 mm lips and 3.6 mm at 16 mm, and the 1st percentile of the clearance is 8 to 11 mm; none touch the top lip. In a random sweep over 70% of every joint's range, 4.6 to 5.3% of the poses touch the bottom lip (the ankle, by up to 5 mm) and none the top one: a scripted sit or a fall recovery can reach it. The lips are rigid in the model and the real ones are TPU; how far they must stand out for the glass comes from the drop test (H3), and the simulation's answer is that up to 8 mm costs the get-up nothing.</p>
+<p><strong>The balance window.</strong> Moving the trunk's centre of mass fore-aft (every other setting as in the training's randomization), the four motions (the two from earlier in this section, and the two re-searched below) get up as follows, 256 starts each:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Centre of mass moved</th><th>Side, earlier</th><th>Side, re-searched</th><th>Back, earlier</th><th>Back, re-searched</th></tr></thead>
+  <tbody>
+    <tr><td>20 mm back</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>10 mm back</td><td>0</td><td>98 (38%)</td><td>1</td><td>2 (1%)</td></tr>
+    <tr><td>8 mm back</td><td>25 (10%)</td><td>182 (71%)</td><td>44 (17%)</td><td>39 (15%)</td></tr>
+    <tr><td>5 mm back</td><td>168 (66%)</td><td>256</td><td>205 (80%)</td><td>176 (69%)</td></tr>
+    <tr><td>4 mm back</td><td>224 (88%)</td><td>256</td><td>244 (95%)</td><td>214 (84%)</td></tr>
+    <tr><td>Model's value</td><td>255</td><td>256</td><td>255</td><td>255</td></tr>
+    <tr><td>4 mm forward</td><td>256</td><td>256</td><td>249 (97%)</td><td>256</td></tr>
+    <tr><td>8 mm forward</td><td>251 (98%)</td><td>249 (97%)</td><td>236 (92%)</td><td>254 (99%)</td></tr>
+    <tr><td>10 mm forward</td><td>243 (95%)</td><td>not run</td><td>207 (81%)</td><td>not run</td></tr>
+    <tr><td>12 mm forward</td><td>148 (58%)</td><td>61 (24%)</td><td>124 (48%)</td><td>178 (70%)</td></tr>
+    <tr><td>16 mm forward</td><td>0</td><td>0</td><td>0</td><td>11 (4%)</td></tr>
+  </tbody>
+</table></div>
+<p>Each motion gets up in 84% or more of starts only between about 4 mm back and 8 mm forward, a window about 12 mm wide centred near +2 mm, and the model's value is near its back edge. Up and down is similar in kind for the earlier motions: 10 mm down leaves 2 to 3%, 10 mm up 58 to 91%. The combined cases show the same axis. The four factors without a shift reproduce the collapse (26 to 82% for the four motions; 30% and 21% for the earlier pair). Adding a shift of the trunk's centre of mass to mass plus low battery:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Added to +60 g and a 6.4 V battery with sag</th><th>Side, earlier</th><th>Side, re-searched</th><th>Back, earlier</th><th>Back, re-searched</th></tr></thead>
+  <tbody>
+    <tr><td>Nothing</td><td>104 (41%)</td><td>149 (58%)</td><td>62 (24%)</td><td>181 (71%)</td></tr>
+    <tr><td>Centre of mass 8 mm back</td><td>242 (95%)</td><td>256</td><td>243 (95%)</td><td>245 (96%)</td></tr>
+    <tr><td>Centre of mass 8 mm forward</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+    <tr><td>Also friction 0.4 to 0.6 and a 40 ms delay, centre of mass 8 mm back</td><td>256</td><td>255</td><td>256</td><td>256</td></tr>
+  </tbody>
+</table></div>
+<p>So extra mass and a low battery do not break the get-up by themselves: they move the effective balance point forward, and a backward shift of the same size puts it back. The number that decides whether the open-loop get-up works on the real robot is its fore-aft balance point, and it has to be known to a few millimetres. The model's value is a placeholder (every mass and position is) and sits near the back edge of the window, so a real centre of mass about 2 mm forward of the model's would be centred; for scale, 3 mm of the trunk's centre of mass is a 14 mm move of the 85 g battery in a 392 g trunk, and the walking trim would change with it. The first step is to measure it.</p>
+<p><strong>Searching the motions again over randomized physics.</strong> Every candidate motion was simulated in four robots, each with its own friction (0.3 to 1.5 for the rolls, 0.4 to 1.4 for the stand-ups), battery (6.4 to 8.2 V, sag 0 to 0.2 V per N·m), servo delay (3 to 10 steps for the rolls, 3 to 8 for the stand-ups), extra trunk mass (0 to 60 g, 0 to 40 g) and centre of mass (±8 mm, ±5 mm in every direction), and scored on their mean. The two rolls onto the front, found from scratch, end face-down in 98% (from a side) and 97% (from the back) of the randomized robots, and in 256 of 256 in the training's randomization. The stand-ups did not work from scratch: the side stand-up never reached standing over the wide range, with a 5 s window (it is upright only at the very end of it) or a 7 s window (the search settles on flinging the robot upright for an instant and falling back; best score 0.76 to 0.78 of 1.5), and the back stand-up's from-scratch search was stopped at its start. Started from the earlier stand-ups instead (30 generations, spread 0.15 rad), they reach 82% of the robots from a side and 72% from the back over the randomized range, and 256 and 254 of 256 in the training's randomization. Against the earlier motions, 256 starts each:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Condition</th><th>Side, earlier</th><th>Side, re-searched</th><th>Back, earlier</th><th>Back, re-searched</th></tr></thead>
+  <tbody>
+    <tr><td>Training's randomization</td><td>255</td><td>256</td><td>255</td><td>255</td></tr>
+    <tr><td>Friction 0.3 to 0.5</td><td>220 (86%)</td><td>253 (99%)</td><td>255</td><td>249 (97%)</td></tr>
+    <tr><td>Battery 6.4 V with sag</td><td>244 (95%)</td><td>254 (99%)</td><td>230 (90%)</td><td>255</td></tr>
+    <tr><td>Servo delay 70 ms</td><td>250 (98%)</td><td>251 (98%)</td><td>251 (98%)</td><td>253 (99%)</td></tr>
+    <tr><td>+60 g</td><td>244 (95%)</td><td>246 (96%)</td><td>229 (89%)</td><td>246 (96%)</td></tr>
+    <tr><td>+60 g and 6.4 V with sag</td><td>104 (41%)</td><td>149 (58%)</td><td>62 (24%)</td><td>181 (71%)</td></tr>
+    <tr><td>Centre of mass 5 mm back</td><td>168 (66%)</td><td>256</td><td>205 (80%)</td><td>176 (69%)</td></tr>
+    <tr><td>Centre of mass 5 mm down</td><td>217 (85%)</td><td>256</td><td>240 (94%)</td><td>241 (94%)</td></tr>
+    <tr><td>Centre of mass 10 mm up</td><td>236 (92%)</td><td>139 (54%)</td><td>147 (57%)</td><td>181 (71%)</td></tr>
+  </tbody>
+</table></div>
+<p>The re-searched motions are better under low friction, a low battery and mass with a low battery, and the side motion's tolerance to a backward shift is wider (100% at 5 mm back, 38% at 10 mm). They did not widen the window much, and they traded some of it away: the side motion is worse for a shift upward, and the back motion is worse at 5 mm back (69% against 80%) though inside the range it was searched over. They re-centre the window more than they widen it. The open-loop get-up is a motion that has to be matched to the robot, and a motion that corrects for a balance point it cannot see needs feedback.</p>
+<p><strong>A policy that corrects the motions.</strong> A motion cannot see the balance point, so a policy that can was trained on top of it. The joint target is the home pose plus the motion at the current time (the roll for 6 s, then the stand-up for 5 s, the last pose held) plus 0.3 rad times the policy's output, so it corrects the motion and cannot replace it. It sees what the robot has: the IMU's gravity direction and angular velocity (with the stock task's noise and up to 20 ms of delay), the joint positions and velocities, its last output, the motion's offset for this step, the time since the fall and which of the two motions is running; the critic also sees the shift of the centre of mass and the extra mass, which the policy has to infer. It was trained with PPO (the stock stand-up recipe: three layers of 512, 256 and 128 units, 4,096 robots, 800 iterations, about 75 minutes, no pushes) on the search's own score, face-down while the roll runs and then upright and tall, with a bonus while up and a small penalty on the correction's size and rate. Every robot has its own friction (0.3 to 1.5 for the floor and every part), battery (6.4 to 8.2 V, sag 0 to 0.2 V per N·m), servo delay (15 to 50 ms), extra trunk mass (0 to 60 g) and centre of mass (±16 mm fore-aft, ±6 sideways, ±8 up and down), on top of the stock task's randomization; half the starts are on a side (70 to 90° from flat on the back) and half on the back (up to 30° off flat), on the model with 6 mm bezel lips. The numbers below are 512 starts each, half from a side (at 90°) and half from the back (up to 30° off flat), scored as before (trunk up for the whole last second of the 11 s), with the open-loop motions on the same model as the baseline:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Centre of mass moved fore-aft</th><th>Open loop</th><th>With the learned correction</th></tr></thead>
+  <tbody>
+    <tr><td>24 mm back</td><td>0</td><td>0</td></tr>
+    <tr><td>20 mm back</td><td>0</td><td>91 (18%)</td></tr>
+    <tr><td>16 mm back</td><td>0</td><td>478 (93%)</td></tr>
+    <tr><td>12 mm back</td><td>37 (7%)</td><td>512</td></tr>
+    <tr><td>10 mm back</td><td>106 (21%)</td><td>512</td></tr>
+    <tr><td>8 mm back</td><td>235 (46%)</td><td>512</td></tr>
+    <tr><td>5 mm back</td><td>447 (87%)</td><td>512</td></tr>
+    <tr><td>Model's value</td><td>508 (99%)</td><td>512</td></tr>
+    <tr><td>5 mm forward</td><td>511</td><td>512</td></tr>
+    <tr><td>8 mm forward</td><td>494 (96%)</td><td>512</td></tr>
+    <tr><td>12 mm forward</td><td>245 (48%)</td><td>512</td></tr>
+    <tr><td>16 mm forward</td><td>13 (3%)</td><td>511</td></tr>
+    <tr><td>20 mm forward</td><td>0</td><td>503 (98%)</td></tr>
+    <tr><td>24 mm forward</td><td>0</td><td>325 (63%)</td></tr>
+  </tbody>
+</table></div>
+<p>Where the open-loop motions need the balance point within 4 mm back and 8 mm forward of the model's (the window above, 12 mm wide), the corrected motions get up in 98 to 100% of starts from 12 mm back to 20 mm forward, a window at least 32 mm wide, and still 93% at 16 mm back. The training's range was 16 mm either way: the policy holds at its backward edge (93% at 16 mm, 18% at 20 mm) and goes 4 mm past its forward edge (98% at 20 mm, 63% at 24 mm). The other stress conditions:</p>
+<div class="tbl"><table>
+  <thead><tr><th>Condition</th><th>Open loop</th><th>With the learned correction</th></tr></thead>
+  <tbody>
+    <tr><td>Training's randomization</td><td>508 (99%)</td><td>512</td></tr>
+    <tr><td>Friction 0.3 to 0.5</td><td>497 (97%)</td><td>512</td></tr>
+    <tr><td>Battery 6.4 V with sag</td><td>506 (99%)</td><td>512</td></tr>
+    <tr><td>Servo delay 70 ms</td><td>506 (99%)</td><td>375 (73%)</td></tr>
+    <tr><td>+60 g</td><td>494 (96%)</td><td>512</td></tr>
+    <tr><td>+60 g and 6.4 V with sag</td><td>308 (60%)</td><td>512</td></tr>
+    <tr><td>Centre of mass 5 mm down</td><td>512</td><td>512</td></tr>
+    <tr><td>Centre of mass 10 mm up</td><td>308 (60%)</td><td>509 (99%)</td></tr>
+    <tr><td>Centre of mass 8 mm to the left</td><td>512</td><td>512</td></tr>
+    <tr><td>+60 g, 6.4 V with sag, centre of mass 8 mm back</td><td>512</td><td>508 (99%)</td></tr>
+    <tr><td>+60 g, 6.4 V with sag, centre of mass 8 mm forward</td><td>0</td><td>512</td></tr>
+    <tr><td>Friction 0.4 to 0.6, 6.4 V with sag, delay 40 ms, +60 g, centre of mass 8 mm back</td><td>469 (92%)</td><td>512</td></tr>
+  </tbody>
+</table></div>
+<p>Extra mass with a low battery, the combination that broke the open-loop motions (60%), is a shift of the balance point that the correction removes (100%); the same holds for 10 mm of centre of mass upward (60% to 99%). The corrected motions were also tried on other bezels without retraining (centre of mass moved, 512 starts each):</p>
+<div class="tbl"><table>
+  <thead><tr><th>Bezel</th><th>At the model's value</th><th>8 mm back</th><th>8 mm forward</th><th>16 mm back</th><th>16 mm forward</th></tr></thead>
+  <tbody>
+    <tr><td>Flat bezel</td><td>508 (99%)</td><td>433 (85%)</td><td>512</td><td>175 (34%)</td><td>512</td></tr>
+    <tr><td>6 mm lips (trained on)</td><td>512</td><td>512</td><td>512</td><td>478 (93%)</td><td>511</td></tr>
+    <tr><td>12 mm lips</td><td>496 (97%)</td><td>396 (77%)</td><td>441 (86%)</td><td>not run</td><td>not run</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Where it is weak.</strong> Servo delay. The correction holds up to the 50 ms it was trained on (99 to 100% at 15, 30 and 50 ms) and loses ground beyond it: 85% at 60 ms, 73% at 70 ms, 68% at 80 ms and 45% at 100 ms, where the open-loop motions are indifferent (99% at 70 ms). A feedback loop that reacts to the leaning robot through a slow servo bus corrects late, so the real servo and IMU delay has to be measured (H1) and the training's range set above it. The policy is also tied to the contacts it was trained on: it was trained with 6 mm lips, and on a flat bezel it still gets up from the model's balance point (99%) and for any shift forward, but only 85% at 8 mm back and 34% at 16 mm back, against 100% and 93% with the lips; on 12 mm lips it gets 97% at the model's value, 77% at 8 mm back and 86% at 8 mm forward (open loop 84%, 33% and 61%). An earlier run trained on the flat bezel carried over to 8 mm and 12 mm lips without a loss (checked at 250 iterations: 100% at the model's value on both, 96% at 8 mm back with 8 mm lips), so a policy does not simply fail on any other bezel, but that run differed in other ways too, and the comparison is not clean. The real bezel's shape has to be in the training, ideally with the lip height drawn per robot. <strong>Training notes.</strong> The first run (action noise 0.3 and an entropy bonus of 0.005, centre of mass ±12 mm) reached 97% in the training's physics after 250 iterations, 96% at 500, and then got worse, 88% at 750: the bonus pushed the action noise from 0.3 to 1.1 while the reward barely moved. The second run, with a noise of 0.2 and no bonus, kept improving (95% at 200 iterations, 97% at 600 and 800) and its noise fell to 0.05. The policy has to be told which motion to run and when to start it: the real robot would read the fall's orientation from the IMU once it is at rest and start the clock then. None of that, the export to the firmware, or the check against the servos' real limits is built.</p>
+<p><strong>Where the robot rests.</strong> Dropped flat on its back with the legs holding the home pose, the robot with the estimated tail keeps its roll at 0° and rests with the screen about 20° from straight up (22° with the stock hips, 17 to 19° with the hips back), for fan widths of 17, 30 and 50 mm alike: the legs lie out to the sides and keep it from rolling, and the fan only props the back. The expectation that feathers would tip the robot onto a side is not reproduced in this model, but it has not been tested with the servos off, where the legs go limp, or against the shell's real rounded rear. With the stock hips the best motion flips the robot upright for a moment, at about 0.8 s, and it falls back. With the hips raised and moved back, rolling onto the front first and then standing up works from the angles above. One motion cannot cover every way of lying (one roll motion for all start angles got 38%), so the routine has to be chosen from the measured roll. A sit-up on the tail followed by the scripted stand-up from sitting (§9.7), which an early search on the first model suggested, has not been tested.</p>
+<p><strong>What is not shown.</strong></p>
+<ul>
+  <li><strong>One layout that does both.</strong> Hips raised 70 mm and moved 29 mm back is the one layout shown to get up face-down (255 of 256 with the estimated feather tail, 61 to 84% for the mean motion with the earlier tail block, every leg part colliding) and to walk (0.18 m/s at a 0.3 m/s command), in two simulation models that share its geometry. With a roll onto the front first it also gets up from a side (254 of 256) and from up to 30° from flat on the back (255 of 256), by open-loop motions found in simulation. In simulation the open-loop get-up works only while the robot's fore-aft balance point is within about 4 mm back and 8 mm forward of the model's (extra mass with a low battery moves it forward by about that much), and fails 10 mm back or down; a learned correction on the motions widens that to 12 mm back to 20 mm forward (§7.5). It has not been shown to fit: the hips sit inside the shell's outline and the leaning walking pose has not been checked for clearance.</li>
+  <li><strong>Test-model leftovers.</strong> The raised-hip results of v0.15 to v0.17, including the walking result at the stock hip position, were measured with the two hip-yaw servos (36 g) and Pollen's chassis plate (50 g) at the old height, 70 mm too low: 9 mm too low for the whole robot's center of mass in total, which flatters walking and changes standing up (the hips-back layout's face-down success fell from 97% to 14–44% for the best candidate when the chassis moved), and the plate hung between the legs. The hips-back runs of v0.18 move the servos and the chassis with the legs and remove the power plate; the walking result at the stock hip position was not redone. Where the yaw servos and the chassis really go is open: they land in the middle of the body, where the battery goes.</li>
+  <li><strong>Packaging.</strong> Hips in the middle of the body do not fit the screen, battery and electronics as laid out. At the stock hip position the hip brackets overlap the screen frame by 7 mm and the shell envelope by 18 mm at the home pose. With the hips 29 mm back they clear the screen frame but sit about 24 mm inside the shell's outline, in the space the battery and electronics occupy, so the shell needs openings for them and the layout inside is repacked. The hip-yaw servos, which sit above the roll servos in Pollen's chain, and the chassis plate that joins them land in the middle of the body too. The walking home pose is re-trimmed (hip pitch 41° at rest instead of 28°), and the gait's clearance to the shell and screen frame has not been run at the new position.</li>
+  <li><strong>Other ways of falling.</strong> The back's and the side's recoveries cover up to 30° and 60° to 90° from flat on the back; between them, around 45°, neither roll is reliable. The stock hips get 0 everywhere. The final tail is a feather fan estimated from a mockup, not a design; its width, and whether the legs are powered after a fall, decide how the robot rests. A policy that reads its orientation and picks the routine (the first from-scratch attempt learned nothing; the learned correction above is told which motion to run, and when to start it), a sit-up on the tail followed by the scripted stand-up, and recovery from a fall during a walk have not been tried.</li>
+  <li><strong>Pushes and speed.</strong> The raised-hip walker at the stock hip position fell more under pushes (51 against 32) and often stood still at 0.1 m/s; the hips-back walker moves at 0.1 m/s and fell 31 times against 19 for the stock hips. All of them are 500-iteration fine-tunes. Neither the open-loop search nor the policy that corrects it has pushes. The closed-loop version does correct for the centre of mass, over about 32 mm instead of 12, but only to a servo delay of 50 ms and for the bezel it was trained on (§7.5).</li>
+</ul>
+<p><strong>Decision.</strong> The hip position changes the torso, the shell, the battery position and the legs, so it has to be settled before the design freeze (S3), not after. Raising the hips 70 mm and moving them 29 mm back is the only layout shown to get up face-down with the legs colliding, and it walks at 91–93% of the stock layout's speed. With a roll onto the front first it gets up from a side and from near flat on the back in simulation, with open-loop motions, and a learned correction on them keeps that over a balance point 32 mm wide instead of 12. It has not shown fitting the screen, battery and electronics. Before it can be chosen it needs a packaging sketch with the shell opened for the hip brackets and the chassis moved inside, a clearance run of its gait, and a recovery policy that picks the routine from its orientation, covers the angles around 45° and copes with pushes, with the roll's flip checked against the servos' real limits. Until then the stock layout stays the default, and for v1 a fallen robot is picked up by hand. The other routes to recovery (a tail-assisted roll, or a different leg layout) have not been tried.</p>
+
+<!-- 8 -->
+<h2 id="twin"><span class="n">8</span>Virtual MicroCluck</h2>
+<p>The virtual MicroCluck runs the real firmware logic against the simulator on your computer. The phone connects to it exactly as it would to the robot, and the face renders in a desktop window with eyes stabilized by the simulated IMU. Everything except the hardware drivers is developed and tested here first, and it remains the regression harness afterwards.</p>
+
+<figure class="diagram wide">
+<svg viewBox="0 0 760 400" role="img" aria-label="Virtual MicroCluck: the phone talks to a WebSocket server on the host; the firmware core runs as a shared library over a host hardware layer backed by MuJoCo and the BAM actuator model, with the face in an LVGL desktop window. On the robot the same core runs over the ESP32 hardware layer.">
+  <rect x="20" y="62" width="130" height="56" rx="12" class="d-box"/>
+  <text x="85" y="86" text-anchor="middle" class="d-t">Phone browser</text>
+  <text x="85" y="104" text-anchor="middle" class="d-s">same controller page</text>
+
+  <rect x="200" y="20" width="540" height="220" rx="14" class="d-strong"/>
+  <text x="470" y="44" text-anchor="middle" class="d-t">Host twin on your computer</text>
+
+  <rect x="216" y="62" width="140" height="56" rx="8" class="d-box"/>
+  <text x="286" y="86" text-anchor="middle" class="d-t">WebSocket server</text>
+  <text x="286" y="104" text-anchor="middle" class="d-s">§9.5 protocol</text>
+
+  <rect x="400" y="62" width="150" height="56" rx="8" class="d-hw" style="stroke:var(--ink);stroke-width:1.75"/>
+  <text x="475" y="86" text-anchor="middle" class="d-t">Firmware core</text>
+  <text x="475" y="104" text-anchor="middle" class="d-s">control, safety, policy, UI</text>
+
+  <rect x="570" y="62" width="150" height="56" rx="8" class="d-sim"/>
+  <text x="645" y="86" text-anchor="middle" class="d-t">MuJoCo + BAM</text>
+  <text x="645" y="104" text-anchor="middle" class="d-s">XL330 actuator model</text>
+
+  <rect x="216" y="150" width="140" height="56" rx="8" class="d-box"/>
+  <text x="286" y="174" text-anchor="middle" class="d-t">LVGL window</text>
+  <text x="286" y="192" text-anchor="middle" class="d-s">same face code</text>
+
+  <rect x="400" y="150" width="150" height="56" rx="8" class="d-box"/>
+  <text x="475" y="174" text-anchor="middle" class="d-t">hal_host</text>
+  <text x="475" y="192" text-anchor="middle" class="d-s">simulated bus and IMU</text>
+
+  <line x1="152" y1="90" x2="212" y2="90" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <line x1="360" y1="90" x2="396" y2="90" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <line x1="475" y1="120" x2="475" y2="146" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <path d="M552 178 H645 V122" class="d-wire" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <path d="M424 120 L360 156" class="d-wire" marker-end="url(#arr)"/>
+
+  <rect x="200" y="272" width="540" height="110" rx="14" class="d-box d-dash"/>
+  <text x="470" y="296" text-anchor="middle" class="d-t">On the robot: the same core, a different hardware layer</text>
+  <rect x="230" y="312" width="150" height="50" rx="8" class="d-hw" style="stroke:var(--ink);stroke-width:1.75"/>
+  <text x="305" y="334" text-anchor="middle" class="d-t">Firmware core</text>
+  <text x="305" y="352" text-anchor="middle" class="d-s">identical source</text>
+  <rect x="410" y="312" width="130" height="50" rx="8" class="d-box"/>
+  <text x="475" y="342" text-anchor="middle" class="d-t">hal_esp32</text>
+  <rect x="570" y="312" width="150" height="50" rx="8" class="d-hw"/>
+  <text x="645" y="334" text-anchor="middle" class="d-t">Real hardware</text>
+  <text x="645" y="352" text-anchor="middle" class="d-s">servos, IMU, screen</text>
+  <line x1="380" y1="337" x2="406" y2="337" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="540" y1="337" x2="566" y2="337" class="d-wire" marker-end="url(#arr)"/>
+</svg>
+<figcaption>Only the hardware layer changes between the twin and the robot.</figcaption>
+</figure>
+
+<h3 id="hal"><span class="n">8.1</span>Hardware abstraction layer</h3>
+<p>The firmware core (control loop, state machine, safety, policy inference, face logic and protocol handling) is plain C with no ESP-IDF includes. It talks to the world only through this interface, with one implementation for the ESP32 and one for the host.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Interface</th><th>Calls</th></tr></thead>
+  <tbody>
+    <tr><td>Servo bus</td><td>sync read of positions and velocities, sync write of goal positions, torque enable, round-robin health read</td></tr>
+    <tr><td>IMU</td><td>latest gyro and gravity vector</td></tr>
+    <tr><td>Clock</td><td>monotonic microseconds, 50 Hz tick (sim time on the host)</td></tr>
+    <tr><td>Display and input</td><td>LVGL display and touch drivers</td></tr>
+    <tr><td>Audio</td><td>play clip, set volume</td></tr>
+    <tr><td>Network</td><td>protocol messages in and out</td></tr>
+    <tr><td>Power</td><td>pack voltage and current, servo rail voltage</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="host"><span class="n">8.2</span>Host twin</h3>
+<ul>
+  <li>A Python harness runs MuJoCo with the MicroCluck model and the same BAM XL330 actuator model used in training.</li>
+  <li>It loads the firmware core as a shared library and calls the control step at 50 Hz of simulated time.</li>
+  <li>A WebSocket server implements the §9.5 protocol, so the phone's controller page works unchanged on the local network.</li>
+  <li>The face runs in LVGL's SDL desktop port, built from the same UI source. Whether it shares the process or runs alongside is an ADR.</li>
+  <li>Battery voltage, Wi-Fi drops, pushes and a stalled control task can be injected to exercise safety behavior. The simulated servo bus implements the Bus Watchdog, using the behavior H1 measures on real servos.</li>
+  <li>The twin writes the same log format as the robot, so twin and hardware runs can be compared side by side in H5.</li>
+</ul>
+
+<h3 id="fidelity"><span class="n">8.3</span>Fidelity requirements</h3>
+<ul>
+  <li>Servo positions quantized like the 12-bit encoder; velocity in the register's units, or derived as the contract specifies</li>
+  <li>Bus latency and command delay matching the timing budget (§9.3)</li>
+  <li>IMU noise and bias added to the simulated gyro and gravity vector</li>
+  <li>A deterministic mode with fixed seeds for automated tests</li>
+  <li>A headless mode for running the safety and regression tests in CI</li>
+</ul>
+
+<!-- 9 -->
+<h2 id="firmware"><span class="n">9</span>Firmware</h2>
+
+<h3 id="stack"><span class="n">9.1</span>Stack</h3>
+<ul>
+  <li><strong>ESP-IDF v5.x</strong>, C (or C++), FreeRTOS</li>
+  <li>The hardware-independent core builds for ESP-IDF and for the host with CMake (§8.1)</li>
+  <li>LVGL via <code>esp_lvgl_port</code>; ESP-DSP for the matrix math</li>
+  <li><code>esp_http_server</code> with WebSocket support; static assets in LittleFS</li>
+  <li>I2S driver and the onboard codec for sound effects</li>
+  <li>Native OTA with A/B partitions and rollback; SD card logging</li>
+</ul>
+<p>ESP-IDF over Arduino for explicit core pinning and priorities, the RS-485 half-duplex UART mode, <code>esp_timer</code> precision and control of the OTA partition table.</p>
+
+<h3 id="tasks"><span class="n">9.2</span>Task layout</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Task</th><th>Core</th><th>Priority</th><th>Rate</th><th>Responsibility</th></tr></thead>
+  <tbody>
+    <tr><td><code>control_task</code></td><td>1</td><td>Highest</td><td>50 Hz</td><td>Snapshot IMU state, sync read servos, build the observation, run inference, post-process, sync write. Safety checks. One round-robin health read per cycle.</td></tr>
+    <tr><td><code>imu_task</code></td><td>1</td><td>High</td><td>500 Hz–1 kHz</td><td>Read the IMU on its data-ready interrupt, remove gyro bias, run the Mahony filter, publish gyro and gravity (double-buffered).</td></tr>
+    <tr><td><code>net_task</code></td><td>0</td><td>Medium</td><td>On events</td><td>Wi-Fi, HTTP, WebSocket commands in, telemetry out.</td></tr>
+    <tr><td><code>ui_task</code></td><td>0</td><td>Low</td><td>≤ 30 fps</td><td>Face rig, expressions, eye stabilization, status strip, touch.</td></tr>
+    <tr><td><code>audio_task</code></td><td>0</td><td>Low</td><td>On events</td><td>Sound effects through I2S DMA.</td></tr>
+    <tr><td><code>log_task</code></td><td>0</td><td>Low</td><td>Buffered</td><td>Observations, actions and timing to SD.</td></tr>
+    <tr><td>OTA</td><td>0</td><td>Low</td><td>On demand</td><td>Firmware and policy updates.</td></tr>
+  </tbody>
+</table></div>
+<p>State crosses cores through double buffers or single-writer structures. Nothing in <code>control_task</code> blocks or allocates. A task watchdog covers <code>control_task</code> and <code>imu_task</code> (S9).</p>
+
+<h3 id="timing"><span class="n">9.3</span>Timing budget</h3>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>Step in each 20 ms cycle</th><th>Budget</th></tr></thead>
+  <tbody>
+    <tr><td>Sync read of 10 servos at 2 Mbps, Return Delay Time 0</td><td>~1–2 ms</td></tr>
+    <tr><td>Build the observation</td><td>&lt; 0.2 ms</td></tr>
+    <tr><td>Policy inference</td><td><strong>≤ 5 ms target</strong></td></tr>
+    <tr><td>Sync write of 10 goal positions</td><td>&lt; 0.5 ms</td></tr>
+    <tr><td>Slack</td><td>≥ 10 ms</td></tr>
+  </tbody>
+</table></div>
+<p>Loop period p99 jitter must stay ≤ 1 ms <strong>with Wi-Fi, the face (including stabilization) and audio all running</strong>. A cycle-overrun counter goes in telemetry. Set every servo's Return Delay Time to 0, since the default adds a delay per servo, and evaluate Fast Sync Read if the servo firmware supports it.</p>
+
+<h3 id="memory"><span class="n">9.4</span>Memory plan</h3>
+<ul>
+  <li><strong>Internal SRAM:</strong> Wi-Fi and LwIP, task stacks, DMA-capable display buffers, I2S buffers, bus and IMU buffers.</li>
+  <li><strong>PSRAM:</strong> non-DMA LVGL buffers, face accessories, sound clips (or stream from LittleFS or SD), policy weights at ~0.76 MB per behavior for the stock-size actor, ~218 KB for the small one, the log ring buffer.</li>
+  <li>Measure inference with weights in PSRAM first. Move the active policy to internal SRAM or quantize to int8 only if it exceeds 5 ms.</li>
+  <li>Report heap high-water marks in telemetry.</li>
+</ul>
+
+<h3 id="phone"><span class="n">9.5</span>Phone controller and protocol</h3>
+<p><strong>Networking.</strong> The robot runs its own access point by default: SSID <code>microcluck-XXXX</code> with WPA2, at <code>192.168.4.1</code>. Joining home Wi-Fi is an option for development, with mDNS at <code>microcluck.local</code>. The host twin listens on the computer's own address.</p>
+<p><strong>Pages.</strong></p>
+<ul>
+  <li><code>/</code> is the controller, served from flash: a joystick for forward and strafe, a turn control, behavior and expression buttons, and an E-stop. It reads the browser's Gamepad API, so any controller paired to the phone (PS5, Xbox) works.</li>
+  <li><code>/status</code> and <code>/settings</code> are server-rendered fragments, HTMX-style, for configuration, mode, Wi-Fi, gains and volume.</li>
+  <li><code>/ota</code> uploads firmware and policies.</li>
+</ul>
+<p><strong>WebSocket messages on <code>/ws</code></strong> (compact JSON for v1):</p>
+<div class="tbl"><table class="plain">
+  <thead><tr><th>Direction</th><th>Message</th><th>Rate</th></tr></thead>
+  <tbody>
+    <tr><td>Phone to robot</td><td><code>{"t":"cmd","seq":123,"vx":0.10,"vy":0.0,"wz":0.30}</code></td><td>20–30 Hz</td></tr>
+    <tr><td>Phone to robot</td><td><code>{"t":"act","name":"enable"}</code>, <code>{"t":"act","name":"sit"}</code>, <code>{"t":"act","name":"stand"}</code>, <code>{"t":"estop"}</code>, <code>{"t":"face","expr":"love"}</code>, <code>{"t":"sound","name":"cluck"}</code></td><td>On events</td></tr>
+    <tr><td>Robot to phone</td><td><code>{"t":"tel","mode":"WALK","expr":"happy","vbat":7.6,"loop_p99_ms":0.6,"overruns":0,"tilt_deg":4.2,"servo_tmax_c":48,"rssi":-52}</code></td><td>10 Hz</td></tr>
+    <tr><td>Robot to phone</td><td><code>{"t":"nak","act":"enable","why":"not_upright"}</code></td><td>On events</td></tr>
+  </tbody>
+</table></div>
+<p><strong>Dead-man.</strong> No <code>cmd</code> for 300 ms sets the velocity command to zero, so MicroCluck stands still. No connection for 5 s sits it down with the scripted SIT (§9.7).</p>
+
+<h3 id="face"><span class="n">9.6</span>Face, sound and touch</h3>
+<p>A flat vector chicken face on a black screen: big white eyes with dark pupils, small arched brows, an orange beak and pink cheeks. The beak stays fixed; the eyes, brows and accessories carry the expression. The face fills the upper two-thirds of the 320 × 480 portrait screen, and a slim status strip in the lower third shows battery, Wi-Fi and mode.</p>
+
+<div class="faces">
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Curious face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M33 46 Q41 40 50 44 M70 44 Q79 40 87 46" stroke="#f2b705" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="44" cy="62" r="12" fill="#fff"/><circle cx="76" cy="62" r="12" fill="#fff"/>
+      <circle cx="47" cy="60" r="5.5" fill="#1b1b1b"/><circle cx="79" cy="60" r="5.5" fill="#1b1b1b"/>
+      <path d="M53 77 L67 77 L60 89 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+      <ellipse cx="29" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/><ellipse cx="91" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/>
+    </svg>
+    <figcaption><b>Curious</b>Default. Idle, or standing with no command.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Happy face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M33 66 Q44 52 55 66 M65 66 Q76 52 87 66" stroke="#f2b705" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <path d="M26 46 L22 39 M33 42 L31 34 M94 46 L98 39 M87 42 L89 34" stroke="#f2b705" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M50 76 L70 76 L66 91 Q60 98 54 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M55 81 L65 81 L63 88 Q60 92 57 88 Z" fill="#7a1f10"/>
+      <ellipse cx="29" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/><ellipse cx="91" cy="82" rx="5.5" ry="3.2" fill="#f2797b"/>
+    </svg>
+    <figcaption><b>Happy</b>Walking, or a trick finished. Joy marks angle up above the eyes.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Surprised face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M34 42 Q42 36 50 40 M68 36 Q78 30 88 36" stroke="#f2b705" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="43" cy="62" r="10" fill="#fff"/><circle cx="77" cy="60" r="15" fill="#fff"/>
+      <circle cx="44" cy="62" r="4" fill="#1b1b1b"/><circle cx="78" cy="60" r="4.5" fill="#1b1b1b"/>
+      <path d="M93 30 L96 23 M99 36 L106 33 M86 26 L86 19" stroke="#f2b705" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <figcaption><b>Surprised</b>A bump or near-fall below the fall threshold.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Love face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M33 66 Q44 54 55 66 M65 66 Q76 54 87 66" stroke="#f2b705" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <path d="M88 40 C88 34 80 32 80 38 C80 42 88 47 88 47 C88 47 96 42 96 38 C96 32 88 34 88 40 Z" fill="#e8413a"/>
+      <path d="M53 77 L67 77 L60 89 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+      <ellipse cx="29" cy="80" rx="7" ry="4" fill="#f2797b"/><ellipse cx="91" cy="80" rx="7" ry="4" fill="#f2797b"/>
+    </svg>
+    <figcaption><b>Love</b>Tapped on the screen, or the phone's love button.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Dizzy face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M44 62 A1.5 1.5 0 0 1 47 62 A3 3 0 0 1 41 62 A4.5 4.5 0 0 1 50 62 A6 6 0 0 1 38 62 A7.5 7.5 0 0 1 53 62" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M76 62 A1.5 1.5 0 0 1 79 62 A3 3 0 0 1 73 62 A4.5 4.5 0 0 1 82 62 A6 6 0 0 1 70 62 A7.5 7.5 0 0 1 85 62" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round" transform="rotate(-8 60 84)"/>
+    </svg>
+    <figcaption><b>Dizzy</b>Fallen.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Confused face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M32 47 L52 40 M70 47 Q79 45 87 48" stroke="#f2b705" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <circle cx="44" cy="63" r="12" fill="#fff"/><circle cx="76" cy="64" r="10" fill="#fff"/>
+      <circle cx="41" cy="60" r="5.5" fill="#1b1b1b"/><circle cx="73" cy="61" r="5" fill="#1b1b1b"/>
+      <text x="96" y="42" text-anchor="middle" font-size="20" font-weight="700" fill="#f2b705" style="font-family:var(--font-head)">?</text>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <figcaption><b>Confused</b>Dead-man triggered, or the phone disconnected.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Sleepy face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <circle cx="44" cy="64" r="12" fill="#fff"/><circle cx="76" cy="64" r="12" fill="#fff"/>
+      <circle cx="44" cy="69" r="5" fill="#1b1b1b"/><circle cx="76" cy="69" r="5" fill="#1b1b1b"/>
+      <rect x="30" y="49" width="28" height="15" fill="#000"/><rect x="62" y="49" width="28" height="15" fill="#000"/>
+      <path d="M32 64 H56 M64 64 H88" stroke="#f2b705" stroke-width="3" stroke-linecap="round"/>
+      <text x="86" y="40" font-size="11" font-weight="700" fill="#9aa0a6">z</text>
+      <text x="94" y="31" font-size="15" font-weight="700" fill="#9aa0a6">Z</text>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <figcaption><b>Sleepy</b>Low-battery warning, or a long idle.</figcaption>
+  </figure>
+  <figure>
+    <svg viewBox="0 0 120 160" role="img" aria-label="Error face">
+      <rect x="6" y="6" width="108" height="148" rx="18" fill="#f2b705"/><rect x="14" y="14" width="92" height="132" rx="12" fill="#000"/>
+      <path d="M37 55 L51 69 M51 55 L37 69 M69 55 L83 69 M83 55 L69 69" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M53 79 L67 79 L60 91 Z" fill="#f07b1f" stroke="#f07b1f" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M14 124 H106 V134 Q106 146 94 146 H26 Q14 146 14 134 Z" fill="#d7362b"/>
+      <text x="60" y="139" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">FAULT</text>
+    </svg>
+    <figcaption><b>Error</b>Fault or E-stop. Must never be mistaken for a mood.</figcaption>
+  </figure>
+</div>
+<p>Curious, happy, surprised and love come from the renders; dizzy, confused, sleepy and error are first sketches in the same style. Event expressions (surprised, love) briefly override the mode's default.</p>
+
+<p><strong>Face rig.</strong> The face is drawn from LVGL shapes (circles, arcs, triangles), not stored bitmaps. Each expression is a preset of these parameters:</p>
+<ul>
+  <li>per eye: openness (0–1), scale, pupil offset, lid curve from open to the happy arc</li>
+  <li>brow angle on each side</li>
+  <li>beak opening (0–1)</li>
+  <li>cheek strength</li>
+  <li>accessory: none, heart, sparks, question mark, Zzz or spiral</li>
+</ul>
+<p>Transitions tween over 150–300 ms. Blinks fire every 3–6 seconds at random. Gaze follows the turn and strafe commands. Small accessory icons may be images in PSRAM.</p>
+<p><strong>Stabilized eyes.</strong> Like a real chicken's head, the face holds still while the body moves. The whole face shifts opposite to torso roll (horizontally) and pitch (vertically) using the gravity vector from <code>imu_task</code>, low-pass filtered and clamped to about ±20 px. It is off when fallen or E-stopped. Only the face's bounding box redraws, at no more than 30 fps.</p>
+<p><strong>Sound.</strong> The onboard codec and speaker (to confirm on the 3.5") play short clips from LittleFS or SD through <code>audio_task</code>: a cluck when it starts walking and occasionally while walking (rate-limited, not every step), a startled squawk on a bump or fall, a happy cluck when petted and a sleepy coo on low battery or long idle. Volume and mute live in <code>/settings</code>. Sound must never affect control-loop timing.</p>
+<p><strong>Touch.</strong> A tap triggers love. A long press is an E-stop and turns torque off.</p>
+
+<h3 id="states"><span class="n">9.7</span>Mode state machine</h3>
+<figure class="diagram wide">
+<svg viewBox="0 0 760 330" role="img" aria-label="State machine: BOOT to IDLE; enable, allowed only when the torso is upright, to STAND_INIT, then STAND and WALK. STAND can sit into a scripted SIT state, and SIT stands up again through STAND_INIT. A large tilt sends STAND or WALK to FALLEN. SIT and FALLEN return to IDLE with torque off. In v1.1 FALLEN can go to RECOVER and back to STAND. E-stop and low battery apply from any state.">
+  <rect x="20" y="40" width="90" height="54" rx="10" class="d-box"/>
+  <text x="65" y="72" text-anchor="middle" class="d-t">BOOT</text>
+  <rect x="150" y="40" width="110" height="54" rx="10" class="d-box"/>
+  <text x="205" y="63" text-anchor="middle" class="d-t">IDLE</text>
+  <text x="205" y="81" text-anchor="middle" class="d-s">torque off</text>
+  <rect x="300" y="40" width="130" height="54" rx="10" class="d-box"/>
+  <text x="365" y="63" text-anchor="middle" class="d-t">STAND_INIT</text>
+  <text x="365" y="81" text-anchor="middle" class="d-s">ease to home, 2 s</text>
+  <rect x="470" y="40" width="110" height="54" rx="10" class="d-hw"/>
+  <text x="525" y="63" text-anchor="middle" class="d-t">STAND</text>
+  <text x="525" y="81" text-anchor="middle" class="d-s">policy, zero cmd</text>
+  <rect x="620" y="40" width="120" height="54" rx="10" class="d-hw"/>
+  <text x="680" y="63" text-anchor="middle" class="d-t">WALK</text>
+  <text x="680" y="81" text-anchor="middle" class="d-s">policy, phone cmd</text>
+
+  <line x1="110" y1="67" x2="146" y2="67" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="260" y1="67" x2="296" y2="67" class="d-wire" marker-end="url(#arr)"/>
+  <text x="280" y="32" text-anchor="middle" class="d-s">enable, if upright</text>
+  <line x1="430" y1="67" x2="466" y2="67" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="580" y1="58" x2="616" y2="58" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="620" y1="78" x2="584" y2="78" class="d-wire" marker-end="url(#arr)"/>
+  <text x="600" y="32" text-anchor="middle" class="d-s">cmd ≠ 0 / cmd = 0</text>
+
+  <rect x="300" y="160" width="130" height="54" rx="10" class="d-box"/>
+  <text x="365" y="183" text-anchor="middle" class="d-t">SIT</text>
+  <text x="365" y="201" text-anchor="middle" class="d-s">scripted crouch</text>
+  <line x1="485" y1="94" x2="424" y2="157" class="d-wire" marker-end="url(#arr)"/>
+  <text x="440" y="124" text-anchor="end" class="d-s">sit</text>
+  <line x1="365" y1="158" x2="365" y2="98" class="d-wire" marker-end="url(#arr)"/>
+  <text x="373" y="132" class="d-s">stand</text>
+
+  <rect x="610" y="160" width="130" height="54" rx="10" class="d-alert"/>
+  <text x="675" y="183" text-anchor="middle" class="d-t">FALLEN</text>
+  <text x="675" y="201" text-anchor="middle" class="d-s">torque off or limp</text>
+  <line x1="565" y1="94" x2="628" y2="157" class="d-wire" marker-end="url(#arr)"/>
+  <line x1="675" y1="94" x2="675" y2="156" class="d-wire" marker-end="url(#arr)"/>
+  <text x="683" y="122" class="d-s">tilt &gt; 60°</text>
+  <text x="683" y="137" class="d-s">for 200 ms</text>
+
+  <rect x="470" y="160" width="110" height="54" rx="10" class="d-box d-dash"/>
+  <text x="525" y="183" text-anchor="middle" class="d-t">RECOVER</text>
+  <text x="525" y="201" text-anchor="middle" class="d-s">v1.1 stand-up</text>
+  <line x1="610" y1="187" x2="584" y2="187" class="d-wire d-dash" marker-end="url(#arr)"/>
+  <line x1="525" y1="158" x2="525" y2="98" class="d-wire d-dash" marker-end="url(#arr)"/>
+
+  <path d="M675 214 V250 H205 V98" class="d-wire" marker-end="url(#arr)"/>
+  <path d="M365 214 V250" class="d-wire"/>
+  <circle cx="365" cy="250" r="3" class="d-dot"/>
+  <text x="450" y="244" class="d-s">torque off, back to idle</text>
+
+  <rect x="20" y="270" width="340" height="48" rx="10" class="d-alert"/>
+  <text x="36" y="290" class="d-t">ESTOP, from any state</text>
+  <text x="36" y="308" class="d-s">Torque off; needs an explicit re-enable</text>
+  <rect x="390" y="270" width="350" height="48" rx="10" class="d-box"/>
+  <text x="406" y="290" class="d-t">Low battery, from any state</text>
+  <text x="406" y="308" class="d-s">Controlled stop: sit, then torque off, then IDLE</text>
+</svg>
+<figcaption>Each mode selects its default expression (§9.6). SIT is a script, not a policy, and enable is refused unless the torso is upright.</figcaption>
+</figure>
+
+<p><strong>SIT.</strong> A scripted crouch onto the feet and tail, not a policy: joint targets interpolated over about 2 s at low gains, so v1 needs no extra training. It is entered from STAND on a <code>sit</code> command, after 5 s without a connection, on a servo over-temperature (S4) and as the first step of a low-battery stop (S5). WALK stops first, because the command goes to zero, and then sits. Standing up again goes back through STAND_INIT. SIT holds torque at low gains and drops to IDLE with torque off after a timeout, 30 s by default. The v1.1 <code>SitStand</code> policy replaces the script later.</p>
+<p><strong>Enable only when upright.</strong> STAND_INIT eases the legs to the home pose from wherever they happen to be, which is a bad idea with the robot on its back or held at an angle. IDLE to STAND_INIT is refused unless the gravity vector puts the torso within 20° of vertical (default, tunable). The robot answers the phone with a refusal and the reason, and the status strip shows it (S10).</p>
+
+<h3 id="safety"><span class="n">9.8</span>Safety requirements</h3>
+<div class="tbl"><table>
+  <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+  <tbody>
+    <tr><td>S1</td><td>E-stop from the phone or a long press on the screen turns torque off within one control cycle.</td></tr>
+    <tr><td>S2</td><td>Dead-man: 300 ms without a command sets velocity to zero.</td></tr>
+    <tr><td>S3</td><td>Fall detection per §9.7, with torque off or limp to protect the gears and screen.</td></tr>
+    <tr><td>S4</td><td>Servo health: round-robin reads of temperature and hardware error status. Over the temperature threshold, sit and rest (SIT); on a hardware error, including a Bus Watchdog error (S9), torque off and report. The Input Voltage Error bit and the Alert flag it raises are ignored, because a fresh pack is above the servos' 7.0 V limit (§6.4).</td></tr>
+    <tr><td>S5</td><td>Low battery (INA226): warn, then sit (SIT) and turn torque off before the BMS cuts out. The empty floor is about 6.6 V on the servo-reported pack voltage, smoothed over about 10 s, as on Microduck.</td></tr>
+    <tr><td>S6</td><td>Phone commands are clamped to the policy's training ranges.</td></tr>
+    <tr><td>S7</td><td>A policy whose contract hash doesn't match the build cannot enable torque.</td></tr>
+    <tr><td>S8</td><td>S1–S7 and S10, and the software side of S9, are covered by automated tests on the host twin.</td></tr>
+    <tr><td>S9</td><td>Hang protection. A task watchdog covers <code>control_task</code> and <code>imu_task</code>, and a stall resets the MCU. When torque is enabled, every servo's Bus Watchdog (register 98, 20 ms units) is set to about 100 ms, so a hung or crashed MCU leaves the servos stopped within roughly 100 ms instead of replaying the last goal. The e-manual says only that the servo stops on expiry, and the error blocks new goals until it is cleared, so H1 measures what torque does afterwards. After any reset, the first bus action is to clear the Bus Watchdog (write 0) and broadcast torque off. The power switch stays reachable as the last resort.</td></tr>
+    <tr><td>S10</td><td>Enable only when upright: IDLE to STAND_INIT is refused unless the torso is within 20° of vertical by the gravity vector. The refusal and its reason reach the phone and the status strip.</td></tr>
+  </tbody>
+</table></div>
+
+<!-- 10 -->
+<h2 id="milestones"><span class="n">10</span>Milestones</h2>
+<p>Each milestone meets its exit criteria before the next one in its track starts. H0 runs in parallel with Phase A. Before the design freeze only two things may start: driver bring-up on one or two early servos and an IMU (the start of H1 and H2) and fit-check prints (the start of H3). The full exit criteria of H1 to H3 wait for the freeze. H1, H2 and H3 do not depend on each other and can overlap; H4 needs all three, and H5 also waits for S5.</p>
+
+<h3>Phase A: simulation</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
+  <tbody>
+    <tr><td>S0 Toolchain</td><td>Forked <code>microduck_rl</code> trains Pollen's stock walking policy on the RTX 3060 (or HF Jobs). The trained policy walks in the viewer, and plays back in CPU MuJoCo with the GPU idle. Per-joint RMS and peak torque are logged for the stock walker, as the baseline for the S3 thresholds.</td></tr>
+    <tr><td>S1 MicroCluck model</td><td>10-servo model with torso (weighed board plus estimates), comb, tail, feet and hip spacing. Loads, holds the stand pose for about 3 s from noisy starts (tilt checked, not just height), and the updated regression tests pass. Contract v1 drafted.</td></tr>
+    <tr><td>S2 Walking policy</td><td>Backlash variant with the full randomization, including top payload. Tracks the full range of velocity commands, recovers from moderate pushes, stays stable across random seeds.</td></tr>
+    <tr><td>S3 Design validation</td><td>All §7.2 checks pass or have a decision recorded. Design report and ADRs written. BOM frozen and parts ordered.</td></tr>
+    <tr><td>S4 Policy port</td><td>Export pipeline works. C inference matches the golden vectors within 1e-4, and drives MuJoCo with the same gait as the ONNX policy.</td></tr>
+    <tr><td>S5 Virtual MicroCluck</td><td>Your phone drives the simulated chicken end to end. The face renders with stabilized eyes driven by the simulated IMU. S1–S7, S10 and the software side of S9 pass as automated tests on the twin, including the scripted sit.</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Phase B: hardware</h3>
+<div class="tbl"><table>
+  <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
+  <tbody>
+    <tr><td>H0 Bench bring-up</td><td>3.5" pinout, touch address, PSRAM size and audio codec verified. The face rig runs on the real screen with blinks. SoftAP, controller page and WebSocket echo work. OTA round-trip with rollback. SD logging. A sound clip plays. Built on the same core and HAL split as the twin.</td></tr>
+    <tr><td>H1 Servo bus</td><td>74HC126 interface built. 10 servos with IDs set, 2 Mbps, Return Delay Time 0. 50 Hz sync read and write for 10 minutes with zero bus errors and p99 jitter ≤ 1 ms while Wi-Fi, the face and audio run. Torque enable and disable, health polling that ignores the Input Voltage Error bit on a fully charged pack (Shutdown set to 52). Bus Watchdog verified: with the firmware halted mid-stand the servos stop within about 100 ms, and the torque state afterwards is recorded.</td></tr>
+    <tr><td>H2 IMU</td><td>Gyro bias calibrated at boot. Gravity vector within ±2° at known tilts, stable at 500 Hz or more. Tilt the board and the eyes stay put.</td></tr>
+    <tr><td>H3 Mechanical design</td><td>Final CAD for the torso frame with board mount, bezel with its top and bottom bumper lips, the body shell, the wings, the comb with its top boss, the TPU tail, the feet and the cable routing, built on Microduck's legs and the stance width chosen in S3. No interference across the gait's joint ranges. The sit pose rests on the tail in CAD. The model is regenerated from the final CAD, and S2 is retrained if the mass properties fall outside the randomization ranges. Fit-check prints of the board mount, bezel and one foot match the real board. STLs frozen for production printing.</td></tr>
+    <tr><td>H4 Assembly</td><td>Printed and assembled. Every part weighed and the model updated. Retrained if the measured mass properties fall outside the randomization ranges. Golden test passes on the device.</td></tr>
+    <tr><td>H5 First steps</td><td>Suspended on a gantry or string, then assisted standing, free standing and walking on a flat floor. The scripted sit is proven from standing before the first free-standing attempt. Logs compared against twin runs in the same format.</td></tr>
+    <tr><td>H6 v1 complete</td><td>Phone control polished, including the Gamepad API. Full expression set mapped to states. Stabilized eyes while walking. Sounds. S1–S10 verified on the robot, including the scripted sit and stand-up, the upright check and the Bus Watchdog.</td></tr>
+    <tr><td>H7 v1.1</td><td>Fall recovery (<code>VelStand</code>) and a learned sit and stand (tail-assisted) that replaces the script. Policies hot-swap at runtime. Recovery from lying on the screen needs the hip position settled first, because the stock layout cannot do it (§7.5).</td></tr>
+  </tbody>
+</table></div>
+<p>v2 adds the claw (§11).</p>
+
+<!-- 11 -->
+<h2 id="claw"><span class="n">11</span>v2 claw</h2>
+<ul>
+  <li>Claw servos join the same Dynamixel bus, so no new pins are needed.</li>
+  <li>It mounts on the comb's top boss; the comb is removed or reworked as the claw's cover.</li>
+  <li><strong>Option A:</strong> a fixed gripper on top of the torso for carrying things handed to it. Simplest.</li>
+  <li><strong>Option B:</strong> a one- or two-joint arm (shoulder pitch and gripper) that swings forward and down. Floor pickup needs a crouch-and-reach policy, like Microduck's <code>GroundPick</code> task with its beak.</li>
+  <li>v1 prepares for it with the shared boss, the mass reserve and payload randomization in training (§7.1).</li>
+  <li>Total mass stays at or below ~850 g; the XL330s are sized for Microduck's ~800 g.</li>
+</ul>
+
+<!-- 12 -->
+<h2 id="risks"><span class="n">12</span>Risks and mitigations</h2>
+<div class="tbl"><table>
+  <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+  <tbody>
+    <tr><td>Sim2real gap</td><td>Same servos as Pollen's actuator model, backlash training, measured mass properties, the sim2real contract, identical logs from twin and robot.</td></tr>
+    <tr><td>Mass estimates are wrong</td><td>Weigh the board now; mass randomization covers estimation error; H3 regenerates the model from the final CAD, H4 updates it with weighed parts, and S2 is retrained if needed.</td></tr>
+    <tr><td>Mechanical design takes longer than planned</td><td>CAD starts in S1 and is the source of the model. Fit-check prints on the board you own before the freeze. H3 has its own exit criteria.</td></tr>
+    <tr><td>Firmware hang leaves the servos driven</td><td>Task watchdog, Bus Watchdog on every servo, torque off after any reset, a reachable power switch (S9).</td></tr>
+    <tr><td>Robot enabled lying down or held at an angle</td><td>Enable is refused unless the torso is upright (S10).</td></tr>
+    <tr><td>Reward tuning eats time</td><td>Start from Pollen's tuned task; change one thing at a time from the stock duck.</td></tr>
+    <tr><td>The twin is too idealized</td><td>Encoder quantization, bus latency, IMU noise and command delay in the host HAL (§8.3).</td></tr>
+    <tr><td>3.5" pinout differs from the 2.8"</td><td>Verify in H0. Remap through the GPIO matrix; worst case, poll the IMU instead of using its interrupt.</td></tr>
+    <tr><td>Wi-Fi interrupts cause loop jitter</td><td>Core separation; measured in H1 under full load.</td></tr>
+    <tr><td>Stabilized face forces big redraws</td><td>Redraw only the face's bounding box, cap at 30 fps, clamp the offset; measure core 0 load and reduce if needed.</td></tr>
+    <tr><td>Internal RAM pressure</td><td>PSRAM placement, a small actor network, heap high-water telemetry.</td></tr>
+    <tr><td>Servo overheating</td><td>Thermal check in S3, temperature monitoring and auto-rest, low mass.</td></tr>
+    <tr><td>Servos run above their rated voltage</td><td>Same supply as Microduck and the training model. Shutdown 52, health checks that ignore the voltage bit, temperature monitoring and spares. Test the early servos on the pack first; the fallback is a regulated 5 V rail with retraining.</td></tr>
+    <tr><td>Screen damage in falls</td><td>Raised bezel, bumpers, recessed glass; tail as a rear bumper.</td></tr>
+    <tr><td>Cannot get up after falling on its screen</td><td>Shown in simulation with the stock leg layout (§7.5). For v1 a fallen robot is picked up by hand; the hip position is decided before the design freeze (open question 13).</td></tr>
+    <tr><td>Toes catch the other foot</td><td>Toe clearance check in S3.</td></tr>
+    <tr><td>Brownouts</td><td>A separate logic buck that accepts the pack's full range, bulk capacitance on the servo bus, a BMS sized for peaks. Servo current now sags the pack that feeds the logic buck.</td></tr>
+    <tr><td>Non-commercial mesh license</td><td>Personal project only; redesign the legs before any commercial use.</td></tr>
+    <tr><td>Servo cost and availability</td><td>Order at design freeze with spares; servos are most of the BOM.</td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="watchlist">Possible issue watchlist</h3>
+<p>Defaults and decisions that are reasonable now but may need to change once real hardware or a real phone is in the loop. Each one says where it gets checked.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Current setting</th><th>What could go wrong</th><th>Check at</th></tr></thead>
+  <tbody>
+    <tr><td>Upright limit for enable (S10)</td><td>Torso within 20° of vertical</td><td>Too strict and it refuses a valid stance on a gantry or a slight slope. Too loose and STAND_INIT starts from a pose it cannot recover from.</td><td>S5 twin tests, H5 gantry</td></tr>
+    <tr><td>SIT timeout</td><td>30 s, then torque off and IDLE</td><td>Too long and the servos heat while holding the crouch. Too short and the robot goes limp while someone is still playing with it.</td><td>S3 sit check, H5 and H6</td></tr>
+    <tr><td>Bus Watchdog time (S9)</td><td>About 100 ms (5 units of 20 ms), five control cycles</td><td>Too short and a Wi-Fi or flash stall trips it during a walk. Too long and a hung MCU keeps driving for longer. The e-manual does not say whether torque stays on after expiry, so the resulting safe state is unconfirmed.</td><td>H1, with the firmware halted mid-stand</td></tr>
+    <tr><td>Disconnect behavior</td><td>5 s without a connection sits the robot (it used to keep standing, or optionally sit)</td><td>A phone that sleeps or switches apps makes the robot sit mid-play. A setting in <code>/settings</code> to choose stand or sit may be worth adding.</td><td>H6 phone testing</td></tr>
+    <tr><td>Return Delay Time</td><td>0 on every servo</td><td>At 2 Mbps a servo can start its reply before the 74HC126's DIR line has released, corrupting replies. A small nonzero value costs little: ten servos at 20–50 µs add 0.2–0.5 ms to the sync read, well inside the 10 ms slack. The servo default is 250 units of 2 µs, or 500 µs. Microduck runs 1 Mbps with Return Delay Time 0, which is the proven combination, so starting at 1 Mbps is the safer first try.</td><td>H1 bus error counts</td></tr>
+    <tr><td>Servo supply voltage</td><td>Pack voltage straight to the servos, 6.6–8.4 V, above the 3.7–6.0 V rating</td><td>Shorter servo life or early failures that Microduck's setup does not show, and an Input Voltage Error alert on every read above 7.0 V if the firmware does not ignore it.</td><td>H1 with the early servos on the real pack, then H5</td></tr>
+    <tr><td>No head to counterbalance</td><td>No head or neck; the 4 head and 6 body command slots are zero-padded</td><td>The stock duck's head chain is 0.28 kg, 38% of its modeled mass, and Pollen's own notes say it must oscillate while stepping. In training the head tracks its command loosely (a 0.5 rad tolerance) with a separate penalty on its one-second average offset, so the policy can swing it for balance. Without it, push recovery or gait stability may be worse. The placeholder MicroCluck torso is lighter (0.63 kg total) with a lower center of mass, but it sits about 5 mm further forward over the ankle, so the home pose is trimmed by +4.7 degrees (S1). First result (§7.2): under the play configuration's pushes MicroCluck falls as often as the stock duck, but its hip roll torque is 22–27% higher; the cause is untested.</td><td>S0 head-locked ablation, S1 stand test, S2 push tests</td></tr>
+    <tr><td>Foot claws and toes</td><td>Claws mostly decorative on the plain sole, which stays the default; three chunky 12 mm toes counted as collision are an optional design</td><td>Decorative claws can still scuff the floor or clip the other foot on narrow steps, so keep them short and soft. If the toes are kept, they extend the contact patch forward (the center of mass margin goes from 28 to 45 mm) but not backward (16 mm), which was already the tight direction. They can drag during the swing and flex in TPU where the simulation is rigid, and the gait may shift from Pollen's recipe.</td><td>S3 claw clearance, H5; S2 A/B training (plain vs toes) only if the toes are kept</td></tr>
+    <tr><td>Body shell mass and legs-back poses</td><td>A 70 mm egg-shaped shell with wing discs and the tail behind the rear wall is the default; the box, the compact egg and the deep egg stay for comparison</td><td>It is about 23 g heavier than the box and its center of mass sits 9 mm further back, and neither is in the model yet. No real-gait pose intersects it (closest 4.8 mm), but 0.4% of stress poses do, in legs-swung-back poses that a scripted sit or a fall recovery may use. The stand and the walking policy may change once the mass is in.</td><td>S1 with the shell mass in the model; S3 clearance along the sit and fall-recovery poses; rerun the clearance check after any change to the shell or the gait</td></tr>
+    <tr><td>Hip height and getting up</td><td>Pollen's layout, hips at the bottom end of the body; raised hips are a simulation option only (§7.5)</td><td>The stock layout cannot get up from the screen, the back or the side (0 in every test). Hips raised 70 mm and 29 mm back get up from the screen (255 of 256 with the estimated feather tail, 61 to 84% with the taller tail block) and walk at about 92% of the stock layout's speed, and, with a roll onto the front first, get up from a side and from up to 30° from flat on the back (open-loop, no pushes; the angles around 45° are not covered). The shell needs openings for the hip brackets, the battery, electronics and chassis are repacked, and the leaning home pose (41° hip pitch) has not been checked for clearance. The stand-up motion is open-loop, without pushes, and unchecked for servo heating, and it depends on the tail's shape and, in simulation, on the fore-aft balance point to within about 4 mm back and 8 mm forward of the model's, which extra mass with a low battery shifts forward (§7.5); a learned correction on it widens that to about 12 mm back to 20 mm forward, in simulation, for servo delays up to 50 ms. At the stock hip position or with the legs outside the shell it fails.</td><td>Packaging sketch; clearance run of the hips-back gait; a policy that picks the routine from its orientation; S3 before the freeze</td></tr>
+    <tr><td>Bezel lips against the thighs</td><td>The top and bottom of the screen frame curve outward as soft bumper lips</td><td>The bottom lip is in front of the hip servos, where the thighs swing forward, and the leg could hit it. Lips that stand too little proud of the glass do not protect it in a forward fall. In simulation the lips clear the recorded walking poses to 8 mm or more for 99% of them (2 of 2,500 poses touch by about 1 mm), the open-loop get-up is unchanged up to 8 mm proud and the side get-up falls to 71% at 12 mm, and the lips take the floor contact (§7.5).</td><td>H3 drop test for how far they must stand out; clearance run of the hips-back walker's own gait</td></tr>
+    <tr><td>Walking speed</td><td>Training commands run to 0.4 m/s forward, and the policy is judged on tracking them</td><td>Both the stock duck and MicroCluck reach only about 0.2 m/s at a 0.4 m/s command and stand still at 0.1 m/s (§7.2). The stock checkpoint is at 2,000 iterations, so more training may close some of the gap; that is unchecked. If it does not, the criterion "tracks the full range of velocity commands" can only be met by lowering the commanded range or by changing the rewards.</td><td>S2 tracking tests, longer stock run for reference</td></tr>
+    <tr><td>Torque baseline includes frequent pushes</td><td>Stock numbers and MicroCluck's measured with the play configuration's pushes every 0.5–1 s</td><td>The thermal and peak checks compare two robots measured the same way, but the absolute torques are higher than steady walking would give, and the 10% pass line may be tighter or looser than it would be without pushes. No baseline without pushes exists yet.</td><td>S3, with a no-push run of both robots</td></tr>
+  </tbody>
+</table></div>
+
+<!-- 13 -->
+<h2 id="questions"><span class="n">13</span>Open questions</h2>
+<ol>
+  <li>3.5" FNK0104 details: exact pinout, touch controller and address, PSRAM size, 5 V input location, and whether the audio codec and amp match the 2.8".</li>
+  <li>Which XL330 variant (M288 or M077) Pollen's actuator model targets. The constants file names only <code>xl330</code> and BAM model <code>m6</code>, so ask Pollen or check the BAM parameters.</li>
+  <li>Pollen's action post-processing: their runtime applies a low-pass to the leg targets while the training repo says policies are unfiltered (<code>mdp.py</code>, <code>robotd</code>). The 48-value proprioception block is settled: gyro, gravity, joint positions, joint velocities and last action.</li>
+  <li>IMU choice. The ICM-42688-P is currently supply-constrained, with at least one breakout seller citing severe shortages and raised prices. Alternatives: LSM6DSOX or LSM6DSV16X with on-MCU fusion, or BNO085 with on-chip fusion (its I2C has known quirks on the ESP32).</li>
+  <li>Where the tools run on the single Windows PC. MuJoCo Warp and mjlab are Linux-first, so training likely runs under WSL2. The twin and the firmware tooling can run natively on Windows or in WSL2, and each has a catch. WSL2's default NAT networking hides the twin's WebSocket server from the phone unless mirrored networking or port forwarding is set up. Flashing the ESP32 from WSL2 needs USB passthrough (usbipd-win), while a native ESP-IDF install flashes directly. Whether the BAM actuator model and the twin harness run on native Windows is unconfirmed.</li>
+  <li>CAD tool for the physical design (H3). Decided: OpenSCAD for the parametric parts, with the foot toes done in <code>hardware/</code> and the frame, bezel, comb and tail to follow the same pattern. Organic pieces such as the comb and tail feathers can be sketched elsewhere and exported to STL.</li>
+  <li>Twin process layout: LVGL in the same process as the harness or alongside it.</li>
+  <li>Battery choice and target runtime. It stays a 2S Li-ion pack, because the actuator model assumes 6.5–8.2 V at the servos.</li>
+  <li>Reuse Microduck's leg STLs as they are, or redesign.</li>
+  <li>Firmware language: C (default), C++ or Rust (esp-rs).</li>
+  <li>Final designs for the dizzy, confused, sleepy and error faces.</li>
+  <li>Servo firmware and setup tool. Fast Sync Read, which Microduck uses, needs XL330 firmware v46 or newer. Updating firmware and setting IDs is easiest with a USB-to-Dynamixel adapter; the U2D2 is now in the BOM (§6.1).</li>
+  <li>Hip position: keep Pollen's layout (cannot get up from the screen, the back or the side, but no change to the torso), or raise the hips 70 mm and move them about 29 mm back (gets up from the screen, from a side and from near flat on the back with open-loop motions, and walks, in simulation; needs the shell opened for the hip brackets, the battery, electronics and chassis repacked, a leaning home pose and a retrained walker), or find another way to recover (§7.5).</li>
+  <li>Biped or dog. A quadruped body under the same face walks, carries far less servo load and gets up from its belly in simulation (<a href="../quadruped-study.html">quadruped-study.html</a>), at the cost of the chicken identity, strafing and Microduck as the reference design. If it is chosen, this document needs revising throughout.</li>
+  <li>The real robot's mass and centre of mass. The simulation's get-up works only within about 4 mm back to 8 mm forward of the model's centre of mass, extra mass with a low battery moves the effective balance point by about that much, and every position and mass in the model is a placeholder. With the learned correction the window is about 12 mm back to 20 mm forward, for servo delays up to 50 ms and the 6 mm lips it was trained with. Weigh the printed shell, wings and tail and the battery, and balance the assembled robot to find its centre of mass, and measure the servo and IMU delay, before relying on any recovery motion.</li>
+</ol>
+
+<!-- 14 -->
+<h2 id="repo"><span class="n">14</span>Repo layout</h2>
+<pre><code>microcluck/
+├── CLAUDE.md                   Working notes for Claude Code (§15)
+├── docs/
+│   ├── PRD.html                This document
+│   ├── quadruped-study.html    Robot-dog simulation study
+│   ├── sim2real-contract.md    Observation and action contract (versioned, hashed)
+│   ├── design-report.md        S3 results
+│   ├── face-spec.md            Expression presets, rig parameters, state mapping
+│   ├── wiring.md               Pin map, power, schematics
+│   ├── bom.md
+│   └── decisions/              One ADR per decision
+├── firmware/                   ESP-IDF project
+│   ├── main/
+│   └── components/
+│       ├── core/               Hardware-independent C: control, state machine,
+│       │                       safety, policy, face logic, protocol
+│       └── hal_esp32/          dxl, imu, net, display, audio, power, log
+├── twin/                       Virtual MicroCluck
+│   ├── hal_host/               Simulated bus, IMU, clock, power
+│   ├── harness/                Python: MuJoCo + BAM, WebSocket server, fault injection
+│   └── face_sdl/               LVGL desktop build of the face
+├── web/                        Controller page, bundled into firmware and twin
+├── assets/                     Sound clips, face accessory icons
+├── tools/
+│   └── policy_export/          ONNX to C header, golden vectors, host tests
+├── sim/                        Submodule: fork of microduck_rl
+└── hardware/                   OpenSCAD parts and parameter tables (foot first), STLs, wiring</code></pre>
+
+<!-- 15 -->
+<h2 id="claude-code"><span class="n">15</span>Notes for Claude Code</h2>
+<ul>
+  <li>Phase A comes first. H0 bench work, early driver bring-up on one or two servos and fit-check prints may run in parallel. The full exit criteria of H1 to H3, and everything after them, wait for the design freeze (§3).</li>
+  <li>Work milestone by milestone and don't start the next until the exit criteria are met (§10).</li>
+  <li>Code in <code>firmware/components/core</code> never includes ESP-IDF headers. It reaches hardware only through the HAL (§8.1), and every core change must build and pass tests on the twin.</li>
+  <li><code>docs/sim2real-contract.md</code> is the source of truth for observation and action layout. Firmware, twin and sim must reference the same contract hash.</li>
+  <li><code>docs/face-spec.md</code> is the source of truth for expression presets and the state-to-expression mapping.</li>
+  <li>Never hand-edit generated policy headers; regenerate them with <code>tools/policy_export</code>.</li>
+  <li>Nothing in <code>control_task</code> blocks or allocates. The face and audio must never affect its timing.</li>
+  <li>Everything runs on the one Windows PC with the RTX 3060; there is no Mac. Training uses CUDA, likely under WSL2. Playback, the twin and firmware work share the same machine, and §13 covers native Windows versus WSL2.</li>
+  <li>Hardware-in-the-loop steps (wiring, soldering, flashing, gantry tests, weighing parts) are manual. Flag them for Neil rather than assuming results.</li>
+  <li>Record significant decisions as ADRs in <code>docs/decisions/</code>.</li>
+</ul>
+
+<!-- 16 -->
+<h2 id="references"><span class="n">16</span>References</h2>
+<ul>
+  <li><a href="https://store.pollen-robotics.com/products/microduck">Pollen Robotics: Microduck product page</a></li>
+  <li><a href="https://github.com/pollen-robotics/microduck">pollen-robotics/microduck</a>, the onboard runtime and simulated duck</li>
+  <li><a href="https://github.com/pollen-robotics/microduck_rl">pollen-robotics/microduck_rl</a>, training, robot models and export</li>
+  <li><a href="https://emanual.robotis.com/docs/en/dxl/x/xl330-m288/">ROBOTIS XL330-M288-T e-Manual</a></li>
+  <li><a href="https://openelab.io/products/dynamixel-xl330-m288-t">XL330-M288-T rated torque and encoder</a></li>
+  <li><a href="https://store.freenove.com/products/fnk0104">Freenove FNK0104 ESP32-S3 Display</a> and <a href="http://freenove.com/fnk0104">tutorial</a></li>
+  <li><a href="https://github.com/MrTartuf0/onda-flac-player/wiki/Hardware">FNK0104B (2.8") pinout reference</a></li>
+  <li><a href="https://www.elecrow.com/icm-42688-p-ultra-low-power-imu-breakout.html">ICM-42688-P breakout supply note</a></li>
+  <li><a href="https://github.com/apirrone/Open_Duck_Mini">Open Duck Mini v2</a>, the predecessor project</li>
+</ul>
+
+</main>
+</div>
+
+<script>
+(function () {
+  var face = document.getElementById('heroFace');
+  var eyes = document.getElementById('heroEyes');
+  var pupils = document.getElementById('heroPupils');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function blink() {
+    eyes.classList.remove('blinking');
+    void eyes.getBoundingClientRect();
+    eyes.classList.add('blinking');
+  }
+  eyes.addEventListener('animationend', function () { eyes.classList.remove('blinking'); });
+  face.addEventListener('click', blink);
+  if (!reduce) { setTimeout(blink, 900); }
+
+  if (reduce) return;
+  var raf = null;
+  window.addEventListener('pointermove', function (e) {
+    if (raf) return;
+    raf = requestAnimationFrame(function () {
+      raf = null;
+      var r = face.getBoundingClientRect();
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height * 0.43;
+      var dx = e.clientX - cx;
+      var dy = e.clientY - cy;
+      var d = Math.sqrt(dx * dx + dy * dy) || 1;
+      var k = Math.min(1, d / 300);
+      var ox = (dx / d) * 9 * k;
+      var oy = (dy / d) * 9 * k;
+      pupils.setAttribute('transform', 'translate(' + (ox - 3).toFixed(2) + ' ' + (oy - 3).toFixed(2) + ')');
+    });
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
