@@ -24,10 +24,14 @@ HERE = Path(__file__).parent
 # --- layout (the simulation's 12-servo micro dog: build_quad_model.py BODY12, HIP_DX, ABD_Y) --------------------------
 HIP_X = 55.0                 # hip axes at x = +-55
 LEG_Y = 36.0                 # hip servos' case bottoms from the middle: abduction axes at 36 - 24 = 12, as in the sim
-X0, X1 = -90.0, 86.0         # rear and front ends (the sim's front is 80: +6 for the front legs' abduction plates)
+FACE_TILT = 10.0             # the face leans back by this much; so does the body's front, and the bezel sits flush on it
+FRONT_CLEAR = (83.0, 19.2)   # the slanted front passes outside this point: the front legs' abduction plates (to x 80.7,
+                             # their deck to z 19.2) and the wall
+X0 = -90.0                   # rear end
+X1 = FRONT_CLEAR[0] + (FRONT_CLEAR[1] - -27.0) * math.tan(math.radians(FACE_TILT))   # front end at the bottom, 91.1
 HW = 23.0                    # half width
 Z0, Z1 = -27.0, 36.0         # bottom and top
-WALL = 1.6
+WALL = 1.2                   # 3 lines of 0.4 mm (was 1.6: 71 g of shell)
 EDGE_R = 5.0                 # rounding of every edge
 REAR_DROP = 10.0             # the top slopes down from x = 0 to the rear by this much (sim: 16; the rear legs' abduction
                              # mounts stand 25 mm up, so 10 at most)
@@ -37,7 +41,6 @@ BELLY_HW, BELLY_Z = 16.0, -13.0   # the lower sides taper in below BELLY_Z to BE
 # --- face: Waveshare 1.69 in LCD module (33 x 40 x 5) in a bezel with a forehead band (camera) and a chin (ToF) ---------
 BOARD = (5.0, 33.0, 40.0)
 BEZEL_MARGIN, BEZEL_CHIN, BEZEL_TOP = 4.0, 14.0, 14.0
-FACE_TILT = 10.0
 BEZEL_EXP = 0.35
 SCREEN_HALF = (14.0, 16.3)
 
@@ -80,6 +83,10 @@ def outline(d=0.0):
         k = (y0 - y1) / (z0 - z1)
         pts = [(s * y0, z0 + 0.0), (s * (HW + 10), z0), (s * (HW + 10), Z0 - 10), (s * (y1 - k * 10), Z0 - 10 + d)]
         b -= _yz_prism(pts, X0 - 5, X1 + 5)
+    tn = math.tan(math.radians(FACE_TILT))   # the front leans back: x = X1 - d / cos - (z - Z0) tan
+    xb = X1 - d / math.cos(math.radians(FACE_TILT))
+    b -= _xz_prism([(xb + 10 * tn, Z0 - 10), (xb + 40, Z0 - 10), (xb + 40, Z1 + 10),
+                    (xb - (Z1 + 10 - Z0) * tn, Z1 + 10)], -HW - 5, HW + 5)
     slope = REAR_DROP / -X0
     b -= _xz_prism([(0.0, Z1 - d), (X0 - 10, Z1 - d - slope * (-(X0 - 10))), (X0 - 10, Z1 + 20), (0.0, Z1 + 20)], -HW - 5, HW + 5)
     try:
@@ -147,7 +154,10 @@ def shell():
 def face():
     bt = BOARD[0]
     bh = BOARD[2]
-    c = (X1 + bt / 2 + 2.0, 0.0, Z0 + 4.0 + BEZEL_CHIN + bh / 2)
+    zc = Z0 + 4.0 + BEZEL_CHIN + bh / 2          # the bezel's centre height, as in the sim
+    tr = math.radians(FACE_TILT)
+    xf = X1 - (zc - Z0) * math.tan(tr)            # the front face at that height
+    c = (xf + (bt + 4.0) / 2 * math.cos(tr), 0.0, zc + (bt + 4.0) / 2 * math.sin(tr))   # back face flush on the front
     hw, hh = BOARD[1] / 2 + BEZEL_MARGIN, (BOARD[2] + BEZEL_TOP + BEZEL_CHIN) / 2
 
     def slab(w, h, t, n=64):
