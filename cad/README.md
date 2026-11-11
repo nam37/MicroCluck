@@ -65,6 +65,29 @@ The abduction axis is 24 mm inside the servos' case bottoms, 4 mm further in tha
 
 **Placeholders:** the same servo and horn sizes as below, checked by the same fit coupons. The middle block's 1.6 mm between the servos' tabs depends on the tab span; if the real tabs are longer, trim them.
 
+## Layout study: 8 servos as the body's corners (11 Nov 2026): `layout_corner8.py`
+
+After Mini Pupper 4, whose motor drums are the corners of its body with only flat leg parts outside them. Each corner here is the Orion-style leg's holder fixed to the body, with no abduction joint: the hip and knee servos one above the other, and the knee driven through the Orion links. It is a study to measure widths and clearances, not a set of printable parts. The deck, the parts inside and the face are stand-in boxes.
+
+```
+cad/.venv/Scripts/python cad/layout_corner8.py   # widths, fit check, pictures -> step/corner8-a.png, corner8-b.png
+                                                 # (--step: the assemblies too, about 4 MB each)
+```
+
+| Layout | Servos | Across the shoulders | Feet apart |
+| --- | --- | --- | --- |
+| Braced legs (chosen) | 12 | 141 mm | 95 mm |
+| Orion legs | 12 | 184 mm | 153 mm |
+| A: corner holders, Orion leg parts as they are | 8 | 129.6 mm | 103.6 mm |
+| B: corner holders, thigh held on the outside only | 8 | 119.8 mm | 93.8 mm |
+
+- **A** keeps the thigh's inner plate and bridge. The left and right inner plates then swing 2 mm apart in the middle of the body, so the electronics and battery have to sit side by side under the deck, above the thighs.
+- **B** drops the inner plate and the bridge and holds the thigh on the outside only: by the hip horn and by the shoulder cover, which is now a fixed part of the body. That joint is **not designed**: the cover carries the bellcrank's axle today, and the thigh plate would need a bearing on it. With nothing swinging inside the body, the left and right holders sit back to back on a 3 mm spine, and the parts inside go between the front and rear pairs at hip height.
+- In both, 21 mm of each side's width is the linkage and the cover outside the thigh plate (links, the hubs with two 693s, the cover plate). A slimmer body needs a thinner stack there.
+- **Fit:** the legs' moving parts clear the stand-ins, the other leg's holder and the opposite leg in all 20 test poses (hip 35° back to 70° forward of home, knee 30–140°), front and rear, in both variants.
+
+![Variant B](step/corner8-b.png)
+
 ## The Orion-style leg (superseded, 10 Nov 2026): `leg.py`
 
 There are 12 TowerPro MG92B servos, three per leg (abduction, hip and knee), arranged after the [Orion quadruped](https://github.com/AshishA26/Orion-Quadruped). The leg sizes are the simulation's: the thigh is 45 mm from hip to knee, the shank is 45 mm from knee to foot centre, and the foot is a 14 mm ball.
