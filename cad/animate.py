@@ -14,9 +14,10 @@ import mujoco
 import numpy as np
 
 HERE = Path(__file__).parent
-A = HERE / "anim"
+A = HERE / ("anim_braced" if "--braced" in sys.argv else "anim")
 C = json.loads((A / "consts.json").read_text())
 FPS, W, H = 30, 960, 540
+FRONT = False
 
 COLORS = {
     "holder": (0.91, 0.90, 0.87), "cover": (0.95, 0.94, 0.92), "abd_mount": (0.72, 0.70, 0.66),
@@ -26,6 +27,9 @@ COLORS = {
     "short_link": (0.86, 0.50, 0.15), "hip_servo": (0.13, 0.13, 0.14), "knee_servo": (0.13, 0.13, 0.14),
     "abd_servo": (0.13, 0.13, 0.14), "hip_horn": (0.96, 0.96, 0.96), "knee_horn": (0.96, 0.96, 0.96),
     "abd_horn": (0.96, 0.96, 0.96),
+    "shell": (0.95, 0.95, 0.93), "rigidity_plate": (0.80, 0.82, 0.86), "bracket": (0.91, 0.90, 0.87),
+    "outer_arm": (0.30, 0.52, 0.84), "shank_outer": (0.78, 0.80, 0.83), "shank_inner": (0.78, 0.80, 0.83),
+    "shank_body": (0.66, 0.68, 0.72),
     "body": (0.95, 0.95, 0.93), "bezel": (0.96, 0.72, 0.05), "screen": (0.03, 0.03, 0.04),
     "eyes": (0.25, 0.85, 1.0), "tail": (0.12, 0.12, 0.13),
 }
@@ -82,8 +86,23 @@ def pt(r, a, base=(0.0, 0.0)):
 MX, MY = np.diag([-1.0, 1, 1, 1]), np.diag([1.0, -1, 1, 1])
 
 
+def leg_poses_braced(t, q, a):
+    """MicroDuck-braced leg: the servos ride in the thigh, the shank on the knee horn; no linkage."""
+    s = t + q
+    K = pt(C["L_THIGH"], t)
+    thigh, shank = Ry(-(t + 90)), T(K[0], 0, K[1]) @ Ry(-(s + 90))
+    abd = T(0, C["ABD_Y"], 0) @ Rx(a) @ T(0, -C["ABD_Y"], 0)
+    out = {}
+    for n in C["parts"]:
+        m = thigh if n in C["THIGH_PARTS"] else shank if n in C["SHANK_PARTS"] else np.eye(4)
+        out[n] = m if n in ("abd_servo", "abd_mount") else abd @ m
+    return out
+
+
 def leg_poses(t, q, a):
     """{part: 4x4} in the front-left leg frame."""
+    if C.get("STYLE") == "braced":
+        return leg_poses_braced(t, q, a)
     s = t + q
     phi = s + C["ALPHA"]
     psi = phi + C["BETA"]
@@ -103,6 +122,8 @@ def leg_poses(t, q, a):
 
 
 def servo_angle(t, q):
+    if C.get("STYLE") == "braced":
+        return 0.0
     return (t + q + C["ALPHA"] + C["BETA"] - C["KNEE_MID"] + 180.0) % 360.0 - 180.0
 
 
@@ -216,6 +237,9 @@ def render(out, stills=None):
         cam.distance = 0.38 if close else 0.50
         cam.azimuth = 150 + 25 * math.sin(tm / total * 2 * math.pi)
         cam.elevation = -16
+        if FRONT:   # straight on from the front, fixed scale, for comparing leg styles
+            cam.lookat[:] = (xb / 1000, 0, (z - 20) / 1000)
+            cam.distance, cam.azimuth, cam.elevation = 0.42, 180, -4
         r.update_scene(data, camera=cam)
         frames.append(r.render())
     print(f"{len(frames)} frames, knee servo at most {worst:.0f} deg from centre (usable {C['KNEE_WINDOW']:.0f})")
@@ -229,6 +253,8 @@ def render(out, stills=None):
 
 if __name__ == "__main__":
     out = sys.argv[1]
+    FRONT = "--front" in sys.argv
+    sys.argv = [a for a in sys.argv if a not in ("--braced", "--front")]
     st = None
     if "--frames" in sys.argv:
         st = [int(x) for x in sys.argv[sys.argv.index("--frames") + 1].split(",")]

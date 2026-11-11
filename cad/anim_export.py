@@ -1,7 +1,7 @@
 """Exports the meshes and constants for animate.py: every leg part in its own joint frame, in the four mirror variants
 (fl: as modelled; fr: mirrored left-right; rl: the holder side mirrored front-back; rr: both), plus a body shell.
 
-Usage: cad/.venv/Scripts/python cad/anim_export.py      (writes cad/anim/; git-ignored)
+Usage: cad/.venv/Scripts/python cad/anim_export.py [--braced]   (writes cad/anim/ or cad/anim_braced/; git-ignored)
 """
 import json
 import sys
@@ -13,7 +13,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 import leg as LG  # noqa: E402
 import servo as SV  # noqa: E402
 
-OUT = Path(__file__).parent / "anim"
+BRACED = "--braced" in sys.argv
+if BRACED:
+    import leg_braced as LB  # noqa: E402
+OUT = Path(__file__).parent / ("anim_braced" if BRACED else "anim")
 
 # Robot layout for the picture (PLACEHOLDER body: the simulation's micro trunk, narrowed to 44 mm so the legs' pins
 # clear its side walls; the abduction axes end up 14.5 mm either side of the middle, the sim has 12).
@@ -25,6 +28,8 @@ BODY = dict(x0=-85.0, x1=85.0, z0=-27.0, z1=36.0)
 
 def local_parts():
     """{name: shape} in the frames animate.py poses them in."""
+    if BRACED:
+        return LB.local_parts()
     p = {n: LG.part(n) for n in ("holder", "cover", "outer_plate", "inner_plate", "bridge", "shank", "foot",
                                  "bellcrank", "knee_crank", "long_link", "short_link", "abd_mount")}
     p["hip_servo"] = SV.body()
@@ -51,8 +56,9 @@ def body_parts():
 
 def main():
     OUT.mkdir(exist_ok=True)
+    side_set = LB.HOLDER_SIDE if BRACED else LG.HOLDER_SIDE
     for name, s in local_parts().items():
-        side = name in LG.HOLDER_SIDE
+        side = name in side_set
         variants = {"fl": s, "fr": s.mirror(Plane.XZ)}
         variants["rl"] = s.mirror(Plane.YZ) if side else s
         variants["rr"] = variants["rl"].mirror(Plane.XZ)
@@ -62,7 +68,10 @@ def main():
         export_stl(s, str(OUT / f"{name}.stl"), tolerance=0.05, angular_tolerance=0.2)
     consts = {k: getattr(LG, k) for k in ("L_THIGH", "L_SHANK", "T_HOME", "Q_HOME", "KS_Z", "ABD_Y", "RB", "RS",
                                           "ALPHA", "BETA", "KNEE_MID", "KNEE_WINDOW", "FOOT_R")}
-    consts.update(HIP_X=HIP_X, LEG_Y=LEG_Y, BODY=BODY, HOLDER_SIDE=list(LG.HOLDER_SIDE),
+    if BRACED:
+        consts.update(ABD_Y=LB.ABD_Y, THIGH_PARTS=list(LB.THIGH_PARTS), SHANK_PARTS=list(LB.SHANK_PARTS))
+    consts.update(STYLE="braced" if BRACED else "orion")
+    consts.update(HIP_X=HIP_X, LEG_Y=LEG_Y, BODY=BODY, HOLDER_SIDE=list(side_set),
                   parts=list(local_parts()), body_parts=list(body_parts()))
     (OUT / "consts.json").write_text(json.dumps(consts, indent=1))
     print("wrote", OUT, len(list(OUT.glob("*.stl"))), "meshes")

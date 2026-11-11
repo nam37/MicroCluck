@@ -11,7 +11,45 @@ cad/.venv/Scripts/python cad/render.py out.png [thigh knee abduction]
 
 Set up the environment once with `python -m venv cad/.venv` and `cad/.venv/Scripts/python -m pip install build123d matplotlib`.
 
-## The leg (10 Nov 2026)
+## The braced leg (chosen, 10 Nov 2026): `leg_braced.py`
+
+After Pollen's MicroDuck leg: 12 MG92B, three per leg, with the hip and knee servos inside the thigh. This replaces the Orion-style leg below, which came out too wide.
+
+```
+cad/.venv/Scripts/python cad/leg_braced.py              # parts -> stl/braced/, assembly -> step/braced-home.step
+cad/.venv/Scripts/python cad/check_fit.py all --braced  # add --rear for a rear leg
+cad/.venv/Scripts/python cad/anim_export.py --braced    # then animate.py OUT.mp4 --braced in WSL
+```
+
+**How it's built:**
+
+- **Thigh shell and rigidity plate (`shell`, `rigidity-plate`).**
+  - The hip servo sits at the top of the thigh and the knee servo at the bottom, both along the thigh, held by their tabs on the shell's end and middle blocks with the servo bag's M2 screws. The middle block leaves 1.6 mm between the two servos' tabs.
+  - The rigidity plate covers the servos' case tops, around their bosses. Six M2 × 8 screws hold it into bosses on the shell's sides. So each servo case is clamped from both sides and becomes part of the structure, as in MicroDuck.
+  - The shell's back carries the hip and knee pins: an M3 nut trapped from the servo side, and a standoff for a bearing's inner race.
+- **Hip bracket (`bracket`, `outer-arm`).** A U around the top of the thigh.
+  - The outer arm is screwed to the hip horn. It is a separate part (two M2.5 × 10 into the beam), so the thigh can go in.
+  - The inner arm carries a 693 on the hip pin. The hip servo's body turns with the thigh, and the joint is held on both sides.
+  - The beam over the thigh sits above the circle the shell's top sweeps (11.6 mm). The abduction plates hang from it: the horn in front, a 693 behind on the pin from the body-side cap (`abd-mount`), as in the Orion leg.
+- **Shank (`shank-outer`, `shank-inner`, `shank-body`, `foot`).** A fork: the outer plate on the knee horn, the inner plate on a 693 on the knee pin. The body joins them 26–31 mm below the knee and carries the bar to the foot stub. That is far enough down for the knee to fold to 150°.
+
+**Range of motion:** no collisions over any of the 27 test poses, front and rear legs.
+
+| Joint | Range |
+| --- | --- |
+| Knee | 0–150° (the sim's full range); the knee servo is the knee joint, with no linkage |
+| Hip | 70° back to 80° forward of home |
+| Abduction | ±29° in every combination |
+
+The abduction axis is 24 mm inside the servos' case bottoms, 4 mm further in than the Orion leg. That way, outward abduction swings the bracket's inner arm over the abduction servo, not into it.
+
+**Width:** the leg spans from 10.7 mm inside the servos' case bottoms to 35.8 mm outside them, 46.5 mm in all, against 69 mm for the Orion leg. With a 44 mm body the shoulders are about 141 mm across and the feet about 95 mm apart (Orion leg: 184 and 153).
+
+**Mass:** the moving printed parts come to 32 g per leg (Orion leg: 38 g). Add three 693s and about 5 g of screws. The knee servo's 13.8 g sits at the knee, so the leg is heavier to swing than the Orion leg's but lighter overall.
+
+**Placeholders:** the same servo and horn sizes as below, checked by the same fit coupons. The middle block's 1.6 mm between the servos' tabs depends on the tab span; if the real tabs are longer, trim them.
+
+## The Orion-style leg (superseded, 10 Nov 2026): `leg.py`
 
 There are 12 TowerPro MG92B servos, three per leg (abduction, hip and knee), arranged after the [Orion quadruped](https://github.com/AshishA26/Orion-Quadruped). The leg sizes are the simulation's: the thigh is 45 mm from hip to knee, the shank is 45 mm from knee to foot centre, and the foot is a 14 mm ball.
 
