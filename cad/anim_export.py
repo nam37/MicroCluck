@@ -42,6 +42,13 @@ def local_parts():
 
 
 def body_parts():
+    if BRACED:   # the body in the simulation's style, built around the braced legs (body.py)
+        import body as BD
+        return BD.parts()
+    return _box_body_parts()
+
+
+def _box_body_parts():
     b = Pos((BODY["x0"] + BODY["x1"]) / 2, 0, (BODY["z0"] + BODY["z1"]) / 2) * Box(
         BODY["x1"] - BODY["x0"], 2 * BODY_HALF_W, BODY["z1"] - BODY["z0"])
     b = fillet(b.edges(), 8.0)
@@ -71,7 +78,11 @@ def main():
     if BRACED:
         consts.update(ABD_Y=LB.ABD_Y, THIGH_PARTS=list(LB.THIGH_PARTS), SHANK_PARTS=list(LB.SHANK_PARTS))
     consts.update(STYLE="braced" if BRACED else "orion")
-    consts.update(HIP_X=HIP_X, LEG_Y=LEG_Y, BODY=BODY, HOLDER_SIDE=list(side_set),
+    leg_y = LEG_Y
+    if BRACED:
+        import body as BD
+        leg_y = BD.LEG_Y
+    consts.update(HIP_X=HIP_X, LEG_Y=leg_y, BODY=BODY, HOLDER_SIDE=list(side_set),
                   parts=list(local_parts()), body_parts=list(body_parts()))
     (OUT / "consts.json").write_text(json.dumps(consts, indent=1))
     print("wrote", OUT, len(list(OUT.glob("*.stl"))), "meshes")
