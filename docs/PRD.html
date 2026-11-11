@@ -409,13 +409,38 @@ svg text { font-family: var(--font-body); }
 <p><strong>Phase A</strong> builds MicroPup in simulation: the model, the walking policy, the design checks, the C port of the policy and the virtual MicroPup (§8). <strong>Phase B</strong> builds the robot, starting with a bench measurement of the servo (H0) that replaces the datasheet servo model. Because the parts are cheap and in stock, bench bring-up can start as soon as they arrive, alongside Phase A.</p>
 
 <h3>Purchase plan</h3>
+<p>Spend in steps, so that most of the servo money waits until a bench test has picked the servo. Two levers keep the up-front cost down: <strong>the servo source is chosen by measurement</strong> (branded MG92B against clones at about half the price), and <strong>the abduction servos go in last</strong>. The first walk uses only the hips and knees (§7.2), so the robot can be built and walk with printed blocks in the four abduction mounts, and get its sway and lean when the servos are added. Clones would bring the total to about $205–275 against $260–360; fitting the abduction servos last moves about $20–50 of that until after the first walk.</p>
 <div class="tbl"><table>
-  <thead><tr><th>When</th><th>Buy</th><th>Why</th></tr></thead>
+  <thead><tr><th>Step</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
-    <tr><td>Now, if the simulation passes (§7.2)</td><td>The Waveshare ESP32-P4 kit, three MG92B for H0, the PCA9685, the 6 V regulator, the IMU and the 1.69" screen (about $100)</td><td>Servo measurement (H0) and board bring-up (H1, V0, F0) need them, and they are the same in every remaining design option.</td></tr>
-    <tr><td>At design freeze</td><td>The other eleven MG92B (or the alternative servo, §13), the pot ADC, the 693 bearings, the VL53L5CX, battery and charger, INA226, buck, connectors, print material</td><td>The mechanical design is frozen in H3.</td></tr>
+    <tr><td>v0 now: servo bench test</td><td>The v0 bench kit below: four branded MG92B and four or five clones, the PCA9685, ADC, INA226, IMU, 6 V regulator and the Waveshare kit (about $145–215, of which about $65–85 is needed anyway; the winning batch's servos go into the robot)</td><td>H0 decides the servo source: if the clones measure close to the branded servos, the robot uses clones and saves about $40–70.</td></tr>
+    <tr><td>After H0</td><td>The 1.69" screen, and eight more leg servos from the winning source (or the Mini Pupper 2 servo, §13), for the hips and knees</td><td>Board bring-up (H1, V0, F0) and a walking robot on eight servos.</td></tr>
+    <tr><td>At design freeze</td><td>The pot ADC for twelve channels, the 693 bearings, the VL53L5CX, battery and charger, buck, connectors, print material</td><td>The mechanical design is frozen in H3.</td></tr>
+    <tr><td>After the first walk (H5)</td><td>The four abduction servos and spares</td><td>Expressive moves while standing, and later a looser walk that uses abduction a little.</td></tr>
   </tbody>
 </table></div>
+
+<h3 id="bom-v0">v0 bench BOM: branded MG92B against clones</h3>
+<p>Everything needed to measure two batches side by side in H0. Estimates; check prices and listings before ordering. Each batch comes from one listing, so its spread is a fair sample. Prices for "needed anyway" parts are the same as in the full BOM (§6.1).</p>
+<div class="tbl"><table>
+  <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
+  <tbody>
+    <tr><td>TowerPro MG92B, branded, from one reputable seller</td><td>4</td><td>Batch A. Three to measure, one for the destructive tests (stall to failure, gear strength)</td><td>~$40–60</td></tr>
+    <tr><td>MG92B clone, one AliExpress or Amazon listing</td><td>4–5</td><td>Batch B, same tests. Usually sold in packs of 4 or 5</td><td>~$16–30</td></tr>
+    <tr><td>ADS1115 16-bit ADC breakout</td><td>2</td><td>Four wipers each, so all eight servos can be read on one bus; about 0.01° steps over the potentiometer's range</td><td>~$8–12</td></tr>
+    <tr><td>30 AWG silicone wire, heat shrink</td><td>–</td><td>A wire from each servo's potentiometer wiper out through the case</td><td>~$6–10</td></tr>
+    <tr><td>Steel nuts and washers as test weights, servo extension leads, jumper wires, a breadboard</td><td>–</td><td>The weights hang on a printed pendulum arm; weigh them on a kitchen scale</td><td>~$10–15</td></tr>
+    <tr><td>Printed test rig: a servo clamp and a 50 mm pendulum arm with a hook</td><td>–</td><td>From the CAD's servo pocket, so it doubles as a fit check of both batches; own filament</td><td>–</td></tr>
+    <tr class="total"><td>Bench-only parts</td><td></td><td></td><td><strong>~$80–130</strong></td></tr>
+    <tr><td>Waveshare ESP32-P4-WIFI6 Kit A</td><td>1</td><td>Needed anyway. Runs the test at 50 Hz like the robot will; any ESP32 board already owned works too</td><td>$34.55</td></tr>
+    <tr><td>PCA9685 16-channel PWM board</td><td>1</td><td>Needed anyway; the same 4.9 µs pulse steps as the robot</td><td>~$5–8</td></tr>
+    <tr><td>INA226 power monitor breakout</td><td>1</td><td>Needed anyway; servo current, the stand-in for load in S4</td><td>~$5</td></tr>
+    <tr><td>IMU breakout (LSM6DSOX or similar)</td><td>1</td><td>Needed anyway; on the pendulum arm it gives the true angle to check the potentiometer against</td><td>~$10–15</td></tr>
+    <tr><td>6 V, 5 A regulator, 470 µF capacitor, and a 7.4–12 V supply (a wall adapter or a bench supply if owned)</td><td>1</td><td>Needed anyway, except the supply; tests at 5.6 and 6.0 V</td><td>~$10–22</td></tr>
+    <tr class="total"><td>Needed anyway</td><td></td><td></td><td><strong>~$65–85</strong></td></tr>
+  </tbody>
+</table></div>
+<p><strong>What decides it.</strong> Both batches go through the same tests (H0). The clones win if, across the batch, their stall torque at 6 V is within about 15% of the branded servos', their deadband is at most 1°, their potentiometer reads within the noise training assumes (±0.02 rad, §7.1), the fit check passes, and no clone is an outlier. Anything else, and the robot uses the branded servos.</p>
 
 <h3>Which machine does what</h3>
 <div class="tbl"><table>
@@ -532,7 +557,7 @@ svg text { font-family: var(--font-body); }
   <tbody>
     <tr><td>Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>1</td><td>The robot's only board. ESP32-P4 listed at 400 MHz, ESP32-C6 for Wi-Fi 6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. Amazon, $34.55 on 9 November 2026, in stock</td><td>$34.55</td></tr>
     <tr><td>Waveshare 1.69" LCD module, 240 × 280, ST7789V2, SPI</td><td>1</td><td>The face. A touch version exists if touch is wanted later (§13)</td><td>~$12–15</td></tr>
-    <tr><td>TowerPro MG92B metal-gear micro servo</td><td>14</td><td>Twelve legs and two spares. One reputable seller, so the batch is consistent. Three bought first for H0</td><td>~$112–168</td></tr>
+    <tr><td>TowerPro MG92B metal-gear micro servo, branded or clone (H0 decides)</td><td>14</td><td>Twelve legs and two spares. One seller, so the batch is consistent. The abduction four can come last (§3). Clones would be about $56–84</td><td>~$112–168</td></tr>
     <tr><td>693 ball bearing, 3 × 8 × 4 mm</td><td>20-pack</td><td>Three per leg (hip pin, knee pin, abduction pin) and spares</td><td>~$8–12</td></tr>
     <tr><td>I2C ADC for the potentiometers, 12 channels (for example two ADS7828)</td><td>1–2</td><td>Reads the twelve wipers at 50 Hz on the shared I2C bus (§6.3); the part is chosen in H0</td><td>~$10–15</td></tr>
     <tr><td>SG90 micro servo</td><td>1–2</td><td>Tail</td><td>~$3–5</td></tr>
@@ -916,7 +941,7 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
   <tbody>
-    <tr><td>H0 Servo measurement</td><td>Two or three MG92B on a bench rig with a pendulum arm and the potentiometer wired out: step responses, speed and torque at 5.6–6.0 V, deadband, pulse-to-angle calibration, behaviour without pulses (limp or holding), and spread across the batch. Results fitted into the servo model (S6).</td></tr>
+    <tr><td>H0 Servo measurement</td><td>Two batches of MG92B, branded and clone, on the v0 bench rig (§3) with a pendulum arm and the potentiometers wired out: step responses, speed and torque at 5.6–6.0 V, deadband, pulse-to-angle calibration, potentiometer noise and linearity against the IMU, current, behaviour without pulses (limp or holding), and spread across each batch. Picks the servo source. Results fitted into the servo model (S6).</td></tr>
     <tr><td>H1 Board bring-up</td><td>On the Waveshare board: PCA9685 driving 13 servos at 50 Hz with OE enable and disable; the pot ADC reading 12 wipers every cycle; IMU at 500 Hz or more; VL53L5CX at 15 Hz; INA226; the 1.69" screen running LVGL; all at once with the camera streaming and Wi-Fi up, and <code>control_task</code> p99 jitter ≤ 1 ms. Header pinout confirmed. Walking current measured.</td></tr>
     <tr><td>V0 Camera</td><td>MJPEG on the phone; a standing person's face found from 0.5 to 3 m with the camera tilted up; pedestrian detection measured while streaming (fps and latency) as the go or no-go for v2 following; the kit camera's field of view judged.</td></tr>
     <tr><td>F0 Face and voice</td><td>The rewritten face on the 1.69" screen with the core expressions and stabilized eyes; the relay's voice conversation working on the P4; the phone page and WebSocket.</td></tr>
