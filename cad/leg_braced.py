@@ -214,16 +214,36 @@ def shank_body():
     Shank-local. Print on its side."""
     b = cy(FORK_ROD_R, IN_Y1, OUT_Y0, *FORK_P1)
     b += bar(FORK_P1, FORK_P2, 6.0, Y_MID - 3.0, Y_MID + 3.0)
-    b += bar(FORK_P2, (0, -(L_SHANK - 6.0)), 6.0, Y_MID - 3.0, Y_MID + 3.0)
-    b += Pos(0, Y_MID, -(L_SHANK - 3.0) - 0.01) * Cylinder(3.0, 6.0)
+    b += bar(FORK_P2, (0, -(L_SHANK - BALL_R - 2.0)), 6.0, Y_MID - 3.0, Y_MID + 3.0)
+    b += foot_cup()
     b -= cy(M25_PILOT / 2, IN_Y1 - 1, IN_Y1 + 8, *FORK_P1)
     b -= cy(M25_PILOT / 2, OUT_Y0 - 8, OUT_Y0 + 1, *FORK_P1)
     return b
 
 
+# --- foot (11 Nov 2026): a bought solid rubber ball snapped into a cup on the shank: McMaster 1854T54, Buna-N (nitrile),
+# 1/2" (12.7 mm), 70A. The cup wraps CUP_PAST below the ball's middle, so its mouth is ~0.1 mm per side narrower than the
+# ball and the ball clicks in (a drop of CA glue keeps it); a hole in the top pushes a worn ball out.
+# The grip is two cheeks at the ball's sides (along the knee axis, y), CHEEK_W wide: the shank's swing tilts the cup front
+# and back, so front and back are cut away above the ball's middle (CUP_FB_TOP), or their rim would reach the floor with
+# the shank angled 58 deg or more (crouching, folding).
+BALL_R = 12.7 / 2
+CUP_T, CUP_PAST, CUP_PUSH_D = 1.0, 1.0, 2.5
+CHEEK_W, CUP_FB_TOP = 5.0, 1.0
+
+
+def foot_cup():
+    c = Pos(0, Y_MID, -L_SHANK) * (Sphere(BALL_R + CUP_T) - Sphere(BALL_R))
+    c -= bx(-10, 10, Y_MID - 10, Y_MID + 10, -L_SHANK - 10, -L_SHANK - CUP_PAST)    # open below CUP_PAST past the middle
+    for x0, x1 in ((CHEEK_W / 2, 10.0), (-10.0, -CHEEK_W / 2)):                    # front and back cut above the middle
+        c -= bx(x0, x1, Y_MID - 10, Y_MID + 10, -L_SHANK - 10, -L_SHANK + CUP_FB_TOP)
+    c -= Pos(0, Y_MID, -L_SHANK + BALL_R) * Cylinder(CUP_PUSH_D / 2, 4.0)
+    return c
+
+
 def foot():
-    f = Pos(0, Y_MID, -L_SHANK) * Sphere(FOOT_R)
-    return f - Pos(0, Y_MID, -(L_SHANK - 3.0) + 0.5) * Cylinder(2.9, 7.0)
+    """The rubber ball (bought, not printed)."""
+    return Pos(0, Y_MID, -L_SHANK) * Sphere(BALL_R)
 
 
 # --- shoulder cover (11 Nov 2026): rides on the bracket's deck, so it follows abduction while the thigh swings under it.
@@ -356,7 +376,7 @@ def posed(t=T_HOME, q=Q_HOME, a=0.0, rear=False):
 
 PRINT = {"shell": Rot(90, 0, 0), "rigidity_plate": Rot(90, 0, 0), "bracket": Rot(0, 90, 0),
          "outer_arm": Rot(-90, 0, 0), "shank_outer": Rot(-90, 0, 0), "shank_inner": Rot(90, 0, 0),
-         "shank_body": Rot(0, 90, 0), "foot": Rot(0, 0, 0), "abd_mount": Rot(180, 0, 0),
+         "shank_body": Rot(0, 90, 0), "abd_mount": Rot(180, 0, 0),     # the foot is a bought ball, not printed
          "shoulder_cover": Rot(180, 0, 0)}
 
 

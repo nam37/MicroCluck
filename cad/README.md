@@ -45,19 +45,23 @@ cad/.venv/Scripts/python cad/anim_export.py --braced    # then animate.py OUT.mp
   - The outer arm is screwed to the hip horn. It is a separate part (two M2.5 × 10 into the beam), so the thigh can go in.
   - The inner arm carries a 693 on the hip pin. The hip servo's body turns with the thigh, and the joint is held on both sides.
   - The beam over the thigh sits above the circle the shell's top sweeps (11.6 mm). The abduction plates hang from it: the horn in front, a 693 behind on the pin from the body-side cap (`abd-mount`), as in the Orion leg.
-- **Shank (`shank-outer`, `shank-inner`, `shank-body`, `foot`): a "heel" fork that tapers to the foot.**
+- **Shank (`shank-outer`, `shank-inner`, `shank-body`): a "heel" fork that tapers to the foot.**
   - The outer plate sits on the knee horn, with the horn's arm pointing back along the plate. The inner plate turns on a 693 on the knee pin.
   - Both plates reach back and up from the knee to a 7 mm rod 19 mm behind it. Each plate is held to the rod's end by one M2.5 × 8.
-  - From the rod, a 6 mm bar runs around the back of the knee and down to the foot stub. Below the knee, the leg is only that bar.
+  - From the rod, a 6 mm bar runs around the back of the knee and down to the foot cup. Below the knee, the leg is only that bar.
   - The folding thigh only sweeps the shank's front: from straight up at a straight knee to 30° short of straight down at 150°. So the rod and the bar stay clear of it.
+- **Foot: a bought rubber ball** (11 Nov 2026), 1/2" (12.7 mm) Buna-N (nitrile), 70A: USASEALING "Buna-N Rubber Ball, 70A, 1/2 in Diameter, Pack of 5" on Amazon, or McMaster 1854T54. Not printed.
+  - It snaps into a cup at the end of the shank bar: two 5 mm-wide cheeks at the ball's sides wrap 1 mm past its middle, so the cup's mouth is about 0.08 mm per side narrower than the ball. A drop of CA glue keeps it.
+  - Front and back the cup stops 1 mm above the ball's middle. The shank's swing tilts the cup forward and back, and a full cup's rim would reach the floor with the shank angled 58° or more (crouching).
+  - A 2.5 mm hole in the top of the cup pushes a worn ball out.
 
-**Foot first.** How far the leg can lean sideways (abduction plus body roll) before any other part touches a flat floor ahead of the foot. The figures come from `foot_first.py`.
+**Foot first.** How far the leg can lean sideways (abduction plus body roll) before any other part touches a flat floor ahead of the foot. The figures come from `foot_first.py`, which lets the ball roll as the leg leans.
 
-| Pose | First fork, crossbar 26–31 mm below the knee | Heel fork |
-| --- | --- | --- |
-| Straight leg | 41° (fork plates) | 63° (hip bracket) |
-| Standing (home) | 36° (fork plates) | 58° (hip bracket) |
-| Crouched (hip 48 mm up) | 27° (fork plates), less than the abduction range | 43° (fork plates at the knee) |
+| Pose | First fork, crossbar 26–31 mm below the knee | Heel fork, 14 mm printed ball | Heel fork, rubber ball in the cup |
+| --- | --- | --- | --- |
+| Straight leg | 41° (fork plates) | 63° (hip bracket) | 52° (cup) |
+| Standing (home) | 36° (fork plates) | 58° (hip bracket) | 44° (cup) |
+| Crouched (hip 48 mm up) | 27° (fork plates), less than the abduction range | 43° (fork plates at the knee) | 39° (cup) |
 
 When the knee is folded to 150°, the heel rod is the lowest point of the leg. That is what a folded leg rests on.
 

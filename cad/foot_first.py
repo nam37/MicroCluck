@@ -17,6 +17,16 @@ POSES = {"home": (LB.T_HOME, LB.Q_HOME), "crouch (h 48)": (-90 - math.degrees(ma
          "straight": (-90.0, 0.0), "folded 150": (LB.T_HOME - 30, 150.0)}
 
 
+def lean(h, d, r=getattr(LB, "BALL_R", LB.FOOT_R)):
+    """The lean (deg) at which a point h above the foot's bottom and d to the side touches the floor, with the ball rolling
+    (the floor stays r below the ball's centre): solve d sin(th) - (h - r) cos(th) = r."""
+    pz = h - r
+    rho = math.hypot(d, pz)
+    if rho <= r:
+        return 90.0
+    return min(90.0, math.degrees(math.atan2(pz, d) + math.asin(r / rho)))
+
+
 def angles(t, q):
     parts = LB.posed(t, q, 0.0)
     foot = parts["foot"].bounding_box()
@@ -31,7 +41,7 @@ def angles(t, q):
         res = []
         for side in (1, -1):
             m = side * dy > 1.0
-            res.append(min(math.degrees(math.atan2(hh, abs(d))) for hh, d in zip(h[m], dy[m])) if m.any() else 90.0)
+            res.append(min(lean(hh, abs(d)) for hh, d in zip(h[m], dy[m])) if m.any() else 90.0)
         out[name] = res
     return out
 
