@@ -18,7 +18,9 @@ After Pollen's MicroDuck leg: 12 MG92B, three per leg, with the hip and knee ser
 ```
 cad/.venv/Scripts/python cad/leg_braced.py              # parts -> stl/braced/, assembly -> step/braced-home.step
 cad/.venv/Scripts/python cad/check_fit.py all --braced  # add --rear for a rear leg
+cad/.venv/Scripts/python cad/foot_first.py              # how far the leg can lean before anything but the foot touches
 cad/.venv/Scripts/python cad/anim_export.py --braced    # then animate.py OUT.mp4 --braced in WSL
+                                                        # (--replay walk.npz: a trained walk from the simulation)
 ```
 
 **How it's built:**
@@ -31,7 +33,21 @@ cad/.venv/Scripts/python cad/anim_export.py --braced    # then animate.py OUT.mp
   - The outer arm is screwed to the hip horn. It is a separate part (two M2.5 × 10 into the beam), so the thigh can go in.
   - The inner arm carries a 693 on the hip pin. The hip servo's body turns with the thigh, and the joint is held on both sides.
   - The beam over the thigh sits above the circle the shell's top sweeps (11.6 mm). The abduction plates hang from it: the horn in front, a 693 behind on the pin from the body-side cap (`abd-mount`), as in the Orion leg.
-- **Shank (`shank-outer`, `shank-inner`, `shank-body`, `foot`).** A fork: the outer plate on the knee horn, the inner plate on a 693 on the knee pin. The body joins them 26–31 mm below the knee and carries the bar to the foot stub. That is far enough down for the knee to fold to 150°.
+- **Shank (`shank-outer`, `shank-inner`, `shank-body`, `foot`): a "heel" fork that tapers to the foot.**
+  - The outer plate sits on the knee horn, with the horn's arm pointing back along the plate. The inner plate turns on a 693 on the knee pin.
+  - Both plates reach back and up from the knee to a 7 mm rod 19 mm behind it. Each plate is held to the rod's end by one M2.5 × 8.
+  - From the rod, a 6 mm bar runs around the back of the knee and down to the foot stub. Below the knee, the leg is only that bar.
+  - The folding thigh only sweeps the shank's front: from straight up at a straight knee to 30° short of straight down at 150°. So the rod and the bar stay clear of it.
+
+**Foot first.** How far the leg can lean sideways (abduction plus body roll) before any other part touches a flat floor ahead of the foot. The figures come from `foot_first.py`.
+
+| Pose | First fork, crossbar 26–31 mm below the knee | Heel fork |
+| --- | --- | --- |
+| Straight leg | 41° (fork plates) | 63° (hip bracket) |
+| Standing (home) | 36° (fork plates) | 58° (hip bracket) |
+| Crouched (hip 48 mm up) | 27° (fork plates), less than the abduction range | 43° (fork plates at the knee) |
+
+When the knee is folded to 150°, the heel rod is the lowest point of the leg. That is what a folded leg rests on.
 
 **Range of motion:** no collisions over any of the 27 test poses, front and rear legs.
 
@@ -45,7 +61,7 @@ The abduction axis is 24 mm inside the servos' case bottoms, 4 mm further in tha
 
 **Width:** the leg spans from 10.7 mm inside the servos' case bottoms to 35.8 mm outside them, 46.5 mm in all, against 69 mm for the Orion leg. With a 44 mm body the shoulders are about 141 mm across and the feet about 95 mm apart (Orion leg: 184 and 153).
 
-**Mass:** the moving printed parts come to 32 g per leg (Orion leg: 38 g). Add three 693s and about 5 g of screws. The knee servo's 13.8 g sits at the knee, so the leg is heavier to swing than the Orion leg's but lighter overall.
+**Mass:** the moving printed parts come to 33 g per leg (Orion leg: 38 g). Add three 693s and about 5 g of screws. The knee servo's 13.8 g sits at the knee, so the leg is heavier to swing than the Orion leg's but lighter overall.
 
 **Placeholders:** the same servo and horn sizes as below, checked by the same fit coupons. The middle block's 1.6 mm between the servos' tabs depends on the tab span; if the real tabs are longer, trim them.
 

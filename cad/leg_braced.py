@@ -53,7 +53,15 @@ SWEEP_R = math.hypot(SHELL_HW, SHELL_TOP + SHELL_HW) + 0.2   # what the shell's 
                                                               # bottom end about the knee): 11.6 mm
 BEAM_Z0 = SWEEP_R + 1.8                   # the bracket's beam over the thigh, 13.4 .. 16.4
 BEAM_Z1 = BEAM_Z0 + 3.0
-FORK_Z = (-31.0, -26.5)               # shank-local: the fork's bridge, far enough down that the knee folds to 150
+# Shank-local "heel" fork (11 Nov 2026): the fork plates and the rod joining them sit behind and above the knee, on a
+# circle of FORK_R about it, so the leg's wide parts stay near knee height and the leg tapers to the foot. The folding
+# thigh only sweeps the shank's front (from straight up at q = 0, through forward, to 30 deg short of straight down at
+# q = 150); everything within ~13 mm of the knee is swept by the shell's end, so the rod and the bar around the back of
+# the knee keep FORK_R from it. Foot-first lean (foot_first.py): see README.
+FORK_R, FORK_A, FORK_B = 19.0, 140.0, 200.0   # radius about the knee; the rod's angle and the bar's bend (from +x to +z)
+FORK_P1 = (FORK_R * math.cos(math.radians(FORK_A)), FORK_R * math.sin(math.radians(FORK_A)))
+FORK_P2 = (FORK_R * math.cos(math.radians(FORK_B)), FORK_R * math.sin(math.radians(FORK_B)))
+FORK_ROD_R = 3.5
 
 # --- abduction (axis along x at (y, z) = (ABD_Y, 0); servo shifted forward so its mount clears the inner arm) -------
 ABD_Y = -24.0      # 4 mm further in than the Orion leg: outward abduction then swings the inner arm over the servo
@@ -160,39 +168,44 @@ def outer_arm():
     return a
 
 
+def _plate(y0, y1):
+    return cy(HUB_R, y0, y1) + bar((0, 0), FORK_P1, 10.0, y0, y1)
+
+
 def shank_outer():
-    """Shank fork's outer plate on the knee horn (its arm along the shank). Shank-local. Inner face down."""
-    p = cy(HUB_R, OUT_Y0, OUT_Y1) + bar((0, 0), (0, FORK_Z[0] + 2.5), 10.0, OUT_Y0, OUT_Y1)
-    p -= SV.horn_pocket(SV.HORN_ARM_L, -90.0, OUT_Y0, SV.HORN_ARM_T + 0.2)
+    """Shank fork's outer plate on the knee horn, the horn's arm pointing back along the plate to the heel bridge.
+    Shank-local. Inner face down."""
+    p = _plate(OUT_Y0, OUT_Y1)
+    p -= SV.horn_pocket(SV.HORN_ARM_L, FORK_A, OUT_Y0, SV.HORN_ARM_T + 0.2)
     p -= cy(M2_CLEAR / 2, OUT_Y0 - 1, OUT_Y1 + 1)
     p -= cy(M2_HEAD_D / 2 + 0.2, OUT_Y1 - 1.6, OUT_Y1 + 1)
+    ca, sa = math.cos(math.radians(FORK_A)), math.sin(math.radians(FORK_A))
     for r in SV.HORN_HOLES:
-        p -= cy(M2_CLEAR / 2, OUT_Y0 - 1, OUT_Y1 + 1, 0, -r)
+        p -= cy(M2_CLEAR / 2, OUT_Y0 - 1, OUT_Y1 + 1, r * ca, r * sa)
     return _fork_screw(p, OUT_Y1, -1)
 
 
 def shank_inner():
     """Shank fork's inner plate on the bearing behind the knee servo. Shank-local. Pocket side down."""
-    p = cy(HUB_R, IN_Y0, IN_Y1) + bar((0, 0), (0, FORK_Z[0] + 2.5), 10.0, IN_Y0, IN_Y1)
+    p = _plate(IN_Y0, IN_Y1)
     p -= bearing_pocket_y(IN_Y0, +1)
     return _fork_screw(p, IN_Y0, +1)
 
 
 def _fork_screw(p, y_out, into):
-    return p - cy(M25_CLEAR / 2, y_out - into * 1, y_out + into * 6, 0, sum(FORK_Z) / 2)
+    return p - cy(M25_CLEAR / 2, y_out - into * 1, y_out + into * 6, *FORK_P1)
 
 
 def shank_body():
-    """The fork's bridge, the bar down to the foot and the foot's stub; one M2.5 x 8 from each fork plate. Shank-local.
-    Print on its side."""
-    zc = sum(FORK_Z) / 2
-    b = bx(-5.0, 5.0, IN_Y1, OUT_Y0, FORK_Z[0], FORK_Z[1])
-    b += bar((0, zc), (0, -(L_SHANK - 6.0)), 6.0, Y_MID - 3.0, Y_MID + 3.0)
+    """The heel bridge (a rod across the fork behind and above the knee, clear of the folding thigh), the bar around the
+    back of the knee and down to the foot, and the foot's stub; one M2.5 x 8 from each fork plate into the rod's ends.
+    Shank-local. Print on its side."""
+    b = cy(FORK_ROD_R, IN_Y1, OUT_Y0, *FORK_P1)
+    b += bar(FORK_P1, FORK_P2, 6.0, Y_MID - 3.0, Y_MID + 3.0)
+    b += bar(FORK_P2, (0, -(L_SHANK - 6.0)), 6.0, Y_MID - 3.0, Y_MID + 3.0)
     b += Pos(0, Y_MID, -(L_SHANK - 3.0) - 0.01) * Cylinder(3.0, 6.0)
-    b -= cy(M25_PILOT / 2, IN_Y1 - 1, IN_Y1 + 8, 0, zc)
-    b -= cy(M25_PILOT / 2, OUT_Y0 - 8, OUT_Y0 + 1, 0, zc)
-    b -= bx(-6, 6, IN_Y1 + 9, Y_MID - 4.0, FORK_Z[0] + 1.5, FORK_Z[1] - 1.5)          # lighten
-    b -= bx(-6, 6, Y_MID + 4.0, OUT_Y0 - 9, FORK_Z[0] + 1.5, FORK_Z[1] - 1.5)
+    b -= cy(M25_PILOT / 2, IN_Y1 - 1, IN_Y1 + 8, *FORK_P1)
+    b -= cy(M25_PILOT / 2, OUT_Y0 - 8, OUT_Y0 + 1, *FORK_P1)
     return b
 
 
@@ -251,7 +264,7 @@ def local_parts():
     p["knee_servo"] = knee_servo_loc() * SV.body()
     p["abd_servo"] = abd_frame() * SV.body()
     p["hip_horn"] = SV.horn(SV.HORN_ARM_L, 90.0)
-    p["knee_horn"] = SV.horn(SV.HORN_ARM_L, -90.0)
+    p["knee_horn"] = SV.horn(SV.HORN_ARM_L, FORK_A)
     p["abd_horn"] = abd_frame() * SV.horn(SV.HORN_ARM_L, 180.0)
     return p
 
