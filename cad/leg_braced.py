@@ -37,8 +37,10 @@ HERE = Path(__file__).parent
 SHELL_HW = SV.W / 2 + CLR + WALL          # half width across the thigh, 8.7
 SHELL_TOP, SHELL_BOT = 2.5, -(L_THIGH + 2.5)   # centres of the shell's rounded ends (radius SHELL_HW)
 RIG_Y0 = SV.CASE_TOP + 0.2                # rigidity plate over the servos' case tops
-RIG_T = 2.2
-RIG_Y1 = RIG_Y0 + RIG_T                   # 27.4; the horns' hubs start at 28.0
+# as thick as fits under the horn arms that sweep over it (0.4 mm clear): 2.2 mm on the MG92B, 1.35 on the SCS0009,
+# whose horn sits 2.3 mm lower on the case
+RIG_T = min(2.2, SV.HORN_TOP - SV.HORN_ARM_T - 0.4 - RIG_Y0)
+RIG_Y1 = RIG_Y0 + RIG_T
 BOSS_X = SHELL_HW - 0.2                   # rigidity plate screws: M2 into bosses on the shell's sides
 BOSS_R = 2.4
 BOSS_Z = (6.0, -L_THIGH / 2, -L_THIGH - 6.0)
@@ -66,7 +68,9 @@ FORK_ROD_R = 3.5
 
 # --- abduction (axis along x at (y, z) = (ABD_Y, 0); servo shifted forward so its mount clears the inner arm) -------
 ABD_Y = -24.0      # 4 mm further in than the Orion leg: outward abduction then swings the inner arm over the servo
-ABD_SERVO_X0 = -8.5
+# the abduction servo's case bottom: placed so the mount's tab block starts at x = 6.9, clear of the hip bracket's inner
+# hub (radius 6.5 about the hip axis) when it swings out: -8.5 with the MG92B, -7.0 with the SCS0009 (lower tabs)
+ABD_SERVO_X0 = 9.9 - SV.TAB_UNDER
 F_FACE = ABD_SERVO_X0 + SV.HORN_TOP - SV.HORN_ARM_T - 0.2    # 21.7
 F_OUT = F_FACE + 4.0
 ABD_CAP_X0 = ABD_SERVO_X0 - CAP_T                            # -11.7
@@ -130,7 +134,7 @@ def rigidity_plate():
             p += cy(BOSS_R, RIG_Y0, RIG_Y1, sx * BOSS_X, z)
             p -= cy(M2_CLEAR / 2, RIG_Y0 - 1, RIG_Y1 + 1, sx * BOSS_X, z)
     for z in (0.0, -L_THIGH):
-        p -= cy(SV.BOSS_R + 0.6, RIG_Y0 - 1, RIG_Y1 + 1, 0, z)
+        p -= cy(SV.HUB_CLEAR_R, RIG_Y0 - 1, RIG_Y1 + 1, 0, z)
     p -= bx(-4.0, 4.0, RIG_Y0 - 1, RIG_Y1 + 1, -L_THIGH + 14.0, -14.0)       # lighten between the servos
     return p
 

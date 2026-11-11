@@ -13,7 +13,19 @@ Set up the environment once with `python -m venv cad/.venv` and `cad/.venv/Scrip
 
 ## The braced leg (chosen, 10 Nov 2026): `leg_braced.py`
 
-After Pollen's MicroDuck leg: 12 MG92B, three per leg, with the hip and knee servos inside the thigh. This replaces the Orion-style leg below, which came out too wide.
+After Pollen's MicroDuck leg: 12 servos, three per leg, with the hip and knee servos inside the thigh. This replaces the Orion-style leg below, which came out too wide.
+
+**Servo (11 Nov 2026): MangDang's TTL serial bus servo for Mini Pupper 2, in Feetech's SCS0009 case.** `servo.py` has its sizes from the SCS0009 solid and horn in MangDang's Mini Pupper STEP, checked against MangDang's servo drawing. Nothing is measured on a real one yet (H0). Compared with the MG92B stand-in used before:
+
+| | MG92B (stand-in) | SCS0009 case |
+| --- | --- | --- |
+| Body | 22.8 × 12.0 mm, flat top at 25.0 | 23.2 × 12.0 mm, top at 21.5, a gear housing at the shaft end up to 25.5 |
+| Spline top / horn's outer face | 31.0 / 32.0 | 28.7 / 29.7 |
+| Tabs | 18.4–20.9, holes 27.8 apart | 16.9–18.5, holes 28.0 apart (slotted) |
+| Horn | 7 mm hub, arm 1.6 thick, holes at 9 and 13 mm | 6 mm hub, arm 1.9 thick (2.25 with the hub's lip), holes at 7 and 15 mm |
+| Mass | 13.8 g | 13.5 g |
+
+What changed in the leg: the horn sits 2.3 mm lower, so everything on a horn moves 2.95 mm inward and the leg is 2.9 mm narrower. The rigidity plate is 1.35 mm thick (was 2.2), the most that fits under the horn arms sweeping over it. The abduction servo sits 1.5 mm further forward, so its mount's tab block clears the hip bracket's inner hub. `MICROPUP_SERVO=mg92b` builds the MG92B version, the fallback.
 
 ```
 cad/.venv/Scripts/python cad/leg_braced.py              # parts -> stl/braced/, assembly -> step/braced-home.step
@@ -59,7 +71,7 @@ When the knee is folded to 150°, the heel rod is the lowest point of the leg. T
 
 The abduction axis is 24 mm inside the servos' case bottoms, 4 mm further in than the Orion leg. That way, outward abduction swings the bracket's inner arm over the abduction servo, not into it.
 
-**Width:** the leg spans from 10.7 mm inside the servos' case bottoms to 35.8 mm outside them, 46.5 mm in all, against 69 mm for the Orion leg. With a 44 mm body the shoulders are about 141 mm across and the feet about 95 mm apart (Orion leg: 184 and 153).
+**Width:** the leg spans from 10.7 mm inside the servos' case bottoms to 32.9 mm outside them, 43.6 mm in all (46.5 with the MG92B), against 69 mm for the Orion leg. With a 44 mm body the shoulders are about 135 mm across (141 with the MG92B) and the feet about 92 mm apart (Orion leg: 184 and 153).
 
 **Mass:** the moving printed parts come to 33 g per leg (Orion leg: 38 g). Add three 693s and about 5 g of screws. The knee servo's 13.8 g sits at the knee, so the leg is heavier to swing than the Orion leg's but lighter overall.
 
