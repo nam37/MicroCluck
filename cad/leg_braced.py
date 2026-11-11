@@ -21,12 +21,12 @@ import math
 import sys
 from pathlib import Path
 
-from build123d import Compound, Cylinder, Location, Plane, Pos, Rot, Sphere, export_step, export_stl
+from build123d import Compound, Cylinder, Location, Plane, Polygon, Pos, Rot, Sphere, export_step, export_stl, extrude
 
 sys.path.insert(0, str(Path(__file__).parent))
 import servo as SV  # noqa: E402
 from leg import (BRG_B, BRG_D, BRG_FIT, BRG_RACE_D, CAP_T, CLR, FILL, FOOT_R, L_SHANK, L_THIGH, M2_CLEAR, M2_HEAD_D,  # noqa: E402
-                 M25_CLEAR, M25_PILOT, M3_CLEAR, M3_NUT_AF, M3_NUT_T, PLA, Q_HOME, SV_PILOT, T_HOME, WALL, bar,
+                 M2_PILOT, M25_CLEAR, M25_PILOT, M3_CLEAR, M3_NUT_AF, M3_NUT_T, PLA, Q_HOME, SV_PILOT, T_HOME, WALL, bar,
                  bearing_pocket_x, bearing_pocket_y, bx, cx, cy, hex_x, hex_y, pt)
 
 DRAFT = False
@@ -51,7 +51,7 @@ Y_MID = (IN_Y0 + OUT_Y1) / 2              # 12.8, the shank bar and foot centre 
 HUB_R = 6.5
 SWEEP_R = math.hypot(SHELL_HW, SHELL_TOP + SHELL_HW) + 0.2   # what the shell's top end sweeps about the hip (and its
                                                               # bottom end about the knee): 11.6 mm
-BEAM_Z0 = SWEEP_R + 1.8                   # the bracket's beam over the thigh, 13.4 .. 16.4
+BEAM_Z0 = SWEEP_R + 1.8                   # the bracket's beam over the thigh, 16.2 .. 19.2
 BEAM_Z1 = BEAM_Z0 + 3.0
 # Shank-local "heel" fork (11 Nov 2026): the fork plates and the rod joining them sit behind and above the knee, on a
 # circle of FORK_R about it, so the leg's wide parts stay near knee height and the leg tapers to the foot. The folding
@@ -72,6 +72,7 @@ ABD_CAP_X0 = ABD_SERVO_X0 - CAP_T                            # -11.7
 R_FACE = ABD_CAP_X0 - 0.5                                    # -12.2
 R_OUT = R_FACE - 0.5 - BRG_B - 1.0                           # -17.7
 ABD_PLATE_Y0, ABD_LOW_Y1 = ABD_Y - 8.0, -12.0
+ABD_LOBE_R, ABD_WEB_IN = 9.0, 3.5     # the plates' lobe about the axis; the web's reach inward of it
 BEAM_Y0 = -2.5      # the beam along x stays outboard of this, so outward abduction can't swing it into the mount
 OUT_ARM_SCREWS = (-4.0, 4.0)
 
@@ -141,8 +142,12 @@ def bracket():
     b += bx(-HUB_R, HUB_R, IN_Y0, OUT_Y0 - 0.01, BEAM_Z0, BEAM_Z1)                   # beam across, to the outer arm
     b += bx(R_OUT, F_OUT, BEAM_Y0, OUT_Y0 - 6.0, BEAM_Z0, BEAM_Z1)                    # beam along, to the plates
     for xa, xb in ((F_FACE, F_OUT), (R_OUT, R_FACE)):
-        b += bx(xa, xb, ABD_PLATE_Y0, OUT_Y0 - 6.0, BEAM_Z0, BEAM_Z1)                 # plates' tops, in to the axis
-        b += bx(xa, xb, ABD_PLATE_Y0, ABD_LOW_Y1, -9.0, BEAM_Z0 + 0.01)               # plates down inside the body
+        # each plate: its top from the deck in to the axis, a web down to the axis, and a round lobe about the axis for
+        # the horn or the bearing. Kept within ABD_LOBE_R of the axis inward, so the left and right legs' plates stay
+        # apart when both swing out by 29 deg (11 Nov 2026: they used to reach 8 mm past the axis at the top)
+        b += bx(xa, xb, ABD_Y, OUT_Y0 - 6.0, BEAM_Z0, BEAM_Z1)
+        b += bx(xa, xb, ABD_Y - ABD_WEB_IN, ABD_LOW_Y1, 0.0, BEAM_Z0 + 0.01)
+        b += cx(ABD_LOBE_R, xa, xb, ABD_Y, 0.0)
     for x in OUT_ARM_SCREWS:
         b -= cy(M25_PILOT / 2, OUT_Y0 - 8.0, OUT_Y0 + 0.01, x, (BEAM_Z0 + BEAM_Z1) / 2)
     b -= abd_frame() * SV.horn_pocket(SV.HORN_ARM_L, 180.0, SV.HORN_TOP - SV.HORN_ARM_T - 0.2, SV.HORN_ARM_T + 0.21)
@@ -151,6 +156,8 @@ def bracket():
     for r in SV.HORN_HOLES:
         b -= cx(M2_CLEAR / 2, F_FACE - 1, F_OUT + 1, ABD_Y, r)
     b -= bearing_pocket_x(R_FACE, -1, ABD_Y, 0.0)
+    for x, y in COVER_SCREWS:                   # the shoulder cover's M2 x 8
+        b -= Pos(x, y, BEAM_Z1) * Cylinder(M2_PILOT / 2, 6.0)
     return b
 
 
@@ -214,6 +221,43 @@ def foot():
     return f - Pos(0, Y_MID, -(L_SHANK - 3.0) + 0.5) * Cylinder(2.9, 7.0)
 
 
+# --- shoulder cover (11 Nov 2026): rides on the bracket's deck, so it follows abduction while the thigh swings under it.
+# It wraps the front of the hip down past the hip axis and the top, with a short lip at the back; the thigh's sweep allows no
+# more (it swings back to 13 deg above horizontal, forward to 44 deg below). The same part on all four legs (not mirrored
+# with the bracket): the thigh's sweep is the same on every leg. Two M2 x 8 through standoffs into the bracket's deck.
+COVER_X0, COVER_X1 = -20.0, 32.0
+COVER_TOP, COVER_T, COVER_R = 25.0, 1.2, 8.0     # over the deck (16.2..19.2) and the arms' hub ends (22.7), on standoffs
+COVER_FLAP_Z, COVER_LIP_Z, COVER_SKIRT_Z = -10.0, 19.5, 4.0   # the lip stops over the deck (rear legs: it runs back to -25.7)
+COVER_Y0, COVER_Y1 = IN_Y0, OUT_Y1 + 0.4 + COVER_T
+COVER_SCREWS = ((-10.0, 11.0), (10.0, 11.0))
+
+
+def _arc(cx, cz, r, a0, a1, n=12):
+    return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * k / n)), cz + r * math.sin(math.radians(a0 + (a1 - a0) * k / n)))
+            for k in range(n + 1)]
+
+
+def _xz_prism(pts, y0, y1):
+    """An outline in the x-z plane, extruded from y0 to y1 (whichever way the outline runs)."""
+    s = extrude(Plane.XZ * Polygon(*pts, align=None), amount=y1 - y0)
+    return Pos(0, y0 - s.bounding_box().min.Y, 0) * s
+
+
+def shoulder_cover():
+    """Shoulder cover over the bracket. Leg-local (moves with abduction only). Print on its outer side panel."""
+    t, zt, xf, r = COVER_T, COVER_TOP, COVER_X1, COVER_R
+    c0 = (xf - r, zt - r)
+    outer = [(COVER_X0, COVER_LIP_Z), (COVER_X0, zt)] + _arc(*c0, r, 90, 0) + [(xf, COVER_FLAP_Z)]
+    inner = [(xf - t, COVER_FLAP_Z)] + _arc(*c0, r - t, 0, 90) + [(COVER_X0 + t, zt - t), (COVER_X0 + t, COVER_LIP_Z)]
+    c = _xz_prism(outer + inner, COVER_Y0, COVER_Y1)
+    side = [(COVER_X0, COVER_SKIRT_Z), (COVER_X0, zt)] + _arc(*c0, r, 90, 0) + [(xf, COVER_SKIRT_Z)]
+    c += _xz_prism(side, COVER_Y1 - t, COVER_Y1)
+    for x, y in COVER_SCREWS:                  # standoffs down to the deck, M2 x 8 through them
+        c += Pos(x, y, (BEAM_Z1 + zt) / 2) * Cylinder(2.6, zt - BEAM_Z1 - 0.01)
+        c -= Pos(x, y, zt) * Cylinder(M2_CLEAR / 2, 2 * (zt - BEAM_Z1) + 2.0)
+    return c
+
+
 MOUNT_Y0, MOUNT_Y1 = ABD_Y - SV.W / 2 - CLR - 2.0, ABD_Y + SV.W / 2 + CLR
 MOUNT_TOP = -(SV.XC - SV.TAB_SPAN / 2) + 0.5
 
@@ -241,7 +285,7 @@ def abd_mount():
 _PARTS = {}
 BUILD = {"shell": shell, "rigidity_plate": rigidity_plate, "bracket": bracket, "outer_arm": outer_arm,
          "shank_outer": shank_outer, "shank_inner": shank_inner, "shank_body": shank_body, "foot": foot,
-         "abd_mount": abd_mount}
+         "abd_mount": abd_mount, "shoulder_cover": shoulder_cover}
 HOLDER_SIDE = ("bracket", "outer_arm", "hip_horn", "abd_servo", "abd_horn", "abd_mount")
 
 
@@ -296,7 +340,8 @@ def posed(t=T_HOME, q=Q_HOME, a=0.0, rear=False):
 
 PRINT = {"shell": Rot(90, 0, 0), "rigidity_plate": Rot(90, 0, 0), "bracket": Rot(0, 90, 0),
          "outer_arm": Rot(-90, 0, 0), "shank_outer": Rot(-90, 0, 0), "shank_inner": Rot(90, 0, 0),
-         "shank_body": Rot(0, 90, 0), "foot": Rot(0, 0, 0), "abd_mount": Rot(180, 0, 0)}
+         "shank_body": Rot(0, 90, 0), "foot": Rot(0, 0, 0), "abd_mount": Rot(180, 0, 0),
+         "shoulder_cover": Rot(90, 0, 0)}
 
 
 def on_bed(name):
