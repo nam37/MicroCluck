@@ -13,9 +13,15 @@ import numpy as np  # noqa: E402
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).parent))
-import leg as LG  # noqa: E402
+if "--braced" in sys.argv:          # the MicroDuck-braced leg (leg_braced.py)
+    sys.argv.remove("--braced")
+    import leg_braced as LG  # noqa: E402
+else:
+    import leg as LG  # noqa: E402
 
 COLORS = {
+    "shell": "#e9e6df", "rigidity_plate": "#f4f2ec", "bracket": "#c9ccd2", "outer_arm": "#aeb2ba",
+    "shank_outer": "#c9ccd2", "shank_inner": "#c9ccd2", "shank_body": "#aeb2ba", "shoulder_cover": "#f4f2ec",
     "holder": "#e9e6df", "cover": "#f4f2ec", "abd_mount": "#b9b4a8",
     "outer_plate": "#c9ccd2", "inner_plate": "#c9ccd2", "bridge": "#aeb2ba",
     "shank": "#c9ccd2", "foot": "#e8b21c",
