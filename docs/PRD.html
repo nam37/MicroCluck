@@ -318,13 +318,14 @@ svg text { font-family: var(--font-body); }
     <h1>MicroPup</h1>
     <p class="lede">Product requirements for a small, low-cost walking robot dog with a screen for a face.</p>
     <dl class="meta">
-      <div><dt>Status</dt><dd>Draft v0.33</dd></div>
+      <div><dt>Status</dt><dd>Draft v0.34</dd></div>
       <div><dt>Owner</dt><dd>Neil</dd></div>
       <div><dt>Updated</dt><dd>10 November 2026</dd></div>
     </dl>
     <details class="changes">
       <summary>Change history</summary>
       <ul>
+        <li><strong>v0.34</strong> MG92B and 12-servo results (§7.2). With potentiometer read-back the MG92B walks on a <em>learned</em> policy (0.09–0.32 m/s tracking the command, backward too, 1 fall in 32 robot-minutes of pushes); blind it does not. Its scripted trot matches the MG90S at the safe gait and reaches 0.46 m/s at 4 Hz. A third servo per leg (abduction) gives no gain for the trot, so v1 stays at two per leg. The servo choice, and with it the pot read-back, is an open question again (§13).</li>
         <li><strong>v0.33</strong> A scripted trot walks the MG90S micro dog in simulation: 0.16 m/s, steering ±0.84 rad/s, no falls under pushes, load at half of stall. v1 walks with a scripted gait and no joint feedback; learned walking is dropped for v1 (§7.2). The MG92B is being simulated as a stronger option.</li>
         <li><strong>v0.32</strong> First simulation results for the micro dog (§7.2): it stands, never falls and gets up from its belly every time, but neither trained policy walks (about 0.03 m/s with the joints at stall, or standing still). A scripted gait, the planned fallback, is tested next. The model now has the forehead camera and chin ToF.</li>
         <li><strong>v0.31</strong> MicroPup is redesigned around cost. The XL330 dog (v0.24–v0.30) came to about $470–575, more than a $399 Microduck, and no cheaper bus servo could replace the XL330 at that size. This version is a smaller dog on hobby servos: eight MG90S micro servos driven through a PCA9685, one Waveshare ESP32-P4 board for everything (walking, safety, face, voice, camera, Wi-Fi), a Waveshare 1.69" SPI screen as the face, the camera on a forehead strip and a VL53L5CX in the chin, about 160 mm long and 318 g modelled, for about $150–195. The face and voice software is a rewrite for the P4, with DeskSprite as the reference. Walking in simulation is being trained (§7). The XL330 design is kept unchanged in <a href="archive/PRD-MicroPup-v0.30.html">archive/PRD-MicroPup-v0.30.html</a>.</li>
@@ -638,7 +639,32 @@ svg text { font-family: var(--font-body); }
   </tbody>
 </table></div>
 <p><strong>Background.</strong> On 9 November an MG90S dog built around the old design (414 g, with the 60 g FNK0104N face board) stood and got up from its belly every time but barely walked (at most 0.06 m/s), with every joint at its stall torque. The micro design takes about 100 g out of the body to give the servos that margin back. A Feetech STS3215 dog was also tried and rejected (study §8).</p>
-<p><strong>What the result means.</strong> The servos can walk this body; training just did not find how. Standing (0.02 N·m) and belly stand-up (about 0.1 N·m) are well inside the servo, and a hand-written trot (hip ±0.20 rad, knee lift 0.40 rad, diagonal pairs half a cycle apart, 2.5 Hz) walks at 0.16 m/s, steers by shortening the stride on one side, and survives the play pushes. v1 therefore walks with a <strong>scripted gait</strong>: the walk cycle is played as joint targets, the IMU is used for falls and later for balance corrections, and no neural network runs on the body. The MG90S model is still a datasheet estimate, so H0 (bench measurement) stays first. A stronger servo, the TowerPro MG92B (0.343 N·m stall, same speed, 13.8 g, about $8–12), is being simulated for more torque margin (10 November).</p>
+<p><strong>What the result means.</strong> The servos can walk this body; training just did not find how. Standing (0.02 N·m) and belly stand-up (about 0.1 N·m) are well inside the servo, and a hand-written trot (hip ±0.20 rad, knee lift 0.40 rad, diagonal pairs half a cycle apart, 2.5 Hz) walks at 0.16 m/s, steers by shortening the stride on one side, and survives the play pushes. v1 therefore walks with a <strong>scripted gait</strong>: the walk cycle is played as joint targets, the IMU is used for falls and later for balance corrections, and no neural network runs on the body. The MG90S model is still a datasheet estimate, so H0 (bench measurement) stays first. A stronger servo, the TowerPro MG92B (0.343 N·m stall, same speed, 13.8 g, about $8–12), was simulated next; see below.</p>
+<p><strong>MG92B (10 November).</strong> The same micro body with MG92B servos (321 g), trained pot and blind like the MG90S, and run through the same scripted trot.</p>
+<div class="tbl"><table>
+  <thead><tr><th>8 servos</th><th>MG90S</th><th>MG92B</th></tr></thead>
+  <tbody>
+    <tr><td>Learned policy, pot read-back</td><td>Fails: 0.01–0.03 m/s, joints at stall</td><td><strong>Walks:</strong> 0.09 / 0.19 / 0.27 / 0.32 m/s at 0.1–0.4 m/s commands, −0.16 / −0.29 m/s backward, 0 falls; 1 fall in 64 robots × 30 s of pushes; turning weak (0.12 rad/s at a 1.0 command); worst joint 0.19 N·m RMS, 55% of stall; belly stand-up 64/64 under every stress</td></tr>
+    <tr><td>Learned policy, blind</td><td>Stands still</td><td>Fails: does not move below a 0.2 m/s command and spins (0.35–0.64 rad/s) when told to go straight</td></tr>
+    <tr><td>Scripted trot, 2.5 Hz (hip −0.20, knee −0.40)</td><td>0.157 m/s, 0.108 N·m RMS (50% of stall)</td><td>0.149 m/s, 0.165 N·m RMS (48% of stall)</td></tr>
+    <tr><td>Steering at d = ±0.6</td><td>±0.84 rad/s</td><td>±0.74–0.78 rad/s</td></tr>
+    <tr><td>Pushes, 64 robots</td><td>0 falls</td><td>0 falls</td></tr>
+    <tr><td>Fastest scripted trot without falls (4 robots)</td><td>0.34 m/s at 4 Hz, falls under pushes</td><td>0.46 m/s at 4 Hz, 63% of stall (not yet push-tested)</td></tr>
+  </tbody>
+</table></div>
+<p>For the scripted gait the MG92B adds headroom for faster trots but no speed or margin at the safe gait: it pushes harder because its servo is stiffer, so its load stays at about half of its own stall. Its real gain is that, with the potentiometer read-back, training finds a walk. That makes the choice for v1: the MG90S with a scripted gait and sealed servos (cheapest), or the MG92B with the pot read-back, which keeps a learned walk possible for about $40–60 more plus the wiring the BOM has just dropped (§13).</p>
+<p><strong>Three servos per leg (10 November).</strong> The 12-servo micro model adds an abduction servo to each leg (MG90S 396 g, MG92B 400 g) and was run through the same scripted trot, the abduction held at home.</p>
+<div class="tbl"><table>
+  <thead><tr><th>Scripted trot, 2.5 Hz</th><th>MG90S 8</th><th>MG90S 12</th><th>MG92B 8</th><th>MG92B 12</th></tr></thead>
+  <tbody>
+    <tr><td>Forward speed</td><td>0.157 m/s</td><td>0.150 m/s</td><td>0.149 m/s</td><td>0.145 m/s</td></tr>
+    <tr><td>Worst RMS / stall</td><td>50%</td><td>52%</td><td>48%</td><td>48%</td></tr>
+    <tr><td>Steering at d = ±0.6</td><td>±0.84</td><td>±0.68</td><td>±0.76</td><td>±0.62 rad/s</td></tr>
+    <tr><td>Pushes, 64 robots</td><td>0 falls</td><td>0 falls</td><td>0 falls</td><td>0 falls</td></tr>
+    <tr><td>Fastest trot in the grid</td><td>0.34 m/s</td><td>0.27 m/s</td><td>0.46 m/s</td><td>0.38 m/s</td></tr>
+  </tbody>
+</table></div>
+<p>The extra weight costs a little speed and steering and buys nothing for the trot. A first side-step pattern (abduction ±0.1–0.2 rad in time with the trot) produced no sideways motion (|vy| ≤ 0.03 m/s), only some yaw, so the one thing abduction should add is not shown yet; a proper side step needs foot-placement (IK) gaits. <strong>v1 keeps two servos per leg.</strong></p>
 
 <h3 id="export"><span class="n">7.3</span>Policy export pipeline</h3>
 <p>Lives in <code>tools/policy_export/</code>, unchanged from the earlier design: ONNX with the normalizer baked in, folded into the first layer, emitted as a C header with metadata and the contract hash, golden vectors checked on the board (maximum error ≤ 1e-4), and a closed-loop host test driving MuJoCo.</p>
@@ -852,7 +878,7 @@ svg text { font-family: var(--font-body); }
   <tbody>
     <tr><td>S0 Toolchain</td><td>The fork trains on the RTX 3060.</td><td>Done</td></tr>
     <tr><td>S1 Micro model</td><td>Parametric model of the micro design with the MG90S servo model; stands from noisy starts.</td><td>Done (camera to move to the forehead)</td></tr>
-    <tr><td>S2 Walking policy</td><td>Passes the walking, load and push checks of §7.2; pot or blind decided.</td><td>Learned policies failed; scripted trot passes (10 Nov)</td></tr>
+    <tr><td>S2 Walking policy</td><td>Passes the walking, load and push checks of §7.2; pot or blind decided.</td><td>Scripted trot passes on both servos; learned walk only with MG92B + pot (10 Nov)</td></tr>
     <tr><td>S3 Design validation</td><td>Every §7.2 check passes or has a recorded decision; scripted stand-up and lie-down pass; BOM frozen.</td><td>Not started</td></tr>
     <tr><td>S4 Policy port</td><td>Export pipeline; C inference matches the golden vectors within 1e-4 on the P4 and drives MuJoCo with the ONNX gait.</td><td>Not started</td></tr>
     <tr><td>S5 Virtual MicroPup</td><td>The phone drives the simulated dog; the safety requirements pass as automated tests.</td><td>Not started</td></tr>
@@ -907,7 +933,7 @@ svg text { font-family: var(--font-body); }
 <!-- 13 -->
 <h2 id="questions"><span class="n">13</span>Open questions</h2>
 <ol>
-  <li>MG90S or MG92B for the legs? The MG90S walks with a scripted trot at half of its stall torque; the MG92B is being simulated for more margin (§7.2).</li>
+  <li>MG90S or MG92B for the legs, and with it the pot read-back? MG90S: scripted gait only, sealed servos, cheapest. MG92B with the pot read-back: the scripted gait plus a learned walk that tracks 0.1–0.3 m/s in simulation, for about $40–60 more and the ADC wiring (§7.2). The legs will also gain bracket and bearing weight the model does not have yet, which favours the MG92B.</li>
   <li>How the real MG90S compares with the datasheet model (H0), and which seller's servos are consistent.</li>
   <li>Does the Waveshare board fit in a 70 mm-wide body, or does the robot need the smaller FireBeetle 2 (no audio codec, a PDM microphone only)?</li>
   <li>Does the Waveshare kit have a usable microphone for voice, or does one need adding (an I2S MEMS microphone, about $5)?</li>
