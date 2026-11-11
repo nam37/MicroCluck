@@ -415,7 +415,7 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>Step</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
     <tr><td>Now: servos</td><td>Fourteen MangDang TTL serial bus servos: twelve legs and two spares (about $164 with shipping)</td><td>The longest lead time. Two spares, because a stripped servo would otherwise stop the build for weeks.</td></tr>
-    <tr><td>Now: v0 bench kit</td><td>The bench kit below from Amazon and Adafruit: the Waveshare kit, the bus adapter, the servo power switch, regulator, IMU and INA226 (about $90–120, nearly all needed anyway)</td><td>Firmware for the servo bus is written and tested on the adapter before the servos arrive; H0 starts the day they do.</td></tr>
+    <tr><td>Now: v0 bench kit</td><td>The bench kit below from Amazon and Adafruit: the Waveshare kit, the bus adapter and its 6 V buck adapter, a 12 V wall adapter, the servo power switch, IMU and INA226 (about $120–150)</td><td>Firmware for the servo bus is written and tested on the adapter before the servos arrive; H0 starts the day they do.</td></tr>
     <tr><td>After H0</td><td>The 1.69" screen</td><td>Board bring-up (H1, V0, F0) and a walking robot on eight servos.</td></tr>
     <tr><td>At design freeze</td><td>The 693 bearings, the VL53L5CX, battery and charger, buck, connectors, print material</td><td>The mechanical design is frozen in H3, after the servo's real size is in the CAD.</td></tr>
     <tr><td>After the first walk (H5)</td><td>Nothing new: the four abduction servos, already bought, are fitted in place of the printed blocks</td><td>Expressive moves while standing, and later a looser walk that uses abduction a little.</td></tr>
@@ -428,15 +428,16 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>Item</th><th>Where</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
     <tr><td>Waveshare ESP32-P4-WIFI6 Kit A</td><td>Amazon</td><td>1</td><td>Runs the bus at 50 Hz like the robot will</td><td>$34.55</td></tr>
-    <tr><td><a href="https://www.waveshare.com/wiki/Bus_Servo_Adapter_(A)">Waveshare Bus Servo Adapter (A)</a></td><td>Amazon or Waveshare</td><td>1–2</td><td>USB or UART to the servos' one-wire bus, for ST/SC (Feetech-protocol) servos. USB from the PC sets the servos' IDs and runs the first tests; UART to the board for the robot. Its listed input is 9–12.6 V passed to the servos, above the bus servo's 7.4 V maximum: check it runs from the 6–7.4 V rail before connecting a servo</td><td>~$5–12</td></tr>
-    <tr><td>Servo power switch: a MOSFET switch module with screw terminals</td><td>Amazon</td><td>1</td><td>Cuts the servo rail; held off from reset by a pull-down on its control input, which has to be checked (S1, S9)</td><td>~$5–8</td></tr>
-    <tr><td>Adjustable buck regulator, 5 A, set to 6–7 V; 470 µF capacitor; a 7.4–12 V supply (a wall adapter or a bench supply if owned)</td><td>Amazon</td><td>1</td><td>The servo rail. A full 2S pack is 8.4 V, over the servo's 7.4 V, so the rail is regulated on the robot too</td><td>~$10–22</td></tr>
-    <tr><td>INA226 power monitor breakout</td><td>Amazon</td><td>1</td><td>Servo current under load, for S4 and the torque test</td><td>~$5</td></tr>
-    <tr><td>IMU breakout, LSM6DSOX (STEMMA QT)</td><td>Adafruit</td><td>1</td><td>On the pendulum arm it gives the true angle to check the servo's reported position against</td><td>~$12</td></tr>
-    <tr><td>Steel nuts and washers as test weights, jumper wires, a STEMMA QT cable</td><td>Amazon or a hardware store</td><td>–</td><td>The weights hang on a printed pendulum arm; weigh them on a kitchen scale</td><td>~$10–15</td></tr>
-    <tr><td>Calipers, if not owned</td><td>Amazon</td><td>1</td><td>The servo's case, tabs and spline go into the CAD</td><td>~$10–20</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0CKT8BN73">Waveshare Bus Servo Adapter (A)</a></td><td>Amazon</td><td>1</td><td>USB or UART to the servos' one-wire bus, for ST/SC (Feetech-protocol) servos. USB from the PC sets the servos' IDs and runs the first tests; UART to the board for the robot. Takes 9–12.6 V on a 5.5 × 2.1 mm jack and passes it to the servo connectors</td><td>~$5–12</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0HG9P1THN">Waveshare Serial Bus Servo DC Buck Adapter, 6 V</a></td><td>Amazon</td><td>1</td><td>Plugs in between the bus adapter and the servos: 9–36 V in, 6 V out, 3 A peak. Made for Waveshare's SC09, the same Feetech SCS0009 servo. Enough for the four bench servos</td><td>~$5–10</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0CMTM6N9M">12 V, 2 A wall adapter, 5.5 × 2.1 mm plug</a></td><td>Amazon</td><td>1</td><td>Powers the bus adapter on the bench</td><td>~$8–10</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0H9YLMYKK">INA226 module, pre-soldered, screw terminals</a> and <a href="https://www.amazon.com/dp/B01N26XKT3">5.5 × 2.1 mm screw-terminal plug and jack pairs</a></td><td>Amazon</td><td>1 + 1 pack</td><td>The INA226 goes in the 12 V line between the wall adapter and the bus adapter: servo current under load, for S4 and the torque test</td><td>~$15–20</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B08TW9RB49">MOSFET switch modules (5-pack)</a></td><td>Amazon</td><td>1 pack</td><td>The servo power switch (S1, S9), tried on the bench before the robot needs it; check that its trigger input is pulled low</td><td>~$8–10</td></tr>
+    <tr><td><a href="https://www.adafruit.com/product/4438">IMU breakout, LSM6DSOX (STEMMA QT)</a> and a <a href="https://www.adafruit.com/product/4209">STEMMA QT to male header cable</a></td><td>Adafruit (4438, 4209)</td><td>1 + 1</td><td>On the pendulum arm it gives the true angle to check the servo's reported position against; the cable plugs onto the board's header pins</td><td>$12.90</td></tr>
+    <tr><td>Female-to-female jumper wires; steel nuts and washers as test weights</td><td>Amazon or a hardware store</td><td>–</td><td>Jumpers from the board's UART pins to the bus adapter. The weights hang on a printed pendulum arm; weigh them on a kitchen scale</td><td>~$8–12</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B07F1RCR6Q">Digital calipers</a>, if not owned</td><td>Amazon</td><td>1</td><td>The servo's case, tabs and spline go into the CAD</td><td>~$15–25</td></tr>
     <tr><td>Printed test rig: a servo clamp and a 50 mm pendulum arm with a hook</td><td>Printed</td><td>–</td><td>Printed once the servo's size is known</td><td>–</td></tr>
-    <tr class="total"><td>Total</td><td></td><td></td><td>Nearly all of it is needed anyway</td><td><strong>~$90–120</strong></td></tr>
+    <tr class="total"><td>Total</td><td></td><td></td><td>Listings found on 11 November 2026 through web search (Amazon blocks automated browsing, so prices and stock are unchecked)</td><td><strong>~$120–150</strong></td></tr>
   </tbody>
 </table></div>
 
@@ -992,7 +993,7 @@ svg text { font-family: var(--font-body); }
 <ol>
   <li>The bus servo's size, mounting tabs, spline, weight, gear material, speed and position resolution (H0, on arrival), and how far the braced thigh's servo pocket has to change.</li>
   <li>How the real bus servo compares with the MG92B model the simulation uses (H0), and how consistent the four are.</li>
-  <li>Whether the Waveshare bus adapter runs from the 6–7 V servo rail (its listing says 9–12.6 V), or the servo bus needs a different adapter or a direct half-duplex connection.</li>
+  <li>Servo power on the robot: the Waveshare bus adapter needs 9–12.6 V, more than a 2S pack (7.4–8.4 V), and its 6 V buck adapter gives 3 A peak, about three servos at stall. Options: a 3S pack with a 6 V buck per leg, or a direct half-duplex connection from the board with a 2S pack and a larger 6 V regulator. Decided before H3; the bench uses a 12 V wall adapter.</li>
   <li>Abduction in the walk: held at centre or within a few degrees (b5, b6, §7.2), and later how much a looser walk should use it.</li>
   <li>Cost: twelve servos put the BOM at about $340–390 (G2), close to a Microduck's $399. Accepted (11 November 2026).</li>
   <li>Does the Waveshare board fit in the 46 mm-wide body (the CAD has a 60 × 40 mm stand-in), or does the robot need the smaller FireBeetle 2 (no audio codec, a PDM microphone only)?</li>
