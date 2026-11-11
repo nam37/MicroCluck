@@ -325,7 +325,7 @@ svg text { font-family: var(--font-body); }
     <details class="changes">
       <summary>Change history</summary>
       <ul>
-        <li><strong>v0.35</strong> Twelve MG92B servos on the <strong>braced leg</strong>, and a <em>learned</em> walk. The leg follows Pollen's MicroDuck: the hip and knee servos clamped inside a braced thigh, an abduction servo per leg, a "heel fork" shank that tapers to the foot so the foot touches first, and a curved shoulder cover (§6.5). The body takes the simulation's shape: sloped top, face leaning back 10°, paddle tail, 1.2 mm walls. About 180 mm long and 141 mm across the shoulders, 544 g modelled (553 g with the tail). Walking is trained with potentiometer read-back inside a servo contract (targets clipped, banded and rate-limited like a real servo), and an episode ends when anything but a foot touches the floor (§7.2). The first walk uses the hip and knee servos, with abduction centred or nearly so; abduction is used for expressive moves while standing, and a looser walk that uses it may follow. The scripted trot stays as the fallback. The cost rises to about $260–360 (§6.1). Parts are now designed in build123d in <code>cad/</code>.</li>
+        <li><strong>v0.35</strong> Twelve MG92B servos on the <strong>braced leg</strong>, and a <em>learned</em> walk. The leg follows Pollen's MicroDuck: the hip and knee servos clamped inside a braced thigh, an abduction servo per leg, a "heel fork" shank that tapers to the foot so the foot touches first, and a curved shoulder cover (§6.5). The body takes the simulation's shape: sloped top, face leaning back 10°, paddle tail, 1.2 mm walls. About 180 mm long and 141 mm across the shoulders, 544 g modelled (553 g with the tail). Walking is trained with potentiometer read-back inside a servo contract (targets clipped, banded and rate-limited like a real servo), and an episode ends when anything but a foot touches the floor (§7.2). The first walk uses the hip and knee servos, with abduction centred or nearly so; abduction is used for expressive moves while standing, and a looser walk that uses it may follow. The scripted trot stays as the fallback. The cost rises to about $330–385 with genuine servos from Adafruit and the rest from Amazon (§6.1); AliExpress clones were considered and dropped as too slow to arrive. Parts are now designed in build123d in <code>cad/</code>.</li>
         <li><strong>v0.34</strong> MG92B and 12-servo results (§7.2). With potentiometer read-back the MG92B walks on a <em>learned</em> policy (0.09–0.32 m/s tracking the command, backward too, 1 fall in 32 robot-minutes of pushes); blind it does not. Its scripted trot matches the MG90S at the safe gait and reaches 0.46 m/s at 4 Hz. A third servo per leg (abduction) gives no gain for the trot, so v1 stays at two per leg. The servo choice, and with it the pot read-back, is an open question again (§13).</li>
         <li><strong>v0.33</strong> A scripted trot walks the MG90S micro dog in simulation: 0.16 m/s, steering ±0.84 rad/s, no falls under pushes, load at half of stall. v1 walks with a scripted gait and no joint feedback; learned walking is dropped for v1 (§7.2). The MG92B is being simulated as a stronger option.</li>
         <li><strong>v0.32</strong> First simulation results for the micro dog (§7.2): it stands, never falls and gets up from its belly every time, but neither trained policy walks (about 0.03 m/s with the joints at stall, or standing still). A scripted gait, the planned fallback, is tested next. The model now has the forehead camera and chin ToF.</li>
@@ -365,7 +365,7 @@ svg text { font-family: var(--font-body); }
 <p>Walking comes from a reinforcement-learning policy trained in simulation with the tools of Pollen Robotics' Microduck (<code>microduck_rl</code>, mjlab), with a model of the hobby servo in place of Pollen's XL330 model, and runs on the robot at 50 Hz. The servos' potentiometers are read back for the policy. A scripted trot is the fallback. MicroPup is driven from a <strong>phone browser</strong>, talks through DeskSprite's voice relay, and shows a first-person camera view. Following people and patrolling are v2 (§11).</p>
 <p>Four decisions shape everything else:</p>
 <ul>
-  <li><strong>Cost first.</strong> About $260–360 for everything with twelve servos, below a $399 Microduck but no longer far below it. The servos are about $110–170 of it. The third servo per leg was chosen for movement that looks alive (§7.2), not for walking. Anything that pushes the total toward the Microduck's price has to earn its place.</li>
+  <li><strong>Cost first.</strong> About $330–385 for everything with twelve servos from Amazon and Adafruit, just below a $399 Microduck. The servos are about $155 of it. The third servo per leg was chosen for movement that looks alive (§7.2), not for walking. Anything that pushes the total toward the Microduck's price has to earn its place.</li>
   <li><strong>One board.</strong> A Waveshare ESP32-P4 board runs the walking loop, the safety checks, the face, voice, camera and Wi-Fi. The walking loop and safety get one core to themselves (§9.2).</li>
   <li><strong>Hobby servos, measured.</strong> The MG92B has no feedback beyond its potentiometer, wired out, and no published model. It is modelled from its datasheet for now and measured on the bench before the robot is trusted (H0, §10).</li>
   <li><strong>Simulation first,</strong> as before: the body, the walking policy and the firmware's logic are proven in simulation before the robot walks.</li>
@@ -379,7 +379,7 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>ID</th><th>Goal</th></tr></thead>
   <tbody>
     <tr><td>G1</td><td>Stand and walk on flat indoor floors from velocity commands: forward and backward, turning, and both at once. The speed targets are set from the simulation (§7.2); at least 0.15 m/s forward is the bar. No sideways steps.</td></tr>
-    <tr><td>G2</td><td>A bill of materials of about $260–360 for everything, including spares and a battery charger (twelve servos; it was $150–195 with eight).</td></tr>
+    <tr><td>G2</td><td>A bill of materials of about $330–385 for everything, including spares and a battery charger (twelve servos; it was $150–195 with eight).</td></tr>
     <tr><td>G3</td><td>Phone control from any browser (iOS and Android), no app install, with a live camera view.</td></tr>
     <tr><td>G4</td><td>An expressive face in DeskSprite's style on the 1.69" screen, mapped to the robot's state, with a tail that adds to the expression (§9.5).</td></tr>
     <tr><td>G5</td><td>Safe failure: dead-man stop, fall detection, servo protection without load feedback, low-battery handling, E-stop, an obstacle stop and a table-edge stop from the chin sensor.</td></tr>
@@ -409,38 +409,36 @@ svg text { font-family: var(--font-body); }
 <p><strong>Phase A</strong> builds MicroPup in simulation: the model, the walking policy, the design checks, the C port of the policy and the virtual MicroPup (§8). <strong>Phase B</strong> builds the robot, starting with a bench measurement of the servo (H0) that replaces the datasheet servo model. Because the parts are cheap and in stock, bench bring-up can start as soon as they arrive, alongside Phase A.</p>
 
 <h3>Purchase plan</h3>
-<p>Spend in steps, so that most of the servo money waits until a bench test has picked the servo. Two levers keep the up-front cost down: <strong>the servo source is chosen by measurement</strong> (branded MG92B against clones at about half the price), and <strong>the abduction servos go in last</strong>. The first walk uses only the hips and knees (§7.2), so the robot can be built and walk with printed blocks in the four abduction mounts, and get its sway and lean when the servos are added. Clones would bring the total to about $205–275 against $260–360; fitting the abduction servos last moves about $20–50 of that until after the first walk.</p>
+<p>Parts come from <strong>Amazon and Adafruit</strong> wherever they stock them: US stock, delivery in days, and returns that work. AliExpress clones were considered and dropped (11 November 2026): they would save about $40–70 on the servos but take three to four weeks to arrive and add a variable to the testing. The VL53L5CX is the one part neither stocks reliably (SparkFun, Pololu or DigiKey). Spending goes in steps, and <strong>the abduction servos go in last</strong>: the first walk uses only the hips and knees (§7.2), so the robot can be built and walk with printed blocks in the four abduction mounts, and get its sway and lean when the servos are added. Adafruit's $10.76 price needs ten servos in one order, so the plan buys the ten after H0 in one go; holding back the four abduction servos instead costs about $5 more and moves about $48 until after the first walk.</p>
 <div class="tbl"><table>
   <thead><tr><th>Step</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
-    <tr><td>v0 now: servo bench test</td><td>The v0 bench kit below: four branded MG92B and four clones, the PCA9685, ADC, INA226, IMU, 6 V regulator and the Waveshare kit (about $160–195 plus shipping, of which about $65–85 is needed anyway; the winning batch's servos go into the robot)</td><td>H0 decides the servo source: if the clones measure close to the branded servos, the robot uses clones and saves about $40–70.</td></tr>
-    <tr><td>After H0</td><td>The 1.69" screen, and eight more leg servos from the winning source (or the Mini Pupper 2 servo, §13), for the hips and knees</td><td>Board bring-up (H1, V0, F0) and a walking robot on eight servos.</td></tr>
-    <tr><td>At design freeze</td><td>The pot ADC for twelve channels, the 693 bearings, the VL53L5CX, battery and charger, buck, connectors, print material</td><td>The mechanical design is frozen in H3.</td></tr>
-    <tr><td>After the first walk (H5)</td><td>The four abduction servos and spares</td><td>Expressive moves while standing, and later a looser walk that uses abduction a little.</td></tr>
+    <tr><td>v0 now: servo bench test</td><td>The v0 bench kit below: four MG92B from Adafruit, the PCA9685, ADCs, INA226, IMU, 6 V regulator and the Waveshare kit (about $140–175, of which about $65–85 is needed anyway; the four servos go into the robot)</td><td>H0 measures the MG92B and fits the servo model before more servos are bought.</td></tr>
+    <tr><td>After H0</td><td>The 1.69" screen, and ten more MG92B from Adafruit (or the Mini Pupper 2 servo, §13): with the bench four, twelve legs and two spares</td><td>Board bring-up (H1, V0, F0) and a walking robot on eight servos.</td></tr>
+    <tr><td>At design freeze</td><td>The third ADS1115, the 693 bearings, the VL53L5CX, battery and charger, buck, connectors, print material</td><td>The mechanical design is frozen in H3.</td></tr>
+    <tr><td>After the first walk (H5)</td><td>Nothing new: the four abduction servos, already bought, are fitted in place of the printed blocks</td><td>Expressive moves while standing, and later a looser walk that uses abduction a little.</td></tr>
   </tbody>
 </table></div>
 
-<h3 id="bom-v0">v0 bench BOM: branded MG92B against clones</h3>
-<p>Everything needed to measure two batches side by side in H0. Servo prices from the listings on 11 November 2026, before shipping and tax; the rest are estimates. No test destroys a servo: all eight are measured, and the winning batch goes into the robot. Each batch comes from one listing, so its spread is a fair sample. Prices for "needed anyway" parts are the same as in the full BOM (§6.1).</p>
+<h3 id="bom-v0">v0 bench BOM</h3>
+<p>Everything needed to measure the MG92B in H0. The servo price is Adafruit's on 11 November 2026, before shipping and tax; the rest are estimates. No test destroys a servo: all four are measured and then go into the robot. Prices for "needed anyway" parts are the same as in the full BOM (§6.1).</p>
 <div class="tbl"><table>
-  <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
+  <thead><tr><th>Item</th><th>Where</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
-    <tr><td>TowerPro MG92B, branded: <a href="https://www.adafruit.com/product/2307">Adafruit 2307</a> (genuine TowerPro, $11.95 each, $10.76 at 10+; 61 in stock)</td><td>4</td><td>Batch A. US stock, ships in days</td><td>$47.80</td></tr>
-    <tr><td>MG92B, unverified make: <a href="https://www.aliexpress.us/item/3256803070868694.html">AliExpress, FPVGAZER Store, 4-pack</a> (4.9 stars, about 250 sold; backup: <a href="https://www.aliexpress.us/item/3256801883704529.html">KORFPV Store</a>, same price)</td><td>4</td><td>Batch B, same tests. About $6 each; delivery quoted 2–12 December</td><td>$24.37</td></tr>
-    <tr><td>ADS1115 16-bit ADC breakout</td><td>2</td><td>Four wipers each, so all eight servos can be read on one bus; about 0.01° steps over the potentiometer's range</td><td>~$8–12</td></tr>
-    <tr><td>30 AWG silicone wire, heat shrink</td><td>–</td><td>A wire from each servo's potentiometer wiper out through the case</td><td>~$6–10</td></tr>
-    <tr><td>Steel nuts and washers as test weights, servo extension leads, jumper wires, a breadboard</td><td>–</td><td>The weights hang on a printed pendulum arm; weigh them on a kitchen scale</td><td>~$10–15</td></tr>
-    <tr><td>Printed test rig: a servo clamp and a 50 mm pendulum arm with a hook</td><td>–</td><td>From the CAD's servo pocket, so it doubles as a fit check of both batches; own filament</td><td>–</td></tr>
-    <tr class="total"><td>Bench-only parts</td><td></td><td></td><td><strong>~$95–110</strong> + shipping</td></tr>
-    <tr><td>Waveshare ESP32-P4-WIFI6 Kit A</td><td>1</td><td>Needed anyway. Runs the test at 50 Hz like the robot will; any ESP32 board already owned works too</td><td>$34.55</td></tr>
-    <tr><td>PCA9685 16-channel PWM board</td><td>1</td><td>Needed anyway; the same 4.9 µs pulse steps as the robot</td><td>~$5–8</td></tr>
-    <tr><td>INA226 power monitor breakout</td><td>1</td><td>Needed anyway; servo current, the stand-in for load in S4</td><td>~$5</td></tr>
-    <tr><td>IMU breakout (LSM6DSOX or similar)</td><td>1</td><td>Needed anyway; on the pendulum arm it gives the true angle to check the potentiometer against</td><td>~$10–15</td></tr>
-    <tr><td>6 V, 5 A regulator, 470 µF capacitor, and a 7.4–12 V supply (a wall adapter or a bench supply if owned)</td><td>1</td><td>Needed anyway, except the supply; tests at 5.6 and 6.0 V</td><td>~$10–22</td></tr>
-    <tr class="total"><td>Needed anyway</td><td></td><td></td><td><strong>~$65–85</strong></td></tr>
+    <tr><td>TowerPro MG92B</td><td><a href="https://www.adafruit.com/product/2307">Adafruit 2307</a></td><td>4</td><td>Genuine TowerPro, $11.95 each ($10.76 at 10+), 61 in stock on 11 November. Measured for spread across the four</td><td>$47.80</td></tr>
+    <tr><td>ADS1115 16-bit ADC breakout</td><td>Amazon (3-pack)</td><td>3</td><td>Four wipers each; two for the bench, all three on the robot for twelve servos (addresses 0x48–0x4A); about 0.01° steps over the potentiometer's range</td><td>~$10–15</td></tr>
+    <tr><td>30 AWG silicone wire, heat shrink</td><td>Amazon</td><td>–</td><td>A wire from each servo's potentiometer wiper out through the case</td><td>~$6–10</td></tr>
+    <tr><td>Steel nuts and washers as test weights, servo extension leads, jumper wires, a breadboard</td><td>Amazon or a hardware store</td><td>–</td><td>The weights hang on a printed pendulum arm; weigh them on a kitchen scale</td><td>~$10–15</td></tr>
+    <tr><td>Printed test rig: a servo clamp and a 50 mm pendulum arm with a hook</td><td>Printed</td><td>–</td><td>From the CAD's servo pocket, so it doubles as a fit check; own filament</td><td>–</td></tr>
+    <tr class="total"><td>Bench-only parts</td><td></td><td></td><td></td><td><strong>~$75–90</strong></td></tr>
+    <tr><td>Waveshare ESP32-P4-WIFI6 Kit A</td><td>Amazon</td><td>1</td><td>Needed anyway. Runs the test at 50 Hz like the robot will; any ESP32 board already owned works too</td><td>$34.55</td></tr>
+    <tr><td>PCA9685 16-channel PWM board</td><td>Amazon (Adafruit 815 if preferred)</td><td>1</td><td>Needed anyway; the same 4.9 µs pulse steps as the robot</td><td>~$5–8</td></tr>
+    <tr><td>INA226 power monitor breakout</td><td>Amazon</td><td>1</td><td>Needed anyway; servo current, the stand-in for load in S4</td><td>~$5</td></tr>
+    <tr><td>IMU breakout, LSM6DSOX</td><td>Adafruit (or Amazon)</td><td>1</td><td>Needed anyway; on the pendulum arm it gives the true angle to check the potentiometer against</td><td>~$10–15</td></tr>
+    <tr><td>6 V, 5 A regulator, 470 µF capacitor, and a 7.4–12 V supply (a wall adapter or a bench supply if owned)</td><td>Amazon</td><td>1</td><td>Needed anyway, except the supply; tests at 5.6 and 6.0 V</td><td>~$10–22</td></tr>
+    <tr class="total"><td>Needed anyway</td><td></td><td></td><td></td><td><strong>~$65–85</strong></td></tr>
   </tbody>
 </table></div>
-<p><strong>What decides it.</strong> Both batches go through the same tests (H0). The clones win if, across the batch, their stall torque at 6 V is within about 15% of the branded servos', their deadband is at most 1°, their potentiometer reads within the noise training assumes (±0.02 rad, §7.1), the fit check passes, and no clone is an outlier. Anything else, and the robot uses the branded servos.</p>
 
 <h3>Which machine does what</h3>
 <div class="tbl"><table>
@@ -463,7 +461,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Leg servos</td><td>8 Dynamixel XL330 on a TTL bus, full feedback</td><td><strong>12 MG92B</strong> on PWM from a PCA9685, potentiometers read back</td></tr>
     <tr><td>Boards</td><td>Three: face (FNK0104N), body (ESP32-S3), vision (ESP32-P4)</td><td><strong>One</strong>: Waveshare ESP32-P4-WIFI6</td></tr>
     <tr><td>Face</td><td>3.5" touchscreen running DeskSprite</td><td>1.69" screen, no touch, rewritten face</td></tr>
-    <tr><td>Cost</td><td>About $470–575</td><td><strong>About $260–360</strong></td></tr>
+    <tr><td>Cost</td><td>About $470–575</td><td><strong>About $330–385</strong></td></tr>
   </tbody>
 </table></div>
 <ul>
@@ -551,32 +549,32 @@ svg text { font-family: var(--font-body); }
 <h2 id="hardware"><span class="n">6</span>Hardware</h2>
 
 <h3 id="bom"><span class="n">6.1</span>Bill of materials</h3>
-<p>Estimates for v1 from typical Amazon and AliExpress prices on 10–11 November 2026. Verify prices before ordering; timing follows the purchase plan in §3.</p>
+<p>Estimates for v1 from Amazon and Adafruit prices on 10–11 November 2026 (the servo price is Adafruit's). Verify prices before ordering; timing follows the purchase plan in §3.</p>
 <div class="tbl"><table>
-  <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
+  <thead><tr><th>Item</th><th>Where</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
-    <tr><td>Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>1</td><td>The robot's only board. ESP32-P4 listed at 400 MHz, ESP32-C6 for Wi-Fi 6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. Amazon, $34.55 on 9 November 2026, in stock</td><td>$34.55</td></tr>
-    <tr><td>Waveshare 1.69" LCD module, 240 × 280, ST7789V2, SPI</td><td>1</td><td>The face. A touch version exists if touch is wanted later (§13)</td><td>~$12–15</td></tr>
-    <tr><td>TowerPro MG92B metal-gear micro servo, branded or clone (H0 decides)</td><td>14</td><td>Twelve legs and two spares. One seller, so the batch is consistent. The abduction four can come last (§3). Clones would be about $56–84</td><td>~$112–168</td></tr>
-    <tr><td>693 ball bearing, 3 × 8 × 4 mm</td><td>20-pack</td><td>Three per leg (hip pin, knee pin, abduction pin) and spares</td><td>~$8–12</td></tr>
-    <tr><td>I2C ADC for the potentiometers, 12 channels (for example two ADS7828)</td><td>1–2</td><td>Reads the twelve wipers at 50 Hz on the shared I2C bus (§6.3); the part is chosen in H0</td><td>~$10–15</td></tr>
-    <tr><td>SG90 micro servo</td><td>1–2</td><td>Tail</td><td>~$3–5</td></tr>
-    <tr><td>PCA9685 16-channel PWM board</td><td>1</td><td>I2C, 12-bit; its OE pin pulled high so the outputs are off until the firmware enables them (S9)</td><td>~$5–8</td></tr>
-    <tr><td>IMU breakout</td><td>1</td><td>LSM6DSOX or similar, with tap detection for petting (§9.5); with no servo feedback it is the robot's main sense</td><td>~$10–15</td></tr>
-    <tr><td>VL53L5CX ToF breakout</td><td>1</td><td>8 × 8 zones, about 63° field of view; in the chin for the obstacle and table-edge stops</td><td>~$20–25</td></tr>
-    <tr><td>INA226 power monitor breakout</td><td>1</td><td>On the servo rail: pack voltage and servo current, which stands in for servo load feedback (S4, S5)</td><td>~$5</td></tr>
-    <tr><td>6 V, 5 A regulator (UBEC or buck)</td><td>1</td><td>Servo rail; must accept the pack's full range</td><td>~$8–10</td></tr>
-    <tr><td>5 V buck, 2 A</td><td>1</td><td>The board</td><td>~$4–6</td></tr>
-    <tr><td>2S LiPo, 450–500 mAh</td><td>2</td><td>One in the robot, one charging; about 30 g</td><td>~$15–20</td></tr>
-    <tr><td>2S balance charger</td><td>1</td><td>Skip if one is owned</td><td>~$15–25</td></tr>
-    <tr><td>Bulk capacitor, ≥ 470 µF, on the servo rail</td><td>1</td><td>Low ESR</td><td>~$2</td></tr>
-    <tr><td>Switch, XT30, inline fuse, servo extension leads, wire</td><td>–</td><td></td><td>~$8–12</td></tr>
-    <tr><td>M2 screw assortment</td><td>1</td><td></td><td>~$6–8</td></tr>
-    <tr><td>PETG and TPU filament</td><td>–</td><td>Shell, bezel, legs, tail; TPU feet</td><td>~$5–10</td></tr>
-    <tr class="total"><td>Total</td><td></td><td>Everything, including the kit and a charger. About $225–310 if the kit and a charger are already owned</td><td><strong>~$260–360</strong></td></tr>
+    <tr><td>Waveshare ESP32-P4-WIFI6 Kit A (ESP32-P4-WIFI6-M with headers, RPi Camera (B), 200 mm Pi 5 camera cable, speaker, cables)</td><td>Amazon</td><td>1</td><td>The robot's only board. ESP32-P4 listed at 400 MHz, ESP32-C6 for Wi-Fi 6, 32 MB PSRAM, 32 MB flash, MIPI CSI and DSI, audio codec. $34.55 on 9 November 2026, in stock</td><td>$34.55</td></tr>
+    <tr><td>Waveshare 1.69" LCD module, 240 × 280, ST7789V2, SPI</td><td>Amazon (Adafruit's own 280 × 240 board as an alternative)</td><td>1</td><td>The face. A touch version exists if touch is wanted later (§13)</td><td>~$12–15</td></tr>
+    <tr><td>TowerPro MG92B metal-gear micro servo</td><td><a href="https://www.adafruit.com/product/2307">Adafruit 2307</a></td><td>14</td><td>Twelve legs and two spares, all genuine TowerPro. $11.95 each for the bench four, $10.76 each for the other ten. The abduction four come last (§3)</td><td>~$155</td></tr>
+    <tr><td>693 ball bearing, 3 × 8 × 4 mm</td><td>Amazon</td><td>20-pack</td><td>Three per leg (hip pin, knee pin, abduction pin) and spares</td><td>~$8–12</td></tr>
+    <tr><td>ADS1115 16-bit ADC breakout</td><td>Amazon (3-pack)</td><td>3</td><td>Reads the twelve wipers, four each, at 50 Hz on the shared I2C bus (§6.3); bought with the bench kit</td><td>~$10–15</td></tr>
+    <tr><td>SG90 micro servo</td><td>Amazon or Adafruit</td><td>1–2</td><td>Tail</td><td>~$3–5</td></tr>
+    <tr><td>PCA9685 16-channel PWM board</td><td>Amazon (Adafruit 815)</td><td>1</td><td>I2C, 12-bit; its OE pin pulled high so the outputs are off until the firmware enables them (S9)</td><td>~$5–8</td></tr>
+    <tr><td>IMU breakout, LSM6DSOX</td><td>Adafruit (or Amazon)</td><td>1</td><td>With tap detection for petting (§9.5); the robot's sense of balance and falls</td><td>~$10–15</td></tr>
+    <tr><td>VL53L5CX ToF breakout</td><td>SparkFun, Pololu or DigiKey (not reliably on Amazon or Adafruit)</td><td>1</td><td>8 × 8 zones, about 63° field of view; in the chin for the obstacle and table-edge stops. Needed only for those stops, so it can wait</td><td>~$20–25</td></tr>
+    <tr><td>INA226 power monitor breakout</td><td>Amazon (Adafruit INA260 as an alternative)</td><td>1</td><td>On the servo rail: pack voltage and servo current, which stands in for servo load feedback (S4, S5)</td><td>~$5</td></tr>
+    <tr><td>6 V, 5 A regulator (UBEC or buck)</td><td>Amazon</td><td>1</td><td>Servo rail; must accept the pack's full range</td><td>~$8–10</td></tr>
+    <tr><td>5 V buck, 2 A</td><td>Amazon</td><td>1</td><td>The board</td><td>~$4–6</td></tr>
+    <tr><td>2S LiPo, 450–500 mAh</td><td>Amazon (Adafruit sells only one-cell packs)</td><td>2</td><td>One in the robot, one charging; about 30 g</td><td>~$15–20</td></tr>
+    <tr><td>2S balance charger</td><td>Amazon</td><td>1</td><td>Skip if one is owned</td><td>~$15–25</td></tr>
+    <tr><td>Bulk capacitor, ≥ 470 µF, on the servo rail</td><td>Amazon</td><td>1</td><td>Low ESR</td><td>~$2</td></tr>
+    <tr><td>Switch, XT30, inline fuse, servo extension leads, wire</td><td>Amazon</td><td>–</td><td></td><td>~$8–12</td></tr>
+    <tr><td>M2 screw assortment</td><td>Amazon</td><td>1</td><td></td><td>~$6–8</td></tr>
+    <tr><td>PETG and TPU filament</td><td>Amazon</td><td>–</td><td>Shell, bezel, legs, tail; TPU feet</td><td>~$5–10</td></tr>
+    <tr class="total"><td>Total</td><td></td><td></td><td>Everything, including the kit and a charger. About $280–335 if the kit and a charger are already owned</td><td><strong>~$330–385</strong></td></tr>
   </tbody>
 </table></div>
-<p><strong>Potentiometer read-back.</strong> The learned walk needs joint angles (§7.2), so each leg servo is opened once and a wire is soldered to its potentiometer's wiper, read by the I2C ADC. That is about 15 minutes per servo, done in H0 on the first three.</p>
+<p><strong>Potentiometer read-back.</strong> The learned walk needs joint angles (§7.2), so each leg servo is opened once and a wire is soldered to its potentiometer's wiper, read by the I2C ADC. That is about 15 minutes per servo, done in H0 on the first four.</p>
 <p><strong>Servo alternative:</strong> MangDang's Mini Pupper 2 servo, about $9.90, listed at 3.5 kg·cm with position feedback built in at 4.8–7.4 V: the MG92B's torque at its price, without the wiper wiring and the ADC. Its size, mounting and interface have to be checked against the braced thigh before it changes anything (§13).</p>
 
 <h3 id="pins"><span class="n">6.2</span>Board and pins</h3>
@@ -941,7 +939,7 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>Milestone</th><th>Exit criteria</th></tr></thead>
   <tbody>
-    <tr><td>H0 Servo measurement</td><td>Two batches of MG92B, branded and clone, on the v0 bench rig (§3) with a pendulum arm and the potentiometers wired out: step responses, speed and torque at 5.6–6.0 V, deadband, pulse-to-angle calibration, potentiometer noise and linearity against the IMU, current, behaviour without pulses (limp or holding), and spread across each batch. Picks the servo source. Results fitted into the servo model (S6).</td></tr>
+    <tr><td>H0 Servo measurement</td><td>Four MG92B from Adafruit on the v0 bench rig (§3) with a pendulum arm and the potentiometers wired out: step responses, speed and torque at 5.6–6.0 V, deadband, pulse-to-angle calibration, potentiometer noise and linearity against the IMU, current, behaviour without pulses (limp or holding), and spread across the four. Results fitted into the servo model (S6).</td></tr>
     <tr><td>H1 Board bring-up</td><td>On the Waveshare board: PCA9685 driving 13 servos at 50 Hz with OE enable and disable; the pot ADC reading 12 wipers every cycle; IMU at 500 Hz or more; VL53L5CX at 15 Hz; INA226; the 1.69" screen running LVGL; all at once with the camera streaming and Wi-Fi up, and <code>control_task</code> p99 jitter ≤ 1 ms. Header pinout confirmed. Walking current measured.</td></tr>
     <tr><td>V0 Camera</td><td>MJPEG on the phone; a standing person's face found from 0.5 to 3 m with the camera tilted up; pedestrian detection measured while streaming (fps and latency) as the go or no-go for v2 following; the kit camera's field of view judged.</td></tr>
     <tr><td>F0 Face and voice</td><td>The rewritten face on the 1.69" screen with the core expressions and stabilized eyes; the relay's voice conversation working on the P4; the phone page and WebSocket.</td></tr>
@@ -986,9 +984,9 @@ svg text { font-family: var(--font-body); }
 <h2 id="questions"><span class="n">13</span>Open questions</h2>
 <ol>
   <li>The leg servo: the MG92B with its potentiometer wired out (what the simulation uses), or MangDang's Mini Pupper 2 servo (about $9.90, 3.5 kg·cm, position feedback built in, 4.8–7.4 V), which would drop the wiper wiring and the ADC. Its size, mounting and interface have to be checked against the braced thigh first.</li>
-  <li>How the real MG92B compares with the datasheet model (H0), how clean its potentiometer reading is, and which seller's servos are consistent.</li>
+  <li>How the real MG92B compares with the datasheet model (H0), how clean its potentiometer reading is, and how consistent the four are.</li>
   <li>Abduction in the walk: held at centre or within a few degrees (b5, b6, §7.2), and later how much a looser walk should use it.</li>
-  <li>Cost: twelve servos put the BOM at about $260–360 (G2). Is that acceptable, or should anything be cut?</li>
+  <li>Cost: twelve genuine servos from US stock put the BOM at about $330–385 (G2), close to a Microduck's $399. Accepted for now (11 November 2026); the Mini Pupper 2 servo is the main lever left.</li>
   <li>Does the Waveshare board fit in the 46 mm-wide body (the CAD has a 60 × 40 mm stand-in), or does the robot need the smaller FireBeetle 2 (no audio codec, a PDM microphone only)?</li>
   <li>Does the Waveshare kit have a usable microphone for voice, or does one need adding (an I2S MEMS microphone, about $5)?</li>
   <li>The camera for the robot: the kit's RPi Camera (B) if its field of view is enough, otherwise a wide-angle module ESP-IDF's MIPI driver supports (OV5647 class).</li>
@@ -1035,7 +1033,7 @@ svg text { font-family: var(--font-body); }
 <h2 id="claude-code"><span class="n">15</span>Notes for Claude Code</h2>
 <ul>
   <li>The 12-servo braced MicroPup in this document is the target. The XL330 design and the biped are archived; don't revive them unless Neil asks.</li>
-  <li>Cost is a requirement (G2). With twelve servos the BOM is about $260–360; flag anything that pushes it further.</li>
+  <li>Cost is a requirement (G2). With twelve servos the BOM is about $330–385; flag anything that pushes it further. Buy from Amazon and Adafruit where they stock the part.</li>
   <li>Work milestone by milestone (§10).</li>
   <li>Code in <code>firmware/micropup/components/core</code> never includes ESP-IDF headers; it reaches hardware only through the HAL, and every core change must build and pass tests on the twin.</li>
   <li>All safety lives on core 1. Core 0 may only ask; core 1 clamps and decides, and only core 1 touches the I2C bus and the servo outputs.</li>
