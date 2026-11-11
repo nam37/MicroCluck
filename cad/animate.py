@@ -4,6 +4,8 @@ Kinematic only (no physics): each part is a MuJoCo mocap body placed every frame
 leg.py (the knee crank, links and bellcrank follow the knee). Meshes and constants come from anim_export.py.
 
 Usage (in WSL, with MuJoCo): python animate.py OUT.mp4 [--frames a,b,c]   (--frames writes PNG stills instead)
+       python animate.py OUT.mp4 --braced --replay walk.npz   (a trained policy's walk from the simulation's
+       scripts/quad_record_walk.py, drawn with the CAD parts)
 """
 import json
 import math
@@ -216,6 +218,61 @@ def body_matrix(x, z):
     return T(x, 0, z)
 
 
+REPLAY = None   # set from --replay FILE: a trained policy's walk recorded in the simulation (quad_record_walk.py)
+REPLAY_LEG_Y = 36.0   # the simulation's hip servo case bottoms sit 36 mm from the middle (abduction axes at 12 mm)
+
+
+def quat_matrix(w, x, y, z):
+    return np.array([[1 - 2 * (y * y + z * z), 2 * (x * y - w * z), 2 * (x * z + w * y)],
+                     [2 * (x * y + w * z), 1 - 2 * (x * x + z * z), 2 * (y * z - w * x)],
+                     [2 * (x * z - w * y), 2 * (y * z + w * x), 1 - 2 * (x * x + y * y)]])
+
+
+def replay_frame(time):
+    """Joints and the body's 4x4 at `time` from the recording. Simulation joints (rad) to the CAD's (deg): the hip
+    pitch phi swings the foot back, the thigh's angle t = -90 - phi; the knee bends negative, q = -knee; abduction +
+    swings every foot to the robot's left, so the right legs' CAD angle (mirrored) is its negative."""
+    R = REPLAY
+    k = min(int(time / float(R["dt"])), len(R["pos"]) - 1)
+    j = {}
+    for i, leg in enumerate(("fl", "fr", "rl", "rr")):
+        ab, hip, knee = (math.degrees(v) for v in R["joints"][k, i])
+        j[leg] = (-90.0 - hip, -knee, ab if leg[1] == "l" else -ab)
+    body = np.eye(4)
+    body[:3, :3] = quat_matrix(*R["quat"][k])
+    body[:3, 3] = R["pos"][k] * 1000.0
+    return j, body
+
+
+def render_replay(out):
+    import mediapy as media
+    import imageio_ffmpeg
+    media.set_ffmpeg(imageio_ffmpeg.get_ffmpeg_exe())
+    C["LEG_Y"] = REPLAY_LEG_Y
+    model = build_model()
+    data = mujoco.MjData(model)
+    r = mujoco.Renderer(model, height=H, width=W)
+    cam = mujoco.MjvCamera()
+    total = len(REPLAY["pos"]) * float(REPLAY["dt"])
+    frames = []
+    for s in range(int(total * FPS)):
+        tm = s / FPS
+        j, body = replay_frame(tm)
+        apply(model, data, robot_poses(j, body))
+        mujoco.mj_forward(model, data)
+        x, y, _ = body[:3, 3]
+        cam.lookat[:] = (x / 1000, y / 1000, 0.045)
+        cam.distance = 0.50
+        cam.azimuth = 150 + 30 * math.sin(tm / total * 2 * math.pi)
+        cam.elevation = -16
+        if FRONT:
+            cam.distance, cam.azimuth, cam.elevation = 0.45, 180, -4
+        r.update_scene(data, camera=cam)
+        frames.append(r.render())
+    media.write_video(out, frames, fps=FPS)
+    print("wrote", out, len(frames), "frames")
+
+
 def render(out, stills=None):
     import mediapy as media
     import imageio_ffmpeg
@@ -255,6 +312,10 @@ if __name__ == "__main__":
     out = sys.argv[1]
     FRONT = "--front" in sys.argv
     sys.argv = [a for a in sys.argv if a not in ("--braced", "--front")]
+    if "--replay" in sys.argv:
+        REPLAY = np.load(sys.argv[sys.argv.index("--replay") + 1])
+        render_replay(out)
+        sys.exit(0)
     st = None
     if "--frames" in sys.argv:
         st = [int(x) for x in sys.argv[sys.argv.index("--frames") + 1].split(",")]
