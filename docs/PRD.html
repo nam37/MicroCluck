@@ -413,7 +413,7 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table>
   <thead><tr><th>Step</th><th>Buy</th><th>Why</th></tr></thead>
   <tbody>
-    <tr><td>v0 now: servo bench test</td><td>The v0 bench kit below: four branded MG92B and four or five clones, the PCA9685, ADC, INA226, IMU, 6 V regulator and the Waveshare kit (about $145–215, of which about $65–85 is needed anyway; the winning batch's servos go into the robot)</td><td>H0 decides the servo source: if the clones measure close to the branded servos, the robot uses clones and saves about $40–70.</td></tr>
+    <tr><td>v0 now: servo bench test</td><td>The v0 bench kit below: four branded MG92B and four clones, the PCA9685, ADC, INA226, IMU, 6 V regulator and the Waveshare kit (about $160–195 plus shipping, of which about $65–85 is needed anyway; the winning batch's servos go into the robot)</td><td>H0 decides the servo source: if the clones measure close to the branded servos, the robot uses clones and saves about $40–70.</td></tr>
     <tr><td>After H0</td><td>The 1.69" screen, and eight more leg servos from the winning source (or the Mini Pupper 2 servo, §13), for the hips and knees</td><td>Board bring-up (H1, V0, F0) and a walking robot on eight servos.</td></tr>
     <tr><td>At design freeze</td><td>The pot ADC for twelve channels, the 693 bearings, the VL53L5CX, battery and charger, buck, connectors, print material</td><td>The mechanical design is frozen in H3.</td></tr>
     <tr><td>After the first walk (H5)</td><td>The four abduction servos and spares</td><td>Expressive moves while standing, and later a looser walk that uses abduction a little.</td></tr>
@@ -421,17 +421,17 @@ svg text { font-family: var(--font-body); }
 </table></div>
 
 <h3 id="bom-v0">v0 bench BOM: branded MG92B against clones</h3>
-<p>Everything needed to measure two batches side by side in H0. Estimates; check prices and listings before ordering. Each batch comes from one listing, so its spread is a fair sample. Prices for "needed anyway" parts are the same as in the full BOM (§6.1).</p>
+<p>Everything needed to measure two batches side by side in H0. Servo prices from the listings on 11 November 2026, before shipping and tax; the rest are estimates. No test destroys a servo: all eight are measured, and the winning batch goes into the robot. Each batch comes from one listing, so its spread is a fair sample. Prices for "needed anyway" parts are the same as in the full BOM (§6.1).</p>
 <div class="tbl"><table>
   <thead><tr><th>Item</th><th>Qty</th><th>Notes</th><th>Est. cost</th></tr></thead>
   <tbody>
-    <tr><td>TowerPro MG92B, branded, from one reputable seller</td><td>4</td><td>Batch A. Three to measure, one for the destructive tests (stall to failure, gear strength)</td><td>~$40–60</td></tr>
-    <tr><td>MG92B clone, one AliExpress or Amazon listing</td><td>4–5</td><td>Batch B, same tests. Usually sold in packs of 4 or 5</td><td>~$16–30</td></tr>
+    <tr><td>TowerPro MG92B, branded: <a href="https://www.adafruit.com/product/2307">Adafruit 2307</a> (genuine TowerPro, $11.95 each, $10.76 at 10+; 61 in stock)</td><td>4</td><td>Batch A. US stock, ships in days</td><td>$47.80</td></tr>
+    <tr><td>MG92B, unverified make: <a href="https://www.aliexpress.us/item/3256803070868694.html">AliExpress, FPVGAZER Store, 4-pack</a> (4.9 stars, about 250 sold; backup: <a href="https://www.aliexpress.us/item/3256801883704529.html">KORFPV Store</a>, same price)</td><td>4</td><td>Batch B, same tests. About $6 each; delivery quoted 2–12 December</td><td>$24.37</td></tr>
     <tr><td>ADS1115 16-bit ADC breakout</td><td>2</td><td>Four wipers each, so all eight servos can be read on one bus; about 0.01° steps over the potentiometer's range</td><td>~$8–12</td></tr>
     <tr><td>30 AWG silicone wire, heat shrink</td><td>–</td><td>A wire from each servo's potentiometer wiper out through the case</td><td>~$6–10</td></tr>
     <tr><td>Steel nuts and washers as test weights, servo extension leads, jumper wires, a breadboard</td><td>–</td><td>The weights hang on a printed pendulum arm; weigh them on a kitchen scale</td><td>~$10–15</td></tr>
     <tr><td>Printed test rig: a servo clamp and a 50 mm pendulum arm with a hook</td><td>–</td><td>From the CAD's servo pocket, so it doubles as a fit check of both batches; own filament</td><td>–</td></tr>
-    <tr class="total"><td>Bench-only parts</td><td></td><td></td><td><strong>~$80–130</strong></td></tr>
+    <tr class="total"><td>Bench-only parts</td><td></td><td></td><td><strong>~$95–110</strong> + shipping</td></tr>
     <tr><td>Waveshare ESP32-P4-WIFI6 Kit A</td><td>1</td><td>Needed anyway. Runs the test at 50 Hz like the robot will; any ESP32 board already owned works too</td><td>$34.55</td></tr>
     <tr><td>PCA9685 16-channel PWM board</td><td>1</td><td>Needed anyway; the same 4.9 µs pulse steps as the robot</td><td>~$5–8</td></tr>
     <tr><td>INA226 power monitor breakout</td><td>1</td><td>Needed anyway; servo current, the stand-in for load in S4</td><td>~$5</td></tr>
