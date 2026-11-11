@@ -21,7 +21,8 @@ import math
 import sys
 from pathlib import Path
 
-from build123d import Compound, Cylinder, Location, Plane, Polygon, Pos, Rot, Sphere, export_step, export_stl, extrude
+from build123d import (Compound, Cylinder, Location, Plane, Polygon, Pos, Rot, Sphere, export_step, export_stl, extrude,
+                       fillet, offset)
 
 sys.path.insert(0, str(Path(__file__).parent))
 import servo as SV  # noqa: E402
@@ -226,7 +227,8 @@ def foot():
 # more (it swings back to 13 deg above horizontal, forward to 44 deg below). The same part on all four legs (not mirrored
 # with the bracket): the thigh's sweep is the same on every leg. Two M2 x 8 through standoffs into the bracket's deck.
 COVER_X0, COVER_X1 = -20.0, 32.0
-COVER_TOP, COVER_T, COVER_R = 25.0, 1.2, 8.0     # over the deck (16.2..19.2) and the arms' hub ends (22.7), on standoffs
+COVER_TOP, COVER_T, COVER_R = 25.0, 1.2, 14.0    # over the deck (16.2..19.2) and the arms' hub ends (22.7), on standoffs
+COVER_RR, COVER_EDGE_R = 5.5, 4.0   # the back curve, and the rounding along the outer side
 COVER_FLAP_Z, COVER_LIP_Z, COVER_SKIRT_Z = -10.0, 19.5, 4.0   # the lip stops over the deck (rear legs: it runs back to -25.7)
 COVER_Y0, COVER_Y1 = IN_Y0, OUT_Y1 + 0.4 + COVER_T
 COVER_SCREWS = ((-10.0, 11.0), (10.0, 11.0))
@@ -243,17 +245,27 @@ def _xz_prism(pts, y0, y1):
     return Pos(0, y0 - s.bounding_box().min.Y, 0) * s
 
 
-def shoulder_cover():
-    """Shoulder cover over the bracket. Leg-local (moves with abduction only). Print on its outer side panel."""
-    t, zt, xf, r = COVER_T, COVER_TOP, COVER_X1, COVER_R
-    c0 = (xf - r, zt - r)
-    outer = [(COVER_X0, COVER_LIP_Z), (COVER_X0, zt)] + _arc(*c0, r, 90, 0) + [(xf, COVER_FLAP_Z)]
-    inner = [(xf - t, COVER_FLAP_Z)] + _arc(*c0, r - t, 0, 90) + [(COVER_X0 + t, zt - t), (COVER_X0 + t, COVER_LIP_Z)]
-    c = _xz_prism(outer + inner, COVER_Y0, COVER_Y1)
-    side = [(COVER_X0, COVER_SKIRT_Z), (COVER_X0, zt)] + _arc(*c0, r, 90, 0) + [(xf, COVER_SKIRT_Z)]
-    c += _xz_prism(side, COVER_Y1 - t, COVER_Y1)
+def shoulder_cover(envelope=False):
+    """Shoulder cover over the bracket: a hollowed solid with a 14 mm curve over the front, a 5.5 mm one at the back, a 4 mm
+    rounded edge along the outer side, and the side's lower edge sloping down to the front flap like a fender. Open
+    underneath and on the body side; the back wall stops above the deck (the thigh swings back under it, and the rear
+    legs' deck runs back to -25.7). Leg-local (moves with abduction only). Print on its top.
+    envelope: the filled outline instead (what the body's openings are cut with)."""
+    t, zt, xf, x0 = COVER_T, COVER_TOP, COVER_X1, COVER_X0
+    pts = [(x0, COVER_SKIRT_Z)] + _arc(x0 + COVER_RR, zt - COVER_RR, COVER_RR, 180, 90) +         _arc(xf - COVER_R, zt - COVER_R, COVER_R, 90, 0) + [(xf, COVER_FLAP_Z)]
+    solid = _xz_prism(pts, COVER_Y0, COVER_Y1)
+    edges = [e for e in solid.edges()
+             if abs(e.bounding_box().min.Y - COVER_Y1) < 1e-3 and abs(e.bounding_box().max.Y - COVER_Y1) < 1e-3
+             and e.bounding_box().max.Z > 10.0 and e.bounding_box().min.Z > COVER_FLAP_Z + 0.5
+             and not (abs(e.bounding_box().min.X - x0) < 1e-3 and abs(e.bounding_box().max.X - x0) < 1e-3)]
+    solid = fillet(edges, COVER_EDGE_R)
+    if envelope:
+        return solid
+    opened = [f for f in solid.faces() if abs(f.center().Y - COVER_Y0) < 1e-3 or f.normal_at().Z < -0.2]
+    c = offset(solid, amount=-t, openings=opened)
+    c -= bx(x0 - 1.0, x0 + t + 0.01, COVER_Y0 - 1.0, COVER_Y1 - t, COVER_FLAP_Z - 1.0, COVER_LIP_Z)   # back wall's foot
     for x, y in COVER_SCREWS:                  # standoffs down to the deck, M2 x 8 through them
-        c += Pos(x, y, (BEAM_Z1 + zt) / 2) * Cylinder(2.6, zt - BEAM_Z1 - 0.01)
+        c += Pos(x, y, (BEAM_Z1 + zt - t) / 2 + 0.01) * Cylinder(2.6, zt - t - BEAM_Z1)
         c -= Pos(x, y, zt) * Cylinder(M2_CLEAR / 2, 2 * (zt - BEAM_Z1) + 2.0)
     return c
 
@@ -341,7 +353,7 @@ def posed(t=T_HOME, q=Q_HOME, a=0.0, rear=False):
 PRINT = {"shell": Rot(90, 0, 0), "rigidity_plate": Rot(90, 0, 0), "bracket": Rot(0, 90, 0),
          "outer_arm": Rot(-90, 0, 0), "shank_outer": Rot(-90, 0, 0), "shank_inner": Rot(90, 0, 0),
          "shank_body": Rot(0, 90, 0), "foot": Rot(0, 0, 0), "abd_mount": Rot(180, 0, 0),
-         "shoulder_cover": Rot(90, 0, 0)}
+         "shoulder_cover": Rot(180, 0, 0)}
 
 
 def on_bed(name):

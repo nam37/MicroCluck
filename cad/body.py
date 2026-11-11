@@ -108,11 +108,21 @@ SWING = ("bracket", "outer_arm", "hip_horn", "shoulder_cover")
 SWING_ANGLES = (-30.5, -29.0, -24.0, -18.0, -12.0, -6.0, 0.0, 6.0, 12.0, 18.0, 24.0, 29.0, 30.5)
 
 
+_COVER_ENV = []
+
+
 def swept_parts():
-    """The shoulders' swinging parts at abduction angles over +-31 deg (2 deg past the range), every leg."""
+    """The shoulders' swinging parts at abduction angles over +-31 deg (2 deg past the range), every leg; the cover as its
+    filled outline."""
+    if not _COVER_ENV:
+        _COVER_ENV.append(LB.shoulder_cover(envelope=True))
     for f, l in itertools.product((1, -1), (1, -1)):
         for a in SWING_ANGLES:
-            yield from leg_parts(f, l, a=a, names=SWING).values()
+            yield from leg_parts(f, l, a=a, names=[n for n in SWING if n != "shoulder_cover"]).values()
+            env = Pos(0, LB.ABD_Y, 0) * Rot(a, 0, 0) * Pos(0, -LB.ABD_Y, 0) * _COVER_ENV[0]
+            if l < 0:
+                env = env.mirror(Plane.XZ)
+            yield Pos(f * HIP_X, l * LEG_Y, 0) * env
 
 
 def shell():
@@ -123,8 +133,10 @@ def shell():
     for part in swept_parts():
         try:
             r = s - part
-            if r.volume > 0:
+            if 0 < s.volume - r.volume <= part.volume + 1.0 or abs(s.volume - r.volume) < 1e-6:
                 s = r
+            else:
+                failed += 1     # OpenCascade returned a fragment; keep the shell as it was
         except Exception:  # noqa: BLE001
             failed += 1
     if failed:
