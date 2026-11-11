@@ -230,7 +230,7 @@ COVER_X0, COVER_X1 = -20.0, 32.0
 COVER_TOP, COVER_T, COVER_R = 25.0, 1.2, 14.0    # over the deck (16.2..19.2) and the arms' hub ends (22.7), on standoffs
 COVER_RR, COVER_EDGE_R = 5.5, 4.0   # the back curve, and the rounding along the outer side
 COVER_FLAP_Z, COVER_LIP_Z, COVER_SKIRT_Z = -10.0, 19.5, 4.0   # the lip stops over the deck (rear legs: it runs back to -25.7)
-COVER_Y0, COVER_Y1 = IN_Y0, OUT_Y1 + 0.4 + COVER_T
+COVER_Y0, COVER_Y1 = 4.0, OUT_Y1 + 0.4 + COVER_T   # inner edge 4 mm outside the case bottoms: clears the body at +29 deg
 COVER_SCREWS = ((-10.0, 11.0), (10.0, 11.0))
 
 
