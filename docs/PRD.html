@@ -433,7 +433,8 @@ svg text { font-family: var(--font-body); }
     <tr><td><a href="https://www.amazon.com/dp/B0CMTM6N9M">12 V, 2 A wall adapter, 5.5 × 2.1 mm plug</a></td><td>Amazon</td><td>1</td><td>Powers the bus adapter on the bench</td><td>~$8–10</td></tr>
     <tr><td><a href="https://www.amazon.com/dp/B0H9YLMYKK">INA226 module, pre-soldered, screw terminals</a> and <a href="https://www.amazon.com/dp/B01N26XKT3">5.5 × 2.1 mm screw-terminal plug and jack pairs</a></td><td>Amazon</td><td>1 + 1 pack</td><td>The INA226 goes in the 12 V line between the wall adapter and the bus adapter: servo current under load, for S4 and the torque test</td><td>~$15–20</td></tr>
     <tr><td><a href="https://www.amazon.com/dp/B08TW9RB49">MOSFET switch modules (5-pack)</a></td><td>Amazon</td><td>1 pack</td><td>The servo power switch (S1, S9), tried on the bench before the robot needs it; check that its trigger input is pulled low</td><td>~$8–10</td></tr>
-    <tr><td><a href="https://www.adafruit.com/product/4438">IMU breakout, LSM6DSOX (STEMMA QT)</a> and a <a href="https://www.adafruit.com/product/4397">STEMMA QT to female socket cable</a></td><td>Adafruit (4438, 4397)</td><td>1 + 1</td><td>On the pendulum arm it gives the true angle to check the servo's reported position against; the cable's sockets push onto the board's header pins</td><td>$12.90</td></tr>
+    <tr><td>DFRobot Gravity BMI323 6-DOF IMU (I2C/UART)</td><td>Amazon (DFRobot store)</td><td>1</td><td>The robot's IMU, bought now: on the pendulum arm it gives the true angle to check the servo's reported position against. Its Gravity plug is JST PH 2.0 4-pin, not Qwiic: use the cable in the box if it ends in female sockets, else a DFRobot Gravity-to-female-Dupont cable. Switch set to I2C. Chosen on 11 November over the Adafruit LSM6DSOX (slightly cheaper with shipping)</td><td>~$10–15</td></tr>
+    <tr><td>Qwiic / STEMMA QT cable kit (12 pieces, with female and male Dupont ends)</td><td>Amazon</td><td>1</td><td>For the STEMMA QT boards later (VL53L5CX)</td><td>$9.99</td></tr>
     <tr><td>Female-to-female jumper wires; steel nuts and washers as test weights</td><td>Amazon or a hardware store</td><td>–</td><td>Jumpers from the board's UART pins to the bus adapter. The weights hang on a printed pendulum arm; weigh them on a kitchen scale</td><td>~$8–12</td></tr>
     <tr><td><a href="https://www.amazon.com/dp/B07F1RCR6Q">Digital calipers</a>, if not owned</td><td>Amazon</td><td>1</td><td>The servo's case, tabs and spline go into the CAD</td><td>~$15–25</td></tr>
     <tr><td>Printed test rig: a servo clamp and a 50 mm pendulum arm with a hook</td><td>Printed</td><td>–</td><td>Printed once the servo's size is known</td><td>–</td></tr>
@@ -562,7 +563,7 @@ svg text { font-family: var(--font-body); }
     <tr><td>Waveshare Bus Servo Adapter (A)</td><td>Amazon or Waveshare</td><td>1</td><td>UART to the servos' one-wire bus (§6.3); checked at the servo rail's voltage first</td><td>~$5–12</td></tr>
     <tr><td>Servo power switch (MOSFET module, screw terminals)</td><td>Amazon</td><td>1</td><td>Cuts the servo rail from reset and on E-stop (S1, S9)</td><td>~$5–8</td></tr>
     <tr><td>SG90 micro servo</td><td>Amazon or Adafruit</td><td>1–2</td><td>Tail, on one of the board's PWM pins</td><td>~$3–5</td></tr>
-    <tr><td>IMU breakout, LSM6DSOX</td><td>Adafruit (or Amazon)</td><td>1</td><td>With tap detection for petting (§9.5); the robot's sense of balance and falls</td><td>~$10–15</td></tr>
+    <tr><td>IMU: DFRobot Gravity BMI323 (bought with the bench kit)</td><td>Amazon</td><td>1</td><td>With tap detection for petting (§9.5); the robot's sense of balance and falls. Bosch's C driver (BMI323 SensorAPI) on ESP-IDF</td><td>(bench kit)</td></tr>
     <tr><td>VL53L5CX ToF breakout</td><td>SparkFun, Pololu or DigiKey (not reliably on Amazon or Adafruit)</td><td>1</td><td>8 × 8 zones, about 63° field of view; in the chin for the obstacle and table-edge stops. Needed only for those stops, so it can wait</td><td>~$20–25</td></tr>
     <tr><td>INA226 power monitor breakout</td><td>Amazon (Adafruit INA260 as an alternative)</td><td>1</td><td>On the servo rail: pack voltage and servo current, which stands in for servo load feedback (S4, S5)</td><td>~$5</td></tr>
     <tr><td>Adjustable 5 A buck regulator, set to 6–7 V</td><td>Amazon</td><td>1</td><td>Servo rail; must accept the pack's full range and stay under the servos' 7.4 V</td><td>~$8–10</td></tr>
@@ -585,11 +586,11 @@ svg text { font-family: var(--font-body); }
 <div class="tbl"><table class="plain">
   <thead><tr><th>Function</th><th>Pins</th></tr></thead>
   <tbody>
-    <tr><td>I2C for the IMU, VL53L5CX and INA226 (addresses about 0x6A, 0x29 and 0x45: no clashes)</td><td>2</td></tr>
+    <tr><td>I2C for the IMU, VL53L5CX and INA226 (addresses about 0x68, 0x29 and 0x45: no clashes)</td><td>2</td></tr>
     <tr><td>Servo bus: UART TX and RX to the bus adapter</td><td>2</td></tr>
     <tr><td>Servo power switch enable, pulled low so the rail is off from reset</td><td>1</td></tr>
     <tr><td>Tail servo PWM (LEDC)</td><td>1</td></tr>
-    <tr><td>IMU data-ready interrupt; VL53L5CX interrupt</td><td>2</td></tr>
+    <tr><td>VL53L5CX interrupt (the IMU is read on a timer: its interrupt pins on the Gravity board would need soldering)</td><td>1</td></tr>
     <tr><td>Screen: SPI clock, data, chip select, data/command, reset, backlight</td><td>6</td></tr>
     <tr><td>Push button on the back: talk and E-stop (§9.5)</td><td>1</td></tr>
     <tr><td>On board, not repurposed: MIPI CSI camera, audio codec, ESP32-C6 link, flash, PSRAM, USB</td><td>–</td></tr>
@@ -801,7 +802,7 @@ svg text { font-family: var(--font-body); }
   <thead><tr><th>Task</th><th>Core</th><th>Priority</th><th>Rate</th><th>Responsibility</th></tr></thead>
   <tbody>
     <tr><td><code>control_task</code></td><td>1</td><td>Highest</td><td>50 Hz</td><td>Snapshot the IMU and the servos' positions, build the observation, run inference, post-process, sync-write the targets on the servo bus. Safety checks.</td></tr>
-    <tr><td><code>imu_task</code></td><td>1</td><td>High</td><td>500 Hz–1 kHz</td><td>IMU on its data-ready interrupt, gyro bias removal, Mahony filter, tap detection.</td></tr>
+    <tr><td><code>imu_task</code></td><td>1</td><td>High</td><td>500 Hz–1 kHz</td><td>IMU read on a timer (or from its FIFO), gyro bias removal, Mahony filter, tap detection.</td></tr>
     <tr><td><code>range_task</code></td><td>1</td><td>Medium</td><td>15 Hz</td><td>Chin sensor zones: nearest obstacle ahead, floor present ahead.</td></tr>
     <tr><td><code>face_task</code></td><td>0</td><td>Medium</td><td>≤ 30 fps</td><td>LVGL face on the SPI screen, eye stabilization and gaze.</td></tr>
     <tr><td><code>net_tasks</code></td><td>0</td><td>Medium</td><td>On events</td><td>Phone page and WebSocket, relay client for voice, OTA, telemetry.</td></tr>
@@ -1001,8 +1002,7 @@ svg text { font-family: var(--font-body); }
   <li>Does the Waveshare kit have a usable microphone for voice, or does one need adding (an I2S MEMS microphone, about $5)?</li>
   <li>The camera for the robot: the kit's RPi Camera (B) if its field of view is enough, otherwise a wide-angle module ESP-IDF's MIPI driver supports (OV5647 class).</li>
   <li>Touch: the 1.69" screen's touch version, or IMU taps only.</li>
-  <li>IMU choice: LSM6DSOX (tap detection on chip) or another breakout.</li>
-  <li>Battery capacity and runtime: 450 mAh against twelve servos and the mass budget.</li>
+    <li>Battery capacity and runtime: 450 mAh against twelve servos and the mass budget.</li>
   <li>PETG or PLA for the braced leg parts (fit coupons and a test leg first).</li>
   <li>The face's design at 240 × 280 portrait, and which DeskSprite expressions carry over.</li>
   <li>Pollen's action low-pass (their runtime filters the targets, their training does not): settle in the contract before H5.</li>
